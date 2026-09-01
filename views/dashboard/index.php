@@ -2,11 +2,33 @@
 <?php ob_start(); ?>
 
 <section class="content-header">
-    <h1>Tableau de bord</h1>
+    <h1><i class="fas fa-tachometer-alt text-primary"></i> Tableau de bord</h1>
 </section>
 
 <section class="content">
     <div class="container-fluid">
+        <!-- Filtre de période -->
+        <div class="card mb-3">
+            <div class="card-body py-2">
+                <form method="GET" action="<?= APP_URL ?>/dashboard" class="form-inline">
+                    <label class="mr-2"><i class="fas fa-calendar-alt"></i> Période :</label>
+                    <select name="mois" class="form-control form-control-sm mr-2">
+                        <?php for ($m = 1; $m <= 12; $m++): ?>
+                        <option value="<?= $m ?>" <?= $m == ($mois ?? date('m')) ? 'selected' : '' ?>>
+                            <?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>
+                        </option>
+                        <?php endfor; ?>
+                    </select>
+                    <select name="annee" class="form-control form-control-sm mr-2">
+                        <?php for ($y = date('Y') - 2; $y <= date('Y'); $y++): ?>
+                        <option value="<?= $y ?>" <?= $y == ($annee ?? date('Y')) ? 'selected' : '' ?>><?= $y ?></option>
+                        <?php endfor; ?>
+                    </select>
+                    <button class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Appliquer</button>
+                </form>
+            </div>
+        </div>
+
         <!-- Cards statistiques -->
         <div class="row">
             <div class="col-lg-3 col-6">
@@ -43,6 +65,19 @@
             </div>
 
             <div class="col-lg-3 col-6">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3><?= $tauxPresence ?? 0 ?>%</h3>
+                        <p>Taux de présence</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-percentage"></i></div>
+                    <a href="<?= APP_URL ?>/presences" class="small-box-footer">Plus d'info <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-3 col-6">
                 <div class="small-box bg-danger">
                     <div class="inner">
                         <h3><?= $pendingLeaves ?? 0 ?></h3>
@@ -50,39 +85,6 @@
                     </div>
                     <div class="icon"><i class="fas fa-calendar-times"></i></div>
                     <a href="<?= APP_URL ?>/conges" class="small-box-footer">Plus d'info <i class="fas fa-arrow-circle-right"></i></a>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-lg-3 col-6">
-                <div class="small-box bg-secondary">
-                    <div class="inner">
-                        <h3><?= count($employeesByService ?? []) ?></h3>
-                        <p>Services</p>
-                    </div>
-                    <div class="icon"><i class="fas fa-building"></i></div>
-                    <a href="<?= APP_URL ?>/services" class="small-box-footer">Plus d'info <i class="fas fa-arrow-circle-right"></i></a>
-                </div>
-            </div>
-            <div class="col-lg-3 col-6">
-                <div class="small-box bg-indigo">
-                    <div class="inner">
-                        <h3><?= $totalFormations ?? 0 ?></h3>
-                        <p>Formations</p>
-                    </div>
-                    <div class="icon"><i class="fas fa-graduation-cap"></i></div>
-                    <a href="<?= APP_URL ?>/formations" class="small-box-footer">Plus d'info <i class="fas fa-arrow-circle-right"></i></a>
-                </div>
-            </div>
-            <div class="col-lg-3 col-6">
-                <div class="small-box bg-teal">
-                    <div class="inner">
-                        <h3><?= number_format($totalPaieNet ?? 0, 0, ',', ' ') ?> FC</h3>
-                        <p>Paie nette du mois</p>
-                    </div>
-                    <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
-                    <a href="<?= APP_URL ?>/paie" class="small-box-footer">Plus d'info <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
             <div class="col-lg-3 col-6">
@@ -95,6 +97,26 @@
                     <a href="<?= APP_URL ?>/conges" class="small-box-footer">Plus d'info <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-teal">
+                    <div class="inner">
+                        <h3><?= count($congesEnCours ?? []) ?></h3>
+                        <p>Congés en cours</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-plane"></i></div>
+                    <a href="<?= APP_URL ?>/conges" class="small-box-footer">Plus d'info <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-secondary">
+                    <div class="inner">
+                        <h3><?= number_format($totalPaieNet ?? 0, 0, ',', ' ') ?> FC</h3>
+                        <p>Paie nette (<?= $mois ?>/<?= $annee ?>)</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <a href="<?= APP_URL ?>/paie" class="small-box-footer">Plus d'info <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
         </div>
 
         <div class="row">
@@ -105,7 +127,7 @@
                         <h3 class="card-title"><i class="fas fa-chart-bar"></i> Employés par service</h3>
                     </div>
                     <div class="card-body">
-                        <canvas id="chartService" height="300"></canvas>
+                        <canvas id="chartService" height="260"></canvas>
                     </div>
                 </div>
             </div>
@@ -117,7 +139,7 @@
                         <h3 class="card-title"><i class="fas fa-chart-pie"></i> Répartition par sexe</h3>
                     </div>
                     <div class="card-body">
-                        <canvas id="chartGender" height="300"></canvas>
+                        <canvas id="chartGender" height="260"></canvas>
                     </div>
                 </div>
             </div>
@@ -125,13 +147,64 @@
 
         <div class="row">
             <!-- Statistiques présences mensuelles -->
-            <div class="col-lg-8">
+            <div class="col-lg-6">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-chart-line"></i> Présences du mois</h3>
+                        <h3 class="card-title"><i class="fas fa-chart-line"></i> Présences (<?= $mois ?>/<?= $annee ?>)</h3>
                     </div>
                     <div class="card-body">
-                        <canvas id="chartPresence" height="200"></canvas>
+                        <canvas id="chartPresence" height="220"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Évolution paie 12 mois -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-chart-area"></i> Évolution de la paie (12 mois)</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chartPaie" height="220"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Congés en cours -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-plane"></i> Congés en cours</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <?php foreach (array_slice($congesEnCours ?? [], 0, 5) as $c): ?>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong><?= htmlspecialchars($c['prenom'] . ' ' . $c['nom']) ?></strong><br>
+                                    <small class="text-muted"><?= $c['date_debut'] ?> → <?= $c['date_fin'] ?></small>
+                                </div>
+                                <span class="badge badge-info"><?= $c['nombre_jours'] ?>j</span>
+                            </li>
+                            <?php endforeach; ?>
+                            <?php if (empty($congesEnCours)): ?>
+                            <li class="list-group-item text-center text-muted">Aucun congé en cours</li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Répartition des congés par type -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Congés par type</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chartCongeType" height="200"></canvas>
                     </div>
                 </div>
             </div>
@@ -171,7 +244,6 @@ $content = ob_get_clean();
 
 $extraScripts = '<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script>
-// Données pour le graphique par service
 const serviceData = ' . json_encode($employeesByService ?? []) . ';
 new Chart(document.getElementById("chartService"), {
     type: "bar",
@@ -186,7 +258,6 @@ new Chart(document.getElementById("chartService"), {
     options: { responsive: true, scales: { y: { beginAtZero: true } } }
 });
 
-// Données pour le graphique par sexe
 const genderData = ' . json_encode($employeesByGender ?? []) . ';
 new Chart(document.getElementById("chartGender"), {
     type: "doughnut",
@@ -197,18 +268,40 @@ new Chart(document.getElementById("chartGender"), {
     options: { responsive: true }
 });
 
-// Données pour le graphique de présences
 const presenceData = ' . json_encode($monthlyPresence ?? []) . ';
 new Chart(document.getElementById("chartPresence"), {
     type: "line",
     data: {
         labels: presenceData.map(d => d.jour),
         datasets: [
-            { label: "Présents", data: presenceData.map(d => d.presents), borderColor: "#28a745", fill: false },
-            { label: "En retard", data: presenceData.map(d => d.en_retard), borderColor: "#ffc107", fill: false }
+            { label: "Présents", data: presenceData.map(d => d.presents), borderColor: "#28a745", fill: false, tension: .3 },
+            { label: "En retard", data: presenceData.map(d => d.en_retard), borderColor: "#ffc107", fill: false, tension: .3 }
         ]
     },
     options: { responsive: true, scales: { y: { beginAtZero: true } } }
+});
+
+const paieData = ' . json_encode($paieEvolution ?? []) . ';
+new Chart(document.getElementById("chartPaie"), {
+    type: "bar",
+    data: {
+        labels: paieData.map(d => d.mois_label),
+        datasets: [
+            { label: "Net", data: paieData.map(d => d.total_net), backgroundColor: "#28a745" },
+            { label: "Brut", data: paieData.map(d => d.total_brut), backgroundColor: "#ffc107" }
+        ]
+    },
+    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+});
+
+const congeTypeData = ' . json_encode($congesParType ?? []) . ';
+new Chart(document.getElementById("chartCongeType"), {
+    type: "doughnut",
+    data: {
+        labels: Object.keys(congeTypeData),
+        datasets: [{ data: Object.values(congeTypeData), backgroundColor: ["#007bff","#28a745","#ffc107","#dc3545","#17a2b8"] }]
+    },
+    options: { responsive: true }
 });
 </script>';
 

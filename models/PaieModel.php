@@ -176,6 +176,31 @@ class PaieModel extends Model {
         return $this->update($id, ['statut' => 'valide']);
     }
 
+    public function getArchiveMois() {
+        $sql = "SELECT annee, mois, COUNT(*) as nb_bulletins,
+                       SUM(total_brut) as total_brut,
+                       SUM(total_net) as total_net,
+                       SUM(CASE WHEN statut = 'paye' THEN 1 ELSE 0 END) as payes,
+                       SUM(CASE WHEN statut = 'valide' THEN 1 ELSE 0 END) as valides,
+                       SUM(CASE WHEN statut = 'brouillon' THEN 1 ELSE 0 END) as brouillons
+                FROM bulletins
+                GROUP BY annee, mois
+                ORDER BY annee DESC, mois DESC";
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll();
+    }
+
+    public function getPaieEvolution($annee) {
+        $sql = "SELECT mois, SUM(total_net) as total_net, SUM(total_brut) as total_brut
+                FROM bulletins
+                WHERE annee = :annee
+                GROUP BY mois
+                ORDER BY mois ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['annee' => $annee]);
+        return $stmt->fetchAll();
+    }
+
     public function payerBulletin($id) {
         return $this->update($id, ['statut' => 'paye']);
     }

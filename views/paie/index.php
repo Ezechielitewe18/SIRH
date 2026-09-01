@@ -5,6 +5,9 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1><i class="fas fa-money-bill-wave text-success"></i> Paie</h1>
         <div>
+            <a href="<?= APP_URL ?>/paie/archives" class="btn btn-dark">
+                <i class="fas fa-archive"></i> Archives
+            </a>
             <a href="<?= APP_URL ?>/paie/parametres" class="btn btn-secondary">
                 <i class="fas fa-cog"></i> Paramètres
             </a>

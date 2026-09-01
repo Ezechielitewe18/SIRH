@@ -27,6 +27,10 @@ require_once ROOT_PATH . '/controllers/PaieController.php';
 require_once ROOT_PATH . '/controllers/FormationController.php';
 require_once ROOT_PATH . '/controllers/NotificationController.php';
 require_once ROOT_PATH . '/controllers/ExportController.php';
+require_once ROOT_PATH . '/controllers/UtilisateurController.php';
+require_once ROOT_PATH . '/controllers/LogController.php';
+require_once ROOT_PATH . '/controllers/CarteController.php';
+require_once ROOT_PATH . '/controllers/RapportController.php';
 
 // Charger les modèles (nécessaires pour le layout)
 require_once ROOT_PATH . '/models/NotificationModel.php';
@@ -37,6 +41,8 @@ require_once ROOT_PATH . '/models/EmployeeModel.php';
 require_once ROOT_PATH . '/models/ServiceModel.php';
 require_once ROOT_PATH . '/models/PresenceModel.php';
 require_once ROOT_PATH . '/models/CongeModel.php';
+require_once ROOT_PATH . '/models/LogModel.php';
+require_once ROOT_PATH . '/models/CarteModel.php';
 
 // Initialiser le routeur
 $router = new Router();
@@ -244,6 +250,12 @@ $router->get('/paie/parametres', function() use ($auth) {
     $controller->parametres();
 });
 
+$router->get('/paie/archives', function() use ($auth) {
+    $auth->requireRole(['admin', 'rh']);
+    $controller = new PaieController();
+    $controller->archives();
+});
+
 $router->post('/paie/parametres', function() use ($auth) {
     $auth->requireRole(['admin']);
     $controller = new PaieController();
@@ -355,13 +367,125 @@ $router->get('/export/paie', function() use ($auth) {
     $controller->paieExcel();
 });
 
+// ============================================
+// Gestion des utilisateurs (admin)
+// ============================================
+$router->get('/utilisateurs', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new UtilisateurController();
+    $controller->index();
+});
+
+$router->get('/utilisateurs/create', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new UtilisateurController();
+    $controller->create();
+});
+
+$router->post('/utilisateurs/create', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new UtilisateurController();
+    $controller->create();
+});
+
+$router->get('/utilisateurs/edit/{id}', function($id) use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new UtilisateurController();
+    $controller->edit($id);
+});
+
+$router->post('/utilisateurs/edit/{id}', function($id) use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new UtilisateurController();
+    $controller->edit($id);
+});
+
+$router->post('/utilisateurs/toggle/{id}', function($id) use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new UtilisateurController();
+    $controller->toggle($id);
+});
+
+$router->post('/utilisateurs/resetPassword/{id}', function($id) use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new UtilisateurController();
+    $controller->resetPassword($id);
+});
+
+// ============================================
+// Journal d'activité (admin)
+// ============================================
+$router->get('/journal', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new LogController();
+    $controller->index();
+});
+
+$router->post('/journal/clear', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new LogController();
+    $controller->clear();
+});
+
+// ============================================
+// Cartes QR (admin + rh)
+// ============================================
+$router->get('/cartes', function() use ($auth) {
+    $auth->requireRole(['admin', 'rh']);
+    $controller = new CarteController();
+    $controller->index();
+});
+
+$router->post('/cartes/generer/{id}', function($id) use ($auth) {
+    $auth->requireRole(['admin', 'rh']);
+    $controller = new CarteController();
+    $controller->generer($id);
+});
+
+$router->post('/cartes/toggle/{id}', function($id) use ($auth) {
+    $auth->requireRole(['admin', 'rh']);
+    $controller = new CarteController();
+    $controller->toggle($id);
+});
+
+// Page publique de pointage par QR (accessible à tous)
+$router->get('/cartes/pointer', function() use ($auth) {
+    $controller = new CarteController();
+    $controller->pointer();
+});
+
+$router->post('/cartes/checkin', function() use ($auth) {
+    $controller = new CarteController();
+    $controller->checkin();
+});
+
+// ============================================
+// Rapports (admin + rh)
+// ============================================
+$router->get('/rapports', function() use ($auth) {
+    $auth->requireRole(['admin', 'rh']);
+    $controller = new RapportController();
+    $controller->index();
+});
+
+$router->get('/rapports/absentisme', function() use ($auth) {
+    $auth->requireRole(['admin', 'rh']);
+    $controller = new RapportController();
+    $controller->absentisme();
+});
+
+$router->get('/rapports/conges', function() use ($auth) {
+    $auth->requireRole(['admin', 'rh']);
+    $controller = new RapportController();
+    $controller->congesRapport();
+});
+
 // Route par défaut
 $router->get('/', function() use ($auth) {
     $auth->checkAuth();
     header('Location: ' . APP_URL . '/dashboard');
     exit;
 });
-
 // Route 404
 $router->notFound(function() {
     http_response_code(404);

@@ -43,4 +43,47 @@ class UserModel extends Model {
     public function getTotalUsers() {
         return $this->count(['statut' => 'actif']);
     }
+
+    public function findAllWithEmployee() {
+        $sql = "SELECT u.*, e.id_employe, e.nom as emp_nom, e.prenom as emp_prenom, e.matricule as emp_matricule
+                FROM utilisateurs u
+                LEFT JOIN employes e ON u.id_utilisateur = e.id_utilisateur
+                ORDER BY u.nom_complet ASC";
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll();
+    }
+
+    public function updateRole($id, $role) {
+        return $this->update($id, ['role' => $role]);
+    }
+
+    public function toggleStatut($id) {
+        $user = $this->findById($id);
+        if ($user) {
+            $newStatut = ($user['statut'] === 'actif') ? 'inactif' : 'actif';
+            return $this->update($id, ['statut' => $newStatut]);
+        }
+        return false;
+    }
+
+    public function existsEmail($email, $exceptId = null) {
+        $sql = "SELECT id_utilisateur FROM utilisateurs WHERE email = :email";
+        $params = ['email' => $email];
+        if ($exceptId) {
+            $sql .= " AND id_utilisateur != :exceptId";
+            $params['exceptId'] = $exceptId;
+        }
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return (bool)$stmt->fetch();
+    }
+
+    public function getUnlinkedUsers() {
+        $sql = "SELECT u.* FROM utilisateurs u
+                LEFT JOIN employes e ON u.id_utilisateur = e.id_utilisateur
+                WHERE e.id_employe IS NULL
+                ORDER BY u.nom_complet ASC";
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll();
+    }
 }

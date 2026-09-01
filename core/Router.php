@@ -62,11 +62,20 @@ class Router {
     }
 
     private function call($handler, $params = []) {
+        // Garder uniquement les captures nommées pour éviter le conflit
+        // entre arguments positionnels et nommés (PHP 8+)
+        $named = [];
+        foreach ($params as $k => $v) {
+            if (is_string($k)) {
+                $named[$k] = $v;
+            }
+        }
+
         if (is_array($handler)) {
             $controller = new $handler[0]();
             $method = $handler[1];
-            return call_user_func_array([$controller, $method], $params);
+            return call_user_func_array([$controller, $method], $named);
         }
-        return call_user_func_array($handler, $params);
+        return call_user_func_array($handler, $named);
     }
 }

@@ -64,6 +64,11 @@ class PaieController {
         exit;
     }
 
+    public function archives() {
+        $archives = $this->paieModel->getArchiveMois();
+        require __DIR__ . '/../views/paie/archives.php';
+    }
+
     public function detail($id) {
         $bulletin = $this->paieModel->findById($id);
         if (!$bulletin) {

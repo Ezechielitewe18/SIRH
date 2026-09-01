@@ -97,6 +97,12 @@
                             <p>Paie</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="<?= APP_URL ?>/paie/archives" class="nav-link <?= strpos($currentPage, 'archives') !== false ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-archive text-secondary"></i>
+                            <p>Archives paie</p>
+                        </a>
+                    </li>
 
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>/formations" class="nav-link <?= strpos($currentPage, 'formation') !== false ? 'active' : '' ?>">
@@ -104,6 +110,36 @@
                             <p>Formations</p>
                         </a>
                     </li>
+
+                    <?php if (in_array($_SESSION['user_role'], ['admin', 'rh'])): ?>
+                    <li class="nav-item">
+                        <a href="<?= APP_URL ?>/rapports" class="nav-link <?= strpos($currentPage, 'rapport') !== false ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-chart-bar text-success"></i>
+                            <p>Rapports</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="<?= APP_URL ?>/cartes" class="nav-link <?= strpos($currentPage, 'carte') !== false ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-qrcode text-primary"></i>
+                            <p>Cartes QR</p>
+                        </a>
+                    </li>
+                    <?php endif; ?>
+
+                    <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                    <li class="nav-item">
+                        <a href="<?= APP_URL ?>/utilisateurs" class="nav-link <?= strpos($currentPage, 'utilisateur') !== false ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-users-cog text-warning"></i>
+                            <p>Utilisateurs</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="<?= APP_URL ?>/journal" class="nav-link <?= strpos($currentPage, 'journal') !== false ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-history text-secondary"></i>
+                            <p>Journal d'activité</p>
+                        </a>
+                    </li>
+                    <?php endif; ?>
                     <?php endif; ?>
 
                     <li class="nav-item mt-2" style="border-top: 1px solid rgba(255,255,255,.1);">
