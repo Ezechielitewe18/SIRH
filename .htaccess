@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase /SIRH/
+
+# Rediriger les fichiers existants
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Envoyer toutes les requêtes vers index.php
+RewriteRule ^(.*)$ index.php [QSA,L]

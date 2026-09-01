@@ -1,0 +1,10 @@
+<?php
+/**
+ * Configuration de la base de données
+ * Copiez ce fichier en database.php et adaptez les valeurs
+ */
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'sirh');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('DB_CHARSET', 'utf8mb4');
