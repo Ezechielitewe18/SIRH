@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../models/PresenceModel.php';
 require_once __DIR__ . '/../models/EmployeeModel.php';
+require_once __DIR__ . '/../models/NotificationModel.php';
 
 class PresenceController {
     private $presenceModel;
@@ -38,6 +39,20 @@ class PresenceController {
                 $_SESSION['error'] = 'Aucun employé associé à ce compte';
             } else {
                 $result = $this->presenceModel->declarer($employeeId);
+                if (isset($result['success']) && $result['success']) {
+                    // Prévenir les gestionnaires qu'une déclaration attend validation
+                    $employeeModel = new EmployeeModel();
+                    $employee = $employeeModel->findById($employeeId);
+                    $nom = $employee ? ($employee['prenom'] . ' ' . $employee['nom']) : 'Un employé';
+                    $notificationModel = new NotificationModel();
+                    $notificationModel->notifyAllByRole(
+                        ['admin', 'rh', 'directeur'],
+                        'Déclaration de présence à valider',
+                        "$nom a déclaré son arrivée. Une validation est requise.",
+                        'presence',
+                        APP_URL . '/presences'
+                    );
+                }
                 $_SESSION[$result['success'] ? 'success' : 'error'] = $result['message'];
             }
         }

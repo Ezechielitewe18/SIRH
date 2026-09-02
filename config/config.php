@@ -3,7 +3,21 @@
  * Configuration générale du SIRH
  */
 define('APP_NAME', 'GLOBIT');
-define('APP_URL', 'http://localhost/SIRH');
+
+// URL de base dynamique : localhost sur le PC, IP LAN sur le téléphone,
+// domaine HTTPS derrière un tunnel (PWA). Evite les formulaires qui postent ver localhost.
+$scheme = 'http';
+if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) {
+    $scheme = 'https';
+}
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$basePath = isset($_SERVER['SCRIPT_NAME'])
+    ? rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/')
+    : '/SIRH';
+define('APP_URL', $scheme . '://' . $host . $basePath);
+define('APP_HOST', $host);
+
 define('APP_VERSION', '1.0.0');
 
 // Heure de travail
