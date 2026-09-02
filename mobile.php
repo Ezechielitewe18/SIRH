@@ -472,6 +472,7 @@ function loadHome() {
     var presStat = document.getElementById('statPres');
     var congeStat = document.getElementById('statConge');
     var paieStat = document.getElementById('statPaie');
+    document.getElementById('homeSub').textContent = 'Aujourd\'hui, ' + formatDate(new Date()) + ' · Voici vos indicateurs.';
 
     // Présences du mois (admin voit toutes, employé son historique) - fallback
     presStat.textContent = '—';
@@ -554,7 +555,7 @@ function loadConges() {
       html += '<div class="list-item"><div class="ic">🗓</div><div class="ct"><div class="tt">'+cap(c.type_conge)+' · '+c.nombre_jours+' j</div><div class="dd">'+formatDate(c.date_debut)+' → '+formatDate(c.date_fin)+'</div></div><span class="st '+c.statut+'">'+c.statut+'</span></div>';
     });
     document.getElementById('congeList').innerHTML = html;
-  }).catch(function(){ document.getElementById('congeList').innerHTML='<div class="empty"><i>⚠</i>Erreur</div>'; });
+  }).catch(function(e){ document.getElementById('congeList').innerHTML='<div class="empty"><i>⚠</i>Chargement impossible'+(e&&e.msg?' : '+e.msg:'')+'</div>'; });
 }
 
 function submitConge() {
@@ -631,7 +632,18 @@ function toast(msg){
 // ---------- Service Worker + Install ----------
 function registerSW(){
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(function(){});
+    navigator.serviceWorker.register('sw.js').then(function(reg){
+      // Forcer la prise en compte de toute nouvelle version de sw.js
+      if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      reg.addEventListener('updatefound', function(){
+        var w = reg.installing;
+        w && w.addEventListener('statechange', function(){
+          if (w.state === 'installed' && navigator.serviceWorker.controller) {
+            w.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+    }).catch(function(){});
   }
   // Install prompt
   window.addEventListener('beforeinstallprompt', function(e){

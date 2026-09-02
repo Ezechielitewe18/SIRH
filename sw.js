@@ -1,8 +1,7 @@
 /* GLOBIT - Service Worker PWA */
-const CACHE_NAME = 'globit-v2';
+const CACHE_NAME = 'globit-v3';
 const APP_SHELL = [
   './',
-  './mobile.php',
   './manifest.webmanifest',
   './public/img/icon-192.png',
   './public/img/icon-512.png'
@@ -28,6 +27,13 @@ self.addEventListener('activate', (event) => {
       )
     ).then(() => self.clients.claim())
   );
+});
+
+// Permettre la mise à jour immédiate du SW demandée par l'app
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // GLOBIT - Service Worker PWA (v2)
