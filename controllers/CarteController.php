@@ -74,7 +74,13 @@ class CarteController {
             $code = $_POST['code'] ?? '';
             $employee = $this->carteModel->findByCode($code);
             if ($employee && $employee['actif']) {
-                $result = $this->presenceModel->checkIn($employee['id_employe']);
+                // Le pointage QR (matériel) est réservé à la Direction Générale
+                if (empty($employee['est_direction'])) {
+                    $_SESSION['error'] = 'Le pointage QR est réservé à la Direction Générale. Utilisez « Déclarer mon arrivée ».';
+                    header('Location: ' . APP_URL . '/cartes/pointer?code=' . urlencode($code));
+                    exit;
+                }
+                $result = $this->presenceModel->checkIn($employee['id_employe'], 'qrcode', true);
                 $this->logModel->log('Pointage QR', "Arrivée par QR - {$employee['matricule']}", 'cartes');
                 $_SESSION[$result['success'] ? 'success' : 'error'] = $result['message'];
                 header('Location: ' . APP_URL . '/cartes/pointer?code=' . urlencode($code));

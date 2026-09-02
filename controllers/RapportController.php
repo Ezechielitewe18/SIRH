@@ -77,6 +77,10 @@ class RapportController {
             $joursAbsents = 0;
             foreach ($presences as $p) {
                 if (substr($p['date_presence'], 5, 2) == $mois && substr($p['date_presence'], 0, 4) == $annee) {
+                    // Seules les présences validées comptent (QR auto ou validation RH)
+                    if (!in_array($p['validation'] ?? '', ['auto', 'validee'])) {
+                        continue;
+                    }
                     if ($p['statut'] === 'absent') {
                         $joursAbsents++;
                     } elseif ($p['statut'] === 'present' || $p['statut'] === 'retard') {

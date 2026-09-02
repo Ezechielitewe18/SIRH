@@ -32,7 +32,7 @@ class CarteModel extends Model {
     }
 
     public function findByCode($code) {
-        $sql = "SELECT c.*, e.nom, e.prenom, e.matricule, e.photo, s.nom_service
+        $sql = "SELECT c.*, e.nom, e.prenom, e.matricule, e.photo, e.est_direction, s.nom_service
                 FROM cartes_employes c
                 INNER JOIN employes e ON c.id_employe = e.id_employe
                 LEFT JOIN services s ON e.id_service = s.id_service

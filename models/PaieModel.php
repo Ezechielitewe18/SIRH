@@ -92,6 +92,7 @@ class PaieModel extends Model {
         $pm = new PresenceModel();
         $sql = "SELECT * FROM presences 
                 WHERE id_employe = :id AND MONTH(date_presence) = :mois AND YEAR(date_presence) = :annee
+                AND validation IN ('auto','validee')
                 AND heure_arrivee IS NOT NULL AND heure_depart IS NOT NULL";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id' => $idEmploye, 'mois' => $mois, 'annee' => $annee]);

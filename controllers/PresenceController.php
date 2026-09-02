@@ -14,20 +14,47 @@ class PresenceController {
     public function index() {
         $date = $_GET['date'] ?? date('Y-m-d');
         $presences = $this->presenceModel->findAllWithEmployee($date);
+
+        $role = $_SESSION['user_role'] ?? '';
+        $isManager = in_array($role, ['admin', 'rh', 'directeur']);
+        $enAttente = $isManager ? $this->presenceModel->trouverEnAttente() : [];
+
+        $maPresence = null;
+        if (!empty($_SESSION['employee_id'])) {
+            $aujourdhui = $this->presenceModel->findTodayByEmployee($_SESSION['employee_id']);
+            $maPresence = $aujourdhui[0] ?? null;
+        }
+
         require __DIR__ . '/../views/presences/index.php';
     }
 
+    /**
+     * Déclaration d'arrivée par l'employé -> en attente de validation RH
+     */
+    public function declarer() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $employeeId = $_SESSION['employee_id'] ?? null;
+            if (!$employeeId) {
+                $_SESSION['error'] = 'Aucun employé associé à ce compte';
+            } else {
+                $result = $this->presenceModel->declarer($employeeId);
+                $_SESSION[$result['success'] ? 'success' : 'error'] = $result['message'];
+            }
+        }
+        header('Location: ' . APP_URL . '/presences');
+        exit;
+    }
+
+    // Ancien bouton "Arrivée" : devient une déclaration (source manuelle -> validation RH)
     public function checkin() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $employeeId = $_SESSION['employee_id'] ?? null;
             if (!$employeeId) {
                 $_SESSION['error'] = 'Aucun employé associé à ce compte';
-                header('Location: ' . APP_URL . '/presences');
-                exit;
+            } else {
+                $result = $this->presenceModel->declarer($employeeId);
+                $_SESSION[$result['success'] ? 'success' : 'error'] = $result['message'];
             }
-
-            $result = $this->presenceModel->checkIn($employeeId);
-            $_SESSION[$result['success'] ? 'success' : 'error'] = $result['message'];
         }
         header('Location: ' . APP_URL . '/presences');
         exit;
@@ -38,12 +65,38 @@ class PresenceController {
             $employeeId = $_SESSION['employee_id'] ?? null;
             if (!$employeeId) {
                 $_SESSION['error'] = 'Aucun employé associé à ce compte';
-                header('Location: ' . APP_URL . '/presences');
-                exit;
+            } else {
+                $result = $this->presenceModel->checkOut($employeeId);
+                $_SESSION[$result['success'] ? 'success' : 'error'] = $result['message'];
             }
+        }
+        header('Location: ' . APP_URL . '/presences');
+        exit;
+    }
 
-            $result = $this->presenceModel->checkOut($employeeId);
-            $_SESSION[$result['success'] ? 'success' : 'error'] = $result['message'];
+    public function valider($id) {
+        $this->requireManager();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if ($this->presenceModel->valider($id, $_SESSION['user_id'])) {
+                $_SESSION['success'] = 'Déclaration validée';
+            } else {
+                $_SESSION['error'] = 'Échec de la validation';
+            }
+        }
+        header('Location: ' . APP_URL . '/presences');
+        exit;
+    }
+
+    public function rejeter() {
+        $this->requireManager();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = (int)($_POST['id'] ?? 0);
+            $justification = trim($_POST['justification'] ?? '');
+            if ($this->presenceModel->rejeter($id, $_SESSION['user_id'], $justification)) {
+                $_SESSION['success'] = 'Déclaration rejetée';
+            } else {
+                $_SESSION['error'] = 'Échec du rejet';
+            }
         }
         header('Location: ' . APP_URL . '/presences');
         exit;
@@ -65,5 +118,13 @@ class PresenceController {
             'checked_out' => $checkedOut,
             'presence' => $presence[0] ?? null
         ]);
+    }
+
+    private function requireManager() {
+        if (!in_array($_SESSION['user_role'] ?? '', ['admin', 'rh', 'directeur'])) {
+            $_SESSION['error'] = 'Action réservée aux gestionnaires (RH / Direction)';
+            header('Location: ' . APP_URL . '/dashboard');
+            exit;
+        }
     }
 }
