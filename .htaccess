@@ -1,6 +1,15 @@
 RewriteEngine On
 RewriteBase /SIRH/
 
+# Types MIME pour la PWA
+AddType application/manifest+json .webmanifest
+AddType application/json .json
+
+# En-têtes de cache
+<FilesMatch "\.(webmanifest|json)$">
+    Header set Cache-Control "no-cache"
+</FilesMatch>
+
 # Rediriger les fichiers existants
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
