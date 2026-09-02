@@ -357,7 +357,30 @@ function api(action, method, data) {
   if (token) opts.headers['Authorization'] = 'Bearer ' + token;
   if (data) opts.body = JSON.stringify(data);
   return fetch(API_BASE + '?action=' + action, opts).then(function(r) {
-    return r.json().then(function(j) { if (!r.ok) throw { http: r.status, msg: j.message }; return j; });
+    // Parser le JSON meme en cas d'erreur HTTP (400/401/403/404/409)
+    var ct = r.headers.get('Content-Type') || '';
+    if (ct.indexOf('application/json') === -1) {
+      // Reponse non-JSON (erreur serveur HTML) => creer une erreur propre
+      if (!r.ok) throw { http: r.status, msg: 'Erreur serveur (HTTP ' + r.status + ')' };
+      throw { http: 0, msg: 'Reponse inattendue du serveur' };
+    }
+    return r.json().then(function(j) {
+      if (!r.ok) {
+        // Token expire ou invalide : deconnexion automatique
+        if (r.status === 401 && action !== 'login') {
+          token = ''; user = null;
+          localStorage.removeItem(TOKEN_KEY);
+          localStorage.removeItem(USER_KEY);
+          location.reload();
+        }
+        throw { http: r.status, msg: j.message || 'Erreur ' + r.status };
+      }
+      return j;
+    });
+  }).catch(function(e) {
+    // Erreur reseau (telephone hors-ligne, timeout, etc.)
+    if (e && e.http !== undefined) throw e;
+    throw { http: 0, msg: 'Erreur reseau. Verifiez votre connexion.' };
   });
 }
 

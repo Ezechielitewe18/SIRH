@@ -1,5 +1,5 @@
 /* GLOBIT - Service Worker PWA */
-const CACHE_NAME = 'globit-v1';
+const CACHE_NAME = 'globit-v2';
 const APP_SHELL = [
   './',
   './mobile.php',
@@ -30,14 +30,20 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Stratégie : cache d'abord pour le shell, réseau d'abord pour les API
+// GLOBIT - Service Worker PWA (v2)
+// Stratégie corrigée :
+//  - API => toujours réseau (jamais de cache)
+//  - mobile.php (le code HTML) => NETWORK FIRST (réseau puis cache),
+//    pour que les correctifs de code arrivent toujours au téléphone
+//  - assets statiques immuables (icônes) => cache-first
+
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Ne pas intercepter les requêtes cross-origin (API sur même origine OK)
+  // Ne pas intercepter les requêtes cross-origin
   if (url.origin !== location.origin) return;
 
-  // Les requêtes API ne doivent JAMAIS être servies depuis le cache
+  // 1. Les requêtes API ne doivent JAMAIS être servies depuis le cache
   if (url.pathname.includes('/api.php')) {
     event.respondWith(fetch(event.request).catch(() =>
       new Response(JSON.stringify({ success: false, message: 'Hors ligne' }),
@@ -46,23 +52,39 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first pour le shell et les assets statiques
+  // 2. Le HTML de l'app (mobile.php) et la racine => NETWORK FIRST
+  const isNav = event.request.mode === 'navigate';
+  const isShell = url.pathname.endsWith('/mobile.php') || url.pathname.endsWith('/SIRH/') || url.pathname.endsWith('/SIRH');
+
+  if (isShell || isNav) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Mettre à jour le cache avec la version fraîche
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((cached) =>
+          cached || caches.match('./mobile.php')
+        ))
+    );
+    return;
+  }
+
+  // 3. Assets statiques (icônes, etc.) => CACHE FIRST avec mise en cache
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
       return fetch(event.request).then((response) => {
-        // Mettre en cache les réponses statiques réussies
         if (response && response.status === 200 && response.type === 'basic') {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
-      }).catch(() => {
-        // Fallback : page d'accueil pour les navigations hors-ligne
-        if (event.request.mode === 'navigate') {
-          return caches.match('./mobile.php');
-        }
-      });
+      }).catch(() => caches.match('./mobile.php'));
     })
   );
 });
