@@ -459,34 +459,50 @@ function logout() {
 // ---------- Accueil ----------
 function loadHome() {
   var now = new Date();
-  var mois = ('0'+(now.getMonth()+1)).slice(-2);
-  var annee = now.getFullYear();
   document.getElementById('welcome').textContent = 'Bonjour, ' + (user.nom_complet||'').split(' ')[0] + ' 👋';
+  var preset = user && user.id_employe; // vrai employé (a une fiche) ? sinon admin/rh
 
-  Promise.all([
-    api('presences_validation','GET').catch(function(){return null;}),
-    api('conges','GET').catch(function(){ return {data: []}; }),
-    api('bulletins','GET').catch(function(){ return {data: []}; }),
-    api('presence_aujourdhui','GET').catch(function(){ return {data:{presence:null}}; })
-  ]).then(function(r){
+  // ADMIN / RH : PAS d'employé associé => indicateurs de gestion (présences en attente)
+  if (!preset) {
     var presStat = document.getElementById('statPres');
     var congeStat = document.getElementById('statConge');
     var paieStat = document.getElementById('statPaie');
-    document.getElementById('homeSub').textContent = 'Aujourd\'hui, ' + formatDate(new Date()) + ' · Voici vos indicateurs.';
-
-    // Présences du mois (admin voit toutes, employé son historique) - fallback
-    presStat.textContent = '—';
-    congeStat.textContent = (r[1].data || []).length;
-    var bl = r[2].data || [];
-    if (bl.length) {
-      var dern = bl[0];
-      paieStat.textContent = formatMoney(dern.total_net);
-    } else paieStat.textContent = '—';
-
-    // Présence du jour
-    var p = (r[3].data || {}).presence;
     var box = document.getElementById('todayDetail');
     var btn = document.getElementById('btnCheckIn');
+
+    document.getElementById('homeSub').textContent = 'Aujourd\'hui, ' + formatDate(new Date()) + ' · Vue gestion RH.';
+    congeStat.textContent = '—';
+    paieStat.textContent = '—';
+    // Masquer le bouton de pointage (pas d'employé pour un admin/RH)
+    btn.style.display = 'none';
+    box.textContent = 'Compte de gestion : validez les présences depuis l\'app.';
+
+    // Compte les présences en attente de validation
+    api('presences_validation','GET').then(function(j){
+      var n = (j.data||[]).length;
+      presStat.textContent = n;
+      if (n > 0) {
+        box.innerHTML = '<span class="st en_attente">' + n + ' présence(s) en attente de validation</span><div style="margin-top:8px"><button class="btn" onclick="go(\'notifs\')">Voir</button></div>';
+      }
+    }).catch(function(){ presStat.textContent = '—'; });
+    return;
+  }
+
+  // EMPLOYÉ : indicateurs personnels
+  api('conges','GET').then(function(j){
+    document.getElementById('statConge').textContent = (j.data||[]).length;
+  }).catch(function(){ document.getElementById('statConge').textContent = '—'; });
+
+  api('bulletins','GET').then(function(j){
+    var bl = j.data || [];
+    document.getElementById('statPaie').textContent = bl.length ? formatMoney(bl[0].total_net) : '—';
+  }).catch(function(){ document.getElementById('statPaie').textContent = '—'; });
+
+  api('presence_aujourdhui','GET').then(function(j){
+    var p = (j.data||{}).presence;
+    var box = document.getElementById('todayDetail');
+    var btn = document.getElementById('btnCheckIn');
+    document.getElementById('statPres').textContent = p ? '√' : '—';
     if (p) {
       var st = p.validation;
       var label = st==='auto'?'Auto-validée':st==='validee'?'Validée':st==='en_attente'?'En attente':'Rejetée';
@@ -498,11 +514,30 @@ function loadHome() {
       btn.style.display = 'block';
       btn.textContent = '✅ Déclarer mon arrivée';
     }
+  }).catch(function(){
+    document.getElementById('statPres').textContent = '—';
   });
+
+  document.getElementById('homeSub').textContent = 'Aujourd\'hui, ' + formatDate(new Date()) + ' · Voici vos indicateurs.';
 }
 
 // ---------- Présence ----------
 function loadPresence() {
+  if (!(user && user.id_employe)) {
+    var box = document.getElementById('presTodayBox');
+    var hist = document.getElementById('presHistory');
+    document.getElementById('presTodayBox').innerHTML = '<div class="sub">Compte de gestion RH.</div>';
+    api('presences_validation','GET').then(function(j){
+      var list = j.data || [];
+      var html = '';
+      if (!list.length) html = '<div class="empty"><i>📋</i>Aucune présence en attente</div>';
+      list.forEach(function(p){
+        html += '<div class="list-item"><div class="ic">⏱</div><div class="ct"><div class="tt">'+(p.prenom?p.prenom+' ':'')+(p.nom||p.matricule||'#')+'</div><div class="dd">'+p.date_presence+' '+p.heure_arrivee+'</div></div><span class="st en_attente">en attente</span></div>';
+      });
+      hist.innerHTML = html;
+    }).catch(function(){ hist.innerHTML = '<div class="empty">—</div>'; });
+    return;
+  }
   api('presence_aujourdhui','GET').then(function(j){
     var p = (j.data||{}).presence;
     var box = document.getElementById('presTodayBox');
@@ -547,6 +582,11 @@ function pointerSortie() {
 
 // ---------- Congés ----------
 function loadConges() {
+  // Admin / RH (pas d'employé) : module réservé aux employés
+  if (!(user && user.id_employe)) {
+    document.getElementById('congeList').innerHTML = '<div class="empty"><i>🗓</i>Cette vue est réservée aux employés.</div>';
+    return;
+  }
   api('conges','GET').then(function(j){
     var list = j.data || [];
     var html = '';
