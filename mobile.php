@@ -443,7 +443,7 @@ function enterApp() {
   document.getElementById('bottomNav').style.display = 'flex';
   document.getElementById('navName').childNodes[0].textContent = (user.nom_complet || '').split(' ')[0];
   // Version visible (confirme quelle version du code est chargee)
-  document.getElementById('navName').innerHTML = (user.nom_complet || '').split(' ')[0] + '<small>GLOBIT SIRH · v4</small>';
+  document.getElementById('navName').innerHTML = (user.nom_complet || '').split(' ')[0] + '<small>GLOBIT SIRH · v5</small>';
   document.getElementById('navAvatar').textContent = (user.nom_complet || 'G')[0].toUpperCase();
   registerSW();
   go('home');

@@ -1,5 +1,5 @@
 /* GLOBIT - Service Worker PWA */
-const CACHE_NAME = 'globit-v4';
+const CACHE_NAME = 'globit-v5';
 const APP_SHELL = [
   './',
   './manifest.webmanifest',
@@ -36,11 +36,12 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// GLOBIT - Service Worker PWA (v2)
-// Stratégie corrigée :
+// GLOBIT - Service Worker PWA
+// Stratégie corrigée (v5) :
 //  - API => toujours réseau (jamais de cache)
-//  - mobile.php (le code HTML) => NETWORK FIRST (réseau puis cache),
-//    pour que les correctifs de code arrivent toujours au téléphone
+//  - mobile.php (le code HTML) => NETWORK ONLY (toujours le réseau),
+//    pour que les correctifs de code arrivent TOUJOURS au téléphone
+//    (le cache ne sert qu'en secours hors-ligne)
 //  - assets statiques immuables (icônes) => cache-first
 
 self.addEventListener('fetch', (event) => {
@@ -58,7 +59,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Le HTML de l'app (mobile.php) et la racine => NETWORK FIRST
+  // 2. Le HTML de l'app (mobile.php) et la racine => NETWORK ONLY (toujours frais)
   const isNav = event.request.mode === 'navigate';
   const isShell = url.pathname.endsWith('/mobile.php') || url.pathname.endsWith('/SIRH/') || url.pathname.endsWith('/SIRH');
 
@@ -66,7 +67,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Mettre à jour le cache avec la version fraîche
+          // Mettre à jour le cache avec la version fraîche (secours hors-ligne)
           if (response && response.status === 200) {
             const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
