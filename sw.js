@@ -1,5 +1,5 @@
 /* GLOBIT - Service Worker PWA */
-const CACHE_NAME = 'globit-v3';
+const CACHE_NAME = 'globit-v4';
 const APP_SHELL = [
   './',
   './manifest.webmanifest',
@@ -16,7 +16,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activation : nettoyer les anciens caches
+// Activation : SUPPRIME TOUS les anciens caches et prend le contrôle immédiatement
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>

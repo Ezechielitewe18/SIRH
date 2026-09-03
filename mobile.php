@@ -224,8 +224,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 
   <div class="topbar">
     <div class="logo" id="navAvatar">G</div>
-    <div class="t" id="navName">Chargement...<small>GLOBIT SIRH</small></div>
-    <div class="spacer"></div>
+    <div class="t" id="navName">Chargement...<small>GLOBIT SIRH</small></div>    <div class="spacer"></div>
     <div class="bell" onclick="go('notifs')"><span id="bellCnt">🔔</span><span class="badge" id="bellBadge">0</span></div>
   </div>
 
@@ -443,6 +442,8 @@ function enterApp() {
   document.getElementById('app').style.display = 'block';
   document.getElementById('bottomNav').style.display = 'flex';
   document.getElementById('navName').childNodes[0].textContent = (user.nom_complet || '').split(' ')[0];
+  // Version visible (confirme quelle version du code est chargee)
+  document.getElementById('navName').innerHTML = (user.nom_complet || '').split(' ')[0] + '<small>GLOBIT SIRH · v4</small>';
   document.getElementById('navAvatar').textContent = (user.nom_complet || 'G')[0].toUpperCase();
   registerSW();
   go('home');
