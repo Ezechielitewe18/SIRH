@@ -141,6 +141,22 @@
                     <?php endif; ?>
 
                     <li class="nav-item mt-2" style="border-top: 1px solid rgba(255,255,255,.1);">
+                        <a href="<?= APP_URL ?>/messages" class="nav-link <?= strpos($currentPage, 'message') !== false ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-comments text-info"></i>
+                            <p>Messages
+                                <?php
+                                try {
+                                    $msgModel = new MessageModel();
+                                    $msgunread = $msgModel->getUnreadCount($_SESSION['user_id']);
+                                    if ($msgunread > 0): ?>
+                                    <span class="badge badge-danger badge-pill float-right"><?= $msgunread ?></span>
+                                    <?php endif;
+                                } catch (Exception $e) {}
+                                ?>
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item" style="border-top: 1px solid rgba(255,255,255,.1);">
                         <a href="<?= APP_URL ?>/notifications" class="nav-link <?= $currentPage === 'notifications' ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-bell"></i>
                             <p>Notifications

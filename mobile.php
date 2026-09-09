@@ -264,6 +264,25 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
     <div id="notifList"><div class="empty"><i>🔔</i>Aucune notification</div></div>
   </div>
 
+  <div class="section" id="sec-msg">
+    <h2 style="font-size:22px;font-weight:800;margin-bottom:14px">Messages</h2>
+    <button class="btn" onclick="openModal('msgModal')">＋ Nouveau message</button>
+    <div style="height:14px"></div>
+    <div id="msgList"><div class="empty"><i>💬</i>Aucune conversation</div></div>
+  </div>
+
+  <div class="section" id="sec-conv">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <span onclick="go('msg')" style="cursor:pointer;font-size:20px">←</span>
+      <h2 style="font-size:22px;font-weight:800;flex:1" id="convTitle">/</h2>
+    </div>
+    <div id="convBox" style="max-height:55vh;overflow-y:auto"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <input id="msgInput" placeholder="Écrire..." style="flex:1">
+      <button class="btn" style="flex:none;width:70px;padding:0" onclick="sendMsg()">➤</button>
+    </div>
+  </div>
+
   <div class="section" id="sec-profil">
     <div class="card" style="text-align:center">
       <div style="width:72px;height:72px;border-radius:50%;margin:6px auto 10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff">G</div>
@@ -280,7 +299,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
   <div class="nb active" data-sec="home"><i>🏠</i>Accueil</div>
   <div class="nb" data-sec="pres"><i>⏱</i>Présence</div>
   <div class="nb" data-sec="conge"><i>🗓</i>Congés</div>
-  <div class="nb" data-sec="notifs"><i>🔔</i>Notifs</div>
+  <div class="nb" data-sec="msg"><i>💬</i>Messages</div>
   <div class="nb" data-sec="profil"><i>👤</i>Profil</div>
 </div>
 
@@ -311,6 +330,20 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
     <div style="margin-top:16px;display:flex;gap:10px">
       <button class="btn outline" onclick="closeModal('congeModal')" style="flex:1">Annuler</button>
       <button class="btn" onclick="submitConge()" style="flex:2">Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="msgModal">
+  <div class="modal">
+    <h3>Nouveau message</h3>
+    <label>Destinataire</label>
+    <select id="msgDest"><option value="">Chargement...</option></select>
+    <label>Message</label>
+    <textarea id="msgBody" rows="4" placeholder="Votre message..."></textarea>
+    <div style="margin-top:16px;display:flex;gap:10px">
+      <button class="btn outline" onclick="closeModal('msgModal')" style="flex:1">Annuler</button>
+      <button class="btn" onclick="startConv()" style="flex:2">Envoyer</button>
     </div>
   </div>
 </div>
@@ -366,6 +399,7 @@ function go(sec) {
   if (sec === 'pres') loadPresence();
   if (sec === 'conge') loadConges();
   if (sec === 'notifs') loadNotifs();
+  if (sec === 'msg') loadMsg();
   if (sec === 'profil') loadProfil();
 }
 document.querySelectorAll('.bottom-nav .nb').forEach(function(n){
@@ -607,6 +641,81 @@ function loadProfil() {
     } else info = '<div class="sub">Compte administrateur</div>';
     document.getElementById('profInfo').innerHTML = info;
   }).catch(function(){});
+}
+
+var currentConv = null;
+var msgTimer = null;
+
+function loadMsg() {
+  api('messages','GET').then(function(j){
+    var list = (j.data||{}).conversations || [];
+    var html = '';
+    if (!list.length) html = '<div class="empty"><i>💬</i>Aucune conversation</div>';
+    list.forEach(function(c){
+      var date = c.dernier_date ? ' · ' + formatDate(c.dernier_date,'datetime') : '';
+      var badge = c.non_lus > 0 ? ' <span class="st en_attente">'+c.non_lus+'</span>' : '';
+      html += '<div class="list-item" onclick="openConv('+c.id_conversation+',\''+c.nom_interlocuteur.replace(/'/g,"\\'")+'\')" style="cursor:pointer"><div class="ic">💬</div><div class="ct"><div class="tt">'+c.nom_interlocuteur+badge+'</div><div class="dd">'+((c.dernier_message||'').substring(0,40))+'</div></div><div style="font-size:11px;color:var(--muted)">'+date+'</div></div>';
+    });
+    document.getElementById('msgList').innerHTML = html;
+    loadMsgDest();
+  }).catch(function(){});
+}
+
+function loadMsgDest() {
+  api('personnel','GET').then(function(j){
+    var list = j.data || [];
+    var html = list.map(function(p){
+      return '<option value="'+p.id_utilisateur+'">'+p.nom_complet+' ('+p.role+')</option>';
+    }).join('');
+    document.getElementById('msgDest').innerHTML = html || '<option value="">Aucun contact</option>';
+  }).catch(function(){
+    document.getElementById('msgDest').innerHTML = '<option value="">Chargement impossible</option>';
+  });
+}
+
+function openConv(id, nom) {
+  currentConv = id;
+  document.getElementById('sec-msg').classList.remove('active');
+  document.getElementById('sec-conv').classList.add('active');
+  document.getElementById('convTitle').textContent = nom;
+  document.querySelectorAll('.bottom-nav .nb').forEach(function(n){ n.classList.remove('active'); });
+  loadConv();
+}
+
+function loadConv() {
+  api('messages_ouvrir&conversation=' + currentConv,'GET').then(function(j){
+    var list = (j.data||{}).messages || [];
+    var html = '';
+    list.forEach(function(m){
+      var side = m.id_expediteur == user.id_utilisateur ? 'left' : 'right';
+      html += '<div style="text-align:'+side+';margin-bottom:8px"><div style="display:inline-block;max-width:80%;padding:10px 12px;border-radius:12px;background:'+(side==='right'?'linear-gradient(135deg,var(--accent),var(--accent2))':'var(--panel2)')+';color:'+(side==='right'?'#fff':'var(--text)')+';text-align:left;font-size:13.5px">'+m.contenu+'<div style="font-size:10px;opacity:.7;margin-top:4px">'+formatDate(m.created_at,'datetime')+'</div></div></div>';
+    });
+    document.getElementById('convBox').innerHTML = html || '<div class="empty">Aucun message</div>';
+    document.getElementById('convBox').scrollTop = document.getElementById('convBox').scrollHeight;
+    if (msgTimer) clearInterval(msgTimer);
+    msgTimer = setInterval(loadConv, 5000);
+  }).catch(function(){});
+}
+
+function sendMsg() {
+  var input = document.getElementById('msgInput');
+  var content = input.value.trim();
+  if (!content || !currentConv) return;
+  api('messages_envoyer','POST',{ destinataire : null, conversation : currentConv, contenu : content }).catch(function(e){ toast(e.msg||'Erreur'); });
+  input.value = '';
+  loadConv();
+}
+
+function startConv() {
+  var dest = document.getElementById('msgDest').value;
+  var body = document.getElementById('msgBody').value.trim();
+  if (!dest) { toast('Choisissez un destinataire'); return; }
+  if (!body) { toast('Écrivez un message'); return; }
+  api('messages_envoyer','POST',{ destinataire : +dest, contenu : body }).then(function(j){
+    closeModal('msgModal');
+    var convId = (j.data||{}).id_conversation;
+    openConv(convId, document.getElementById('msgDest').selectedOptions[0].textContent);
+  }).catch(function(e){ toast(e.msg||'Erreur'); });
 }
 
 function formatMoney(n){ return Number(n||0).toLocaleString('fr-FR',{style:'currency',currency:'USD',maximumFractionDigits:0}); }

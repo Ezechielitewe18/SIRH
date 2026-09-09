@@ -15,6 +15,7 @@ require_once ROOT_PATH . '/models/PresenceModel.php';
 require_once ROOT_PATH . '/models/CongeModel.php';
 require_once ROOT_PATH . '/models/NotificationModel.php';
 require_once ROOT_PATH . '/models/PaieModel.php';
+require_once ROOT_PATH . '/models/MessageModel.php';
 
 function api_json($data, $code = 200) {
     http_response_code($code);
@@ -370,6 +371,79 @@ if ($action === 'bulletins') {
     $pm = new PaieModel();
     $mesBulletins = $pm->findByEmployee($employee['id_employe']);
     api_json(['success' => true, 'data' => $mesBulletins]);
+}
+
+if ($action === 'messages') {
+    $user = requireAuth();
+    $mm = new MessageModel();
+    $conversations = $mm->listConversations($user['id_utilisateur']);
+    $nonLues = $mm->getUnreadCount($user['id_utilisateur']);
+    api_json(['success' => true, 'data' => ['conversations' => $conversations, 'non_lues' => $nonLues]]);
+}
+
+if ($action === 'messages_ouvrir') {
+    $user = requireAuth();
+    $mm = new MessageModel();
+    $conversation = (int)($_GET['conversation'] ?? 0);
+    if (!$mm->conversationBelongsToUser($conversation, $user['id_utilisateur'])) {
+        api_error('Conversation introuvable', 404);
+    }
+    $interlocuteur = $mm->getInterlocuteur($conversation, $user['id_utilisateur']);
+    $messages = $mm->getMessages($conversation, $user['id_utilisateur']);
+    api_json(['success' => true, 'data' => ['id_conversation' => $conversation, 'interlocuteur' => $interlocuteur, 'messages' => $messages]]);
+}
+
+if ($action === 'messages_envoyer') {
+    $user = requireAuth();
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') api_error('Méthode non autorisée', 405);
+    $body = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+    $destinataire = (int)($body['destinataire'] ?? 0);
+    $conversation = (int)($body['conversation'] ?? 0);
+    $contenu = trim($body['contenu'] ?? '');
+
+    if ($contenu === '') api_error('Le message ne peut pas être vide.');
+    $conversationId = 0;
+
+    if ($conversation > 0) {
+        $mm = new MessageModel();
+        if (!$mm->conversationBelongsToUser($conversation, $user['id_utilisateur'])) {
+            api_error('Conversation introuvable.', 404);
+        }
+        $conversationId = $conversation;
+    } else {
+        if ($destinataire <= 0) api_error('Destinataire requis.');
+        if ($destinataire === (int)$user['id_utilisateur']) api_error('Vous ne pouvez pas vous écrire.');
+
+        if ($user['role'] === 'employe') {
+            $mm = new MessageModel();
+            $allowed = false;
+            foreach ($mm->listPersonnel($user['id_utilisateur'], $user['role']) as $p) {
+                if ((int)$p['id_utilisateur'] === $destinataire) { $allowed = true; break; }
+            }
+            if (!$allowed) api_error('Destinataire invalide.', 403);
+        }
+
+        $mm = new MessageModel();
+        $conversationId = $mm->getOrCreateConversation($user['id_utilisateur'], $destinataire);
+    }
+
+    $mm = new MessageModel();
+    $mm->envoyer($conversationId, $user['id_utilisateur'], $contenu);
+    $destId = ($conversation > 0)
+        ? $mm->getInterlocuteur($conversationId, $user['id_utilisateur'])
+        : $destinataire;
+
+    $nm = new NotificationModel();
+    $nm->add($destId, 'Nouveau message', 'Vous avez reçu un message de ' . $user['nom_complet'], 'message', null);
+
+    api_json(['success' => true, 'data' => ['id_conversation' => $conversationId]]);
+}
+
+if ($action === 'personnel') {
+    $user = requireAuth();
+    $mm = new MessageModel();
+    $personnel = $mm->listPersonnel($user['id_utilisateur'], $user['role']);
+    api_json(['success' => true, 'data' => $personnel]);
 }
 
 api_error('Action inconnue : ' . $action, 404);

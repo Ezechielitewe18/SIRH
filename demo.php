@@ -352,7 +352,7 @@ body.auto .timer-btn .pause{display:inline}
     <div class="slide-body">
       <div class="shot">
         <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Connexion</span></div>
-        <div class="shot-body"><img src="assets/demo/login.png" alt="Connexion"></div>
+        <div class="shot-body"><img src="assets/demo/login.png?v=2" alt="Connexion"></div>
       </div>
       <div class="features">
         <div class="feature"><div class="icon"><i class="fa-solid fa-lock"></i></div><div><h4>Authentification sécurisée</h4><p>Connexion protégée par sessions PHP et anti-CSRF.</p></div></div>

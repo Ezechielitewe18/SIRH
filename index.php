@@ -22,8 +22,10 @@ require_once ROOT_PATH . '/controllers/UtilisateurController.php';
 require_once ROOT_PATH . '/controllers/LogController.php';
 require_once ROOT_PATH . '/controllers/CarteController.php';
 require_once ROOT_PATH . '/controllers/RapportController.php';
+require_once ROOT_PATH . '/controllers/MessageController.php';
 
 require_once ROOT_PATH . '/models/NotificationModel.php';
+require_once ROOT_PATH . '/models/MessageModel.php';
 require_once ROOT_PATH . '/models/PaieModel.php';
 require_once ROOT_PATH . '/models/FormationModel.php';
 require_once ROOT_PATH . '/models/UserModel.php';
@@ -453,6 +455,54 @@ $router->get('/rapports/conges', function() use ($auth) {
     $auth->requireRole(['admin', 'rh']);
     $controller = new RapportController();
     $controller->congesRapport();
+});
+
+$router->get('/messages', function() use ($auth) {
+    $auth->checkAuth();
+    $controller = new MessageController();
+    $controller->index();
+});
+
+$router->get('/messages/nouveau', function() use ($auth) {
+    $auth->checkAuth();
+    $controller = new MessageController();
+    $controller->nouveau();
+});
+
+$router->post('/messages/nouveau', function() use ($auth) {
+    $auth->checkAuth();
+    $controller = new MessageController();
+    $controller->creer();
+});
+
+$router->get('/messages/conversation/{id}', function($id) use ($auth) {
+    $auth->checkAuth();
+    $controller = new MessageController();
+    $controller->conversation($id);
+});
+
+$router->post('/messages/conversation/{id}', function($id) use ($auth) {
+    $auth->checkAuth();
+    $controller = new MessageController();
+    $controller->conversation($id);
+});
+
+$router->get('/messages/annonces', function() use ($auth) {
+    $auth->checkAuth();
+    $controller = new MessageController();
+    $controller->annonces();
+});
+
+$router->post('/messages/annonces', function() use ($auth) {
+    $auth->checkAuth();
+    $controller = new MessageController();
+    $controller->annonces();
+});
+
+$router->get('/messages/count', function() use ($auth) {
+    $auth->checkAuth();
+    $controller = new MessageController();
+    $controller->unreadCount();
 });
 
 $router->get('/', function() use ($auth) {
