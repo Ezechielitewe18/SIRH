@@ -39,7 +39,6 @@
 </div>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
-// Lire le QR via caméra (optionnel, si disponible) ou manuellement.
 </script>
 </body>
 </html>

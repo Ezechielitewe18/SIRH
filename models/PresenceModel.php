@@ -6,9 +6,9 @@ class PresenceModel extends Model {
     protected $primaryKey = 'id_presence';
 
     public function findAllWithEmployee($date = null) {
-        $sql = "SELECT p.*, e.nom, e.prenom, e.matricule, s.nom_service 
-                FROM {$this->table} p 
-                INNER JOIN employes e ON p.id_employe = e.id_employe 
+        $sql = "SELECT p.*, e.nom, e.prenom, e.matricule, s.nom_service
+                FROM {$this->table} p
+                INNER JOIN employes e ON p.id_employe = e.id_employe
                 LEFT JOIN services s ON e.id_service = s.id_service";
 
         $params = [];
@@ -44,7 +44,7 @@ class PresenceModel extends Model {
         $today = date('Y-m-d');
         $heure = date('H:i:s');
 
-        // Calculer le retard
+
         $retard = 0;
         $statut = 'present';
         $heureDebut = HEURE_DEBUT;
@@ -58,11 +58,11 @@ class PresenceModel extends Model {
             }
         }
 
-        // Vérifier si déjà pointé aujourd'hui
+
         $existing = $this->findByEmployee($id_employe, $today);
         if (!empty($existing)) {
             $ex = $existing[0];
-            // Redéclaration autorisée après un rejet le même jour
+
             if ($ex['validation'] === 'rejetee') {
                 $this->update($ex['id_presence'], [
                     'heure_arrivee' => $heure,
@@ -98,16 +98,14 @@ class PresenceModel extends Model {
         ];
     }
 
-    /**
-     * Déclaration d'arrivée par l'employé (source = declaration, en attente de validation)
-     */
+
     public function declarer($id_employe) {
         return $this->checkIn($id_employe, 'declaration', false);
     }
 
     public function valider($id_presence, $valide_par) {
         $presence = $this->findById($id_presence);
-        if (!$presence) return false;
+        if (!$presence || $presence['validation'] !== 'en_attente') return false;
         return $this->update($id_presence, [
             'validation' => 'validee',
             'valide_par' => $valide_par,
@@ -118,7 +116,7 @@ class PresenceModel extends Model {
 
     public function rejeter($id_presence, $valide_par, $justification = null) {
         $presence = $this->findById($id_presence);
-        if (!$presence) return false;
+        if (!$presence || $presence['validation'] !== 'en_attente') return false;
         return $this->update($id_presence, [
             'validation' => 'rejetee',
             'valide_par' => $valide_par,
@@ -169,7 +167,7 @@ class PresenceModel extends Model {
 
     public function getTodayStats() {
         $today = date('Y-m-d');
-        $sql = "SELECT 
+        $sql = "SELECT
                     COUNT(*) as total,
                     SUM(CASE WHEN statut = 'present' THEN 1 ELSE 0 END) as presents,
                     SUM(CASE WHEN statut = 'retard' THEN 1 ELSE 0 END) as en_retard,
@@ -185,12 +183,12 @@ class PresenceModel extends Model {
         if (!$month) $month = date('m');
         if (!$year) $year = date('Y');
 
-        $sql = "SELECT 
+        $sql = "SELECT
                     DATE_FORMAT(date_presence, '%Y-%m-%d') as jour,
                     COUNT(*) as total,
                     SUM(CASE WHEN statut = 'present' THEN 1 ELSE 0 END) as presents,
                     SUM(CASE WHEN statut = 'retard' THEN 1 ELSE 0 END) as en_retard
-                FROM {$this->table} 
+                FROM {$this->table}
                 WHERE MONTH(date_presence) = :month AND YEAR(date_presence) = :year
                 AND validation IN ('auto','validee')
                 GROUP BY jour

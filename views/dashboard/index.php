@@ -7,7 +7,6 @@
 
 <section class="content">
     <div class="container-fluid">
-        <!-- Filtre de période -->
         <div class="card mb-3">
             <div class="card-body py-2">
                 <form method="GET" action="<?= APP_URL ?>/dashboard" class="form-inline">
@@ -29,7 +28,6 @@
             </div>
         </div>
 
-        <!-- Cards statistiques -->
         <div class="row">
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-info">
@@ -120,7 +118,6 @@
         </div>
 
         <div class="row">
-            <!-- Graphique: Employés par service -->
             <div class="col-lg-6">
                 <div class="card">
                     <div class="card-header">
@@ -132,7 +129,6 @@
                 </div>
             </div>
 
-            <!-- Graphique: Répartition par sexe -->
             <div class="col-lg-6">
                 <div class="card">
                     <div class="card-header">
@@ -146,7 +142,6 @@
         </div>
 
         <div class="row">
-            <!-- Statistiques présences mensuelles -->
             <div class="col-lg-6">
                 <div class="card">
                     <div class="card-header">
@@ -158,7 +153,6 @@
                 </div>
             </div>
 
-            <!-- Évolution paie 12 mois -->
             <div class="col-lg-6">
                 <div class="card">
                     <div class="card-header">
@@ -172,7 +166,6 @@
         </div>
 
         <div class="row">
-            <!-- Congés en cours -->
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
@@ -197,7 +190,6 @@
                 </div>
             </div>
 
-            <!-- Répartition des congés par type -->
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
@@ -209,7 +201,6 @@
                 </div>
             </div>
 
-            <!-- Dernières demandes de congé -->
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
@@ -244,7 +235,7 @@ $content = ob_get_clean();
 
 $extraScripts = '<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script>
-const serviceData = ' . json_encode($employeesByService ?? []) . ';
+const serviceData = ' . json_encode($employeesByService ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';
 new Chart(document.getElementById("chartService"), {
     type: "bar",
     data: {
@@ -258,7 +249,7 @@ new Chart(document.getElementById("chartService"), {
     options: { responsive: true, scales: { y: { beginAtZero: true } } }
 });
 
-const genderData = ' . json_encode($employeesByGender ?? []) . ';
+const genderData = ' . json_encode($employeesByGender ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';
 new Chart(document.getElementById("chartGender"), {
     type: "doughnut",
     data: {
@@ -268,7 +259,7 @@ new Chart(document.getElementById("chartGender"), {
     options: { responsive: true }
 });
 
-const presenceData = ' . json_encode($monthlyPresence ?? []) . ';
+const presenceData = ' . json_encode($monthlyPresence ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';
 new Chart(document.getElementById("chartPresence"), {
     type: "line",
     data: {
@@ -281,7 +272,7 @@ new Chart(document.getElementById("chartPresence"), {
     options: { responsive: true, scales: { y: { beginAtZero: true } } }
 });
 
-const paieData = ' . json_encode($paieEvolution ?? []) . ';
+const paieData = ' . json_encode($paieEvolution ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';
 new Chart(document.getElementById("chartPaie"), {
     type: "bar",
     data: {
@@ -294,7 +285,7 @@ new Chart(document.getElementById("chartPaie"), {
     options: { responsive: true, scales: { y: { beginAtZero: true } } }
 });
 
-const congeTypeData = ' . json_encode($congesParType ?? []) . ';
+const congeTypeData = ' . json_encode($congesParType ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';
 new Chart(document.getElementById("chartCongeType"), {
     type: "doughnut",
     data: {

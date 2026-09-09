@@ -24,10 +24,10 @@ class PaieController {
     }
 
     public function generer() {
-        $mois = $_GET['mois'] ?? date('m');
-        $annee = $_GET['annee'] ?? date('Y');
+        $mois = $_POST['mois'] ?? date('m');
+        $annee = $_POST['annee'] ?? date('Y');
 
-        // Générer pour tous les employés actifs
+        
         $employes = $this->employeeModel->find(['statut' => 'actif']);
         $count = 0;
         foreach ($employes as $emp) {
@@ -41,8 +41,8 @@ class PaieController {
     }
 
     public function genererUnEmploye($id) {
-        $mois = $_GET['mois'] ?? date('m');
-        $annee = $_GET['annee'] ?? date('Y');
+        $mois = $_POST['mois'] ?? date('m');
+        $annee = $_POST['annee'] ?? date('Y');
 
         $result = $this->paieModel->genererBulletin($id, $mois, $annee);
         $_SESSION[ $result['success'] ? 'success' : 'error' ] = $result['message'];

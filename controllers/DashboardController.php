@@ -34,7 +34,7 @@ class DashboardController {
             ? round((($todayStats['presents'] ?? 0) + ($todayStats['en_retard'] ?? 0)) / $todayStats['total'] * 100, 1)
             : 0;
 
-        // Évolution de la paie sur 12 mois
+        
         $evolution = [];
         for ($i = 11; $i >= 0; $i--) {
             $d = new DateTime("$annee-$mois-01");
@@ -51,13 +51,13 @@ class DashboardController {
             }
         }
 
-        // Congés en cours (approuvés chevauchant aujourd'hui)
+        
         $congesEnCours = array_filter($this->congeModel->findAllWithEmployee('approuve'), function($c) {
             $today = date('Y-m-d');
             return $today >= $c['date_debut'] && $today <= $c['date_fin'];
         });
 
-        // Répartition des congés par type (12 derniers mois)
+        
         $congesStats = $this->congeModel->findAllWithEmployee();
         $congesParType = [];
         foreach ($congesStats as $c) {

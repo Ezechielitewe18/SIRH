@@ -5,9 +5,7 @@ class LogModel extends Model {
     protected $table = 'journal_activite';
     protected $primaryKey = 'id_log';
 
-    /**
-     * Enregistrer une action dans le journal d'audit
-     */
+
     public function log($action, $details = null, $module = null) {
         $idUtilisateur = $_SESSION['user_id'] ?? null;
         $ip = $_SERVER['REMOTE_ADDR'] ?? null;

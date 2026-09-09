@@ -18,7 +18,7 @@
                             <small class="text-muted"><?= date('d/m/Y H:i', strtotime($n['created_at'])) ?></small>
                         </div>
                         <?php if ($n['lien']): ?>
-                        <a href="<?= $n['lien'] ?>" class="btn btn-sm btn-outline-primary">Voir</a>
+                        <a href="<?= htmlspecialchars($n['lien']) ?>" class="btn btn-sm btn-outline-primary">Voir</a>
                         <?php endif; ?>
                     </div>
                 </div>

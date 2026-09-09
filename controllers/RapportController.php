@@ -19,17 +19,17 @@ class RapportController {
 
         $totalEmployes = $em->getActiveCount();
 
-        // Statistiques présences du mois
+        
         $monthlyPresence = $pm->getMonthlyStats($mois, $annee);
         $totalJours = count($monthlyPresence);
         $totalPoints = array_sum(array_column($monthlyPresence, 'total'));
         $totalPresents = array_sum(array_column($monthlyPresence, 'presents'));
         $totalRetards = array_sum(array_column($monthlyPresence, 'en_retard'));
 
-        // Taux de présentéisme
+        
         $tauxPresence = $totalPoints > 0 ? round(($totalPresents / $totalPoints) * 100, 1) : 0;
 
-        // Statistiques congés
+        
         $conges = $cm->findAllWithEmployee();
         $congesApprouves = 0;
         $congesRefuses = 0;
@@ -43,19 +43,19 @@ class RapportController {
             }
         }
 
-        // Répartition par service
+        
         $employeesByService = $em->countByService();
 
-        // Répartition par sexe
+        
         $employeesByGender = $em->countByGender();
 
-        // Paie du mois
+        
         $pmodel = new PaieModel();
         $bulletins = $pmodel->findAllWithEmployee($mois, $annee);
         $masseSalariale = array_sum(array_column($bulletins, 'total_brut'));
         $totalNet = array_sum(array_column($bulletins, 'total_net'));
 
-        // Formations
+        
         $totalFormations = $fm->getTotalFormations();
 
         require __DIR__ . '/../views/rapports/index.php';
@@ -77,7 +77,7 @@ class RapportController {
             $joursAbsents = 0;
             foreach ($presences as $p) {
                 if (substr($p['date_presence'], 5, 2) == $mois && substr($p['date_presence'], 0, 4) == $annee) {
-                    // Seules les présences validées comptent (QR auto ou validation RH)
+                    
                     if (!in_array($p['validation'] ?? '', ['auto', 'validee'])) {
                         continue;
                     }
@@ -118,7 +118,7 @@ class RapportController {
         $congesRefuses = count($refuses);
         $totalJoursApprouves = array_sum(array_column($approuves, 'nombre_jours'));
 
-        // Répartition par type
+        
         $types = [];
         foreach ($approuves as $c) {
             $types[$c['type_conge']] = ($types[$c['type_conge']] ?? 0) + 1;

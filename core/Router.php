@@ -1,7 +1,4 @@
 <?php
-/**
- * Routeur simple pour le SIRH
- */
 class Router {
     private $routes = [];
     private $notFoundHandler;
@@ -23,7 +20,17 @@ class Router {
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $uri = rtrim($uri, '/');
 
-        // Retirer le préfixe de base (ex: /SIRH)
+        if ($method === 'POST') {
+            $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            $exempt = strpos($path, 'api.php') !== false
+                   || strpos($path, 'cartes/checkin') !== false
+                   || strpos($path, 'cartes/pointer') !== false;
+            if (!$exempt && function_exists('csrf_verify') && !csrf_verify()) {
+                http_response_code(403);
+                die("Erreur de sécurité : token CSRF invalide. Veuillez réessayer.");
+            }
+        }
+
         $basePath = dirname($_SERVER['SCRIPT_NAME']);
         if ($basePath === '\\' || $basePath === '/') {
             $basePath = '';
@@ -35,12 +42,10 @@ class Router {
             $uri = '/';
         }
 
-        // Vérifier les routes exactes
         if (isset($this->routes[$method][$uri])) {
             return $this->call($this->routes[$method][$uri]);
         }
 
-        // Vérifier les routes avec paramètres
         if (isset($this->routes[$method])) {
             foreach ($this->routes[$method] as $route => $handler) {
                 $pattern = preg_replace('/\{(\w+)\}/', '(?P<$1>[^/]+)', $route);
@@ -52,7 +57,6 @@ class Router {
             }
         }
 
-        // Route non trouvée
         if ($this->notFoundHandler) {
             return $this->call($this->notFoundHandler);
         }
@@ -62,8 +66,6 @@ class Router {
     }
 
     private function call($handler, $params = []) {
-        // Garder uniquement les captures nommées pour éviter le conflit
-        // entre arguments positionnels et nommés (PHP 8+)
         $named = [];
         foreach ($params as $k => $v) {
             if (is_string($k)) {

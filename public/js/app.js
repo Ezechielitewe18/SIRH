@@ -1,15 +1,8 @@
-/**
- * SIRH - JavaScript principal
- */
-
-// Confirmation de suppression
 document.querySelectorAll('form[onsubmit]').forEach(form => {
     form.addEventListener('submit', function(e) {
-        // Géré via onsubmit inline
     });
 });
 
-// Fermeture automatique des alerts
 document.addEventListener('DOMContentLoaded', function() {
     const alerts = document.querySelectorAll('.alert-dismissible');
     alerts.forEach(alert => {
@@ -20,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Empêcher les clics multiples
 document.querySelectorAll('button[type="submit"]').forEach(btn => {
     btn.addEventListener('click', function() {
         if (this.form) {

@@ -5,7 +5,6 @@ $employeeModel = new EmployeeModel();
 $employesNonInscrits = [];
 $inscritIds = array_column($inscrits ?? [], 'id_employe');
 
-// Récupérer tous les employés actifs pour le formulaire d'inscription
 $req = (Database::getInstance()->getConnection())->query(
     "SELECT id_employe, nom, prenom, matricule FROM employes WHERE statut = 'actif' ORDER BY nom"
 );
@@ -51,6 +50,7 @@ foreach ($tousEmployes as $e) {
             <div class="card">
                 <div class="card-header"><h3 class="card-title">Inscrire un employé</h3></div>
                 <form method="POST" action="<?= APP_URL ?>/formations/inscrire/<?= $formation['id_formation'] ?>">
+                    <?= csrf_field() ?>
                     <div class="card-body">
                         <div class="form-group">
                             <select name="id_employe" class="form-control" required>
@@ -90,6 +90,7 @@ foreach ($tousEmployes as $e) {
                                 <td><?= htmlspecialchars($i['nom_service'] ?? 'N/A') ?></td>
                                 <td>
                                     <form method="POST" action="<?= APP_URL ?>/formations/statut/<?= $formation['id_formation'] ?>/<?= $i['id_employe'] ?>" class="form-inline" style="display:inline;">
+                                        <?= csrf_field() ?>
                                         <select name="statut" class="form-control form-control-sm" onchange="this.form.submit()">
                                             <option value="inscrit" <?= $i['statut'] === 'inscrit' ? 'selected' : '' ?>>Inscrit</option>
                                             <option value="present" <?= $i['statut'] === 'present' ? 'selected' : '' ?>>Présent</option>
@@ -100,6 +101,7 @@ foreach ($tousEmployes as $e) {
                                 </td>
                                 <td>
                                     <form method="POST" action="<?= APP_URL ?>/formations/desinscrire/<?= $formation['id_formation'] ?>/<?= $i['id_employe'] ?>" style="display:inline;" onsubmit="return confirm('Retirer cet employé ?')">
+                                        <?= csrf_field() ?>
                                         <button class="btn btn-sm btn-danger"><i class="fas fa-user-minus"></i></button>
                                     </form>
                                 </td>

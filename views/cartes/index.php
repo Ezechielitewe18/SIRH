@@ -52,16 +52,17 @@
                                 <i class="fas fa-eye"></i> Voir QR
                             </button>
                             <form method="POST" action="<?= APP_URL ?>/cartes/toggle/<?= $carte['id_carte'] ?>" style="display:inline;">
+                                <?= csrf_field() ?>
                                 <button class="btn btn-sm btn-<?= $carte['actif'] ? 'secondary' : 'success' ?>" title="<?= $carte['actif'] ? 'Désactiver' : 'Activer' ?>">
                                     <i class="fas fa-<?= $carte['actif'] ? 'ban' : 'check' ?>"></i>
                                 </button>
                             </form>
                             <form method="POST" action="<?= APP_URL ?>/cartes/generer/<?= $emp['id_employe'] ?>" style="display:inline;"
                                   onsubmit="return confirm('Régénérer (cela crée un nouveau code) ?')">
+                                <?= csrf_field() ?>
                                 <button class="btn btn-sm btn-primary"><i class="fas fa-sync-alt"></i></button>
                             </form>
 
-                            <!-- Modal QR -->
                             <div class="modal fade" id="qrModal<?= $emp['id_employe'] ?>" tabindex="-1" role="dialog">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content text-center">
@@ -83,6 +84,7 @@
 
                             <?php else: ?>
                             <form method="POST" action="<?= APP_URL ?>/cartes/generer/<?= $emp['id_employe'] ?>" style="display:inline;">
+                                <?= csrf_field() ?>
                                 <button class="btn btn-sm btn-primary"><i class="fas fa-qrcode"></i> Générer</button>
                             </form>
                             <?php endif; ?>

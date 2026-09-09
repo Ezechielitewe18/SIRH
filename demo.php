@@ -25,7 +25,6 @@ body{
   overflow:hidden;
   height:100vh;
 }
-/* Fond décoratif */
 .bg-gradient{
   position:fixed;inset:0;z-index:0;
   background:
@@ -33,22 +32,29 @@ body{
     radial-gradient(800px circle at 85% 90%, rgba(34,211,238,.15), transparent 45%),
     radial-gradient(600px circle at 80% 15%, rgba(59,130,246,.12), transparent 50%),
     var(--bg);
+  transition:background .8s ease;
 }
-/* Orbes animés flottants */
+body.slide-dark .bg-gradient{
+  background:
+    radial-gradient(900px circle at 15% 10%, rgba(99,102,241,.12), transparent 45%),
+    radial-gradient(800px circle at 85% 90%, rgba(34,211,238,.08), transparent 45%),
+    var(--bg);
+}
 .orb{
   position:fixed;border-radius:50%;z-index:1;filter:blur(70px);opacity:.5;
   pointer-events:none;
   animation:orbFloat 18s ease-in-out infinite;
 }
-.orb.o1{width:340px;height:340px;left:-80px;top:-60px;background:radial-gradient(circle,rgba(99,102,241,.55),transparent 70%)}
-.orb.o2{width:420px;height:420px;right:-100px;bottom:-80px;background:radial-gradient(circle,rgba(34,211,238,.45),transparent 70%);animation-delay:-6s}
+.orb.o1{width:340px;height:340px;left:-80px;top:-60px;background:radial-gradient(circle,rgba(99,102,241,.55),transparent 70%);transition:left .9s ease,top .9s ease,width .9s ease}
+.orb.o2{width:420px;height:420px;right:-100px;bottom:-80px;background:radial-gradient(circle,rgba(34,211,238,.45),transparent 70%);animation-delay:-6s;transition:right .9s ease,bottom .9s ease,width .9s ease}
 .orb.o3{width:260px;height:260px;left:55%;top:-40px;background:radial-gradient(circle,rgba(59,130,246,.5),transparent 70%);animation-delay:-12s}
+body.slide-dark .orb.o1{left:-140px;top:-130px}
+body.slide-dark .orb.o2{right:-180px;bottom:-160px;width:300px}
 @keyframes orbFloat{
   0%,100%{transform:translate(0,0) scale(1)}
   33%{transform:translate(40px,-30px) scale(1.1)}
   66%{transform:translate(-30px,40px) scale(.95)}
 }
-/* Grain / grille subtil */
 .grid-lines{
   position:fixed;inset:0;z-index:0;opacity:.04;
   background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),
@@ -57,7 +63,6 @@ body{
   mask-image:radial-gradient(ellipse at center, transparent 20%, #000 75%);
   -webkit-mask-image:radial-gradient(ellipse at center, transparent 20%, #000 75%);
 }
-/* Barre logo fixe */
 .topbar{
   position:fixed;top:0;left:0;right:0;z-index:20;
   display:flex;align-items:center;justify-content:space-between;
@@ -84,13 +89,13 @@ body{
 .brand .logo span{color:#fff;font-size:22px;font-weight:800}
 .brand .dot{color:var(--cyan)}
 .brand small{display:block;font-family:'Inter';font-weight:500;font-size:11px;letter-spacing:3px;color:var(--muted)}
-/* Compteur / barre */
 .slide-meta{
   display:flex;align-items:center;gap:18px;color:var(--muted);font-size:14px;
 }
+.brand-name{font-size:15px;font-weight:600;color:#fff;display:flex;align-items:center;gap:8px}
+.brand-name i{color:var(--cyan)}
 .progress{width:0;height:4px;background:linear-gradient(90deg,var(--accent),var(--cyan));transition:width .1s linear;border-radius:4px}
 .progress-wrap{position:fixed;top:0;left:0;right:0;z-index:21;height:4px;background:rgba(255,255,255,.06)}
-/* Zone slide */
 .stage{
   position:relative;z-index:5;
   height:100vh;
@@ -98,41 +103,51 @@ body{
   padding:90px 60px 40px;
 }
 .slide{display:none;width:100%;max-width:1300px}
-.slide.active{display:block;animation:slideIn .6s cubic-bezier(.22,1,.36,1)}
-@keyframes slideIn{from{opacity:0;transform:translateY(30px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.slide.active{display:block;animation:slideIn .65s cubic-bezier(.22,1,.36,1)}
+@keyframes slideIn{from{opacity:0;transform:translateY(36px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 
-/* Titre du slide */
-.slide-head{text-align:center;margin-bottom:30px}
+.slide-head{text-align:center;margin-bottom:34px}
 .slide-kicker{
   display:inline-flex;align-items:center;gap:8px;
   color:var(--cyan);font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
   margin-bottom:10px;
+  opacity:0;transform:translateY(10px);transition:opacity .5s ease .1s,transform .5s ease .1s;
 }
+.slide.active .slide-kicker{opacity:1;transform:translateY(0)}
 .slide-kicker .line{width:34px;height:2px;background:linear-gradient(90deg,transparent,var(--cyan))}
 .slide-kicker .line.r{background:linear-gradient(90deg,var(--cyan),transparent)}
 h2.slide-title{
   font-family:'Poppins',sans-serif;font-weight:800;font-size:44px;line-height:1.1;
   background:linear-gradient(90deg,#fff,#b8c2d6);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  opacity:0;transform:translateY(14px);transition:opacity .5s ease .18s,transform .5s ease .18s;
 }
-.slide-desc{color:var(--muted);font-size:17px;margin-top:12px;max-width:760px;margin-left:auto;margin-right:auto}
-/* Contenu slide */
+.slide.active h2.slide-title{opacity:1;transform:translateY(0)}
+.slide-desc{color:var(--muted);font-size:17px;margin-top:12px;max-width:760px;margin-left:auto;margin-right:auto;
+  opacity:0;transform:translateY(10px);transition:opacity .5s ease .26s,transform .5s ease .26s;}
+.slide.active .slide-desc{opacity:1;transform:translateY(0)}
 .slide-body{
   display:flex;gap:32px;align-items:stretch;
+  opacity:0;transform:translateY(20px);transition:opacity .6s ease .34s,transform .6s ease .34s;
 }
+.slide.active .slide-body{opacity:1;transform:translateY(0)}
 .shot{
   flex:1.2;position:relative;border-radius:16px;overflow:hidden;
   border:1px solid rgba(255,255,255,.09);
   background:var(--panel2);
   box-shadow:0 24px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(34,211,238,.06);
+  transform:perspective(1200px) rotateY(0deg) rotateX(0deg);
+  transition:transform .5s cubic-bezier(.22,1,.36,1);
 }
+.shot:hover{transform:perspective(1200px) rotateY(-4deg) rotateX(2deg)}
 .shot::before{
   content:'';position:absolute;inset:-2px;z-index:-1;border-radius:18px;
   background:linear-gradient(120deg,rgba(99,102,241,.4),transparent 40%,rgba(34,211,238,.4));
   filter:blur(24px);opacity:.5;transition:opacity .4s;
 }
-.shot:hover::before{opacity:.8}
-.shot img{display:block;width:100%;height:100%;object-fit:contain;background:radial-gradient(120% 120% at 50% 0%,#111a2c,#0a0f1c)}
+.shot:hover::before{opacity:.85}
+.shot img{display:block;width:100%;height:100%;object-fit:contain;background:radial-gradient(120% 120% at 50% 0%,#111a2c,#0a0f1c);transition:transform .8s cubic-bezier(.22,1,.36,1)}
+.shot:hover img{transform:scale(1.03)}
 .shot::after{
   content:'';position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(140deg,rgba(255,255,255,.06),transparent 40%),
@@ -152,7 +167,7 @@ h2.slide-title{
   border-radius:12px;padding:16px 18px;
   backdrop-filter:blur(8px);
   transition:transform .3s cubic-bezier(.22,1,.36,1),border-color .3s,box-shadow .3s,background .3s;
-  opacity:0;transform:translateY(22px);
+  opacity:0;transform:translateY(24px);
 }
 .feature.revealed{opacity:1;transform:translateY(0)}
 .feature:hover{
@@ -173,7 +188,6 @@ h2.slide-title{
 .feature p{font-size:13.5px;color:var(--muted);line-height:1.45}
 .feature:hover p{color:#b9c6db}
 
-/* Slide hero (intro) */
 .slide.hero{text-align:center}
 .hero .big-logo{
   width:130px;height:130px;border-radius:30px;margin:0 auto 26px;position:relative;
@@ -206,8 +220,15 @@ h2.slide-title{
 .hero .chip:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(0,0,0,.3);border-color:rgba(34,211,238,.5)}
 .hero .chip i{margin-right:8px;color:var(--cyan)}
 
-/* Slide final (merci) */
 .slide.merci{text-align:center}
+.merci .big-check{
+  width:110px;height:110px;border-radius:50%;margin:0 auto 26px;position:relative;
+  background:linear-gradient(135deg,#10b981,#22d3ee);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 20px 60px rgba(16,185,129,.5), inset 0 0 0 1px rgba(255,255,255,.18);
+  animation:dashPulse 3.5s ease-in-out infinite;
+  font-size:58px;color:#fff;
+}
 .merci h2{font-family:'Poppins';font-weight:800;font-size:64px;background:linear-gradient(90deg,#fff,var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 6px 30px rgba(34,211,238,.3))}
 .merci .sub{font-size:20px;color:var(--muted);margin-top:16px}
 .merci .btn-contact{
@@ -223,8 +244,15 @@ h2.slide-title{
   background:linear-gradient(135deg,transparent 30%,rgba(255,255,255,.3) 50%,transparent 70%);
   background-size:200% 200%;animation:shine 3s linear infinite;
 }
+.merci .modules{margin-top:36px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.merci .module{
+  padding:10px 20px;border-radius:12px;font-size:13px;font-weight:600;color:var(--text);
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  transition:transform .25s,border-color .25s;
+}
+.merci .module i{color:var(--cyan);margin-right:6px}
+.merci .module:hover{transform:translateY(-3px);border-color:rgba(34,211,238,.4)}
 
-/* Navigation */
 .nav-arrow{
   position:fixed;top:50%;transform:translateY(-50%);z-index:30;
   width:56px;height:56px;border-radius:50%;
@@ -237,7 +265,6 @@ h2.slide-title{
 .nav-arrow:hover{background:rgba(59,130,246,.35);transform:translateY(-50%) scale(1.06);box-shadow:0 0 24px rgba(99,102,241,.4)}
 .nav-arrow.prev{left:26px}
 .nav-arrow.next{right:26px}
-/* Points */
 .dots{
   position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:30;
   display:flex;gap:10px;
@@ -246,7 +273,6 @@ h2.slide-title{
   width:30px;height:7px;border-radius:4px;background:rgba(255,255,255,.18);cursor:pointer;transition:all .25s;
 }
 .dot.active{background:linear-gradient(90deg,var(--accent),var(--cyan));width:44px}
-/* Hint clavier */
 .hint{
   position:fixed;bottom:22px;right:40px;z-index:30;
   color:var(--muted);font-size:12px;letter-spacing:1px;display:flex;align-items:center;gap:8px;
@@ -266,7 +292,6 @@ h2.slide-title{
 body.auto .timer-btn .play{display:none}
 body.auto .timer-btn .pause{display:inline}
 
-/* Responsive */
 @media(max-width:900px){
   .slide-body{flex-direction:column}
   .features{flex-direction:row;flex-wrap:wrap}
@@ -274,6 +299,10 @@ body.auto .timer-btn .pause{display:inline}
   h2.slide-title{font-size:30px}
   .hero h1{font-size:46px}
   .nav-arrow{width:44px;height:44px;font-size:18px}
+}
+@media(max-width:600px){
+  .feature{flex:1 1 100%}
+  .merci .modules{flex-direction:column}
 }
 </style>
 </head>
@@ -295,13 +324,12 @@ body.auto .timer-btn .pause{display:inline}
     </div>
   </div>
   <div class="slide-meta">
-    <span id="counter">1 / 9</span>
+    <span id="counter">1 / 11</span>
   </div>
 </header>
 
 <div class="stage" id="stage">
 
-  <!-- SLIDE 1 : Intro -->
   <section class="slide hero active" data-kicker="Bienvenue">
     <div class="big-logo"><span>G</span></div>
     <h1>GLOBIT</h1>
@@ -311,10 +339,30 @@ body.auto .timer-btn .pause{display:inline}
       <div class="chip"><i class="fa-solid fa-clipboard-check"></i>Présences</div>
       <div class="chip"><i class="fa-solid fa-money-bill-wave"></i>Paie</div>
       <div class="chip"><i class="fa-solid fa-mobile-screen-button"></i>Mobile</div>
+      <div class="chip"><i class="fa-solid fa-qrcode"></i>QR Code</div>
     </div>
   </section>
 
-  <!-- SLIDE 2 : Dashboard -->
+  <section class="slide" data-kicker="Connexion">
+    <div class="slide-head">
+      <div class="slide-kicker"><span class="line"></span>Connexion<span class="line r"></span></div>
+      <h2 class="slide-title">Un espace de connexion moderne</h2>
+      <p class="slide-desc">Une interface sombre, épurée et sécurisée pour accéder à la plateforme.</p>
+    </div>
+    <div class="slide-body">
+      <div class="shot">
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Connexion</span></div>
+        <div class="shot-body"><img src="assets/demo/login.png" alt="Connexion"></div>
+      </div>
+      <div class="features">
+        <div class="feature"><div class="icon"><i class="fa-solid fa-lock"></i></div><div><h4>Authentification sécurisée</h4><p>Connexion protégée par sessions PHP et anti-CSRF.</p></div></div>
+        <div class="feature"><div class="icon"><i class="fa-solid fa-shield-halved"></i></div><div><h4>Mots de passe chiffrés</h4><p>Hachage bcrypt et protection contre l'injection SQL.</p></div></div>
+        <div class="feature"><div class="icon"><i class="fa-solid fa-right-to-bracket"></i></div><div><h4>Accès par rôle</h4><p>Admin, RH et employé : chacun son espace et ses droits.</p></div></div>
+        <div class="feature"><div class="icon"><i class="fa-solid fa-mobile-screen-button"></i></div><div><h4>Connexion mobile</h4><p>Accédez aussi via l'API JSON depuis le téléphone.</p></div></div>
+      </div>
+    </div>
+  </section>
+
   <section class="slide" data-kicker="Vue d'ensemble">
     <div class="slide-head">
       <div class="slide-kicker"><span class="line"></span>Vue d'ensemble<span class="line r"></span></div>
@@ -335,7 +383,6 @@ body.auto .timer-btn .pause{display:inline}
     </div>
   </section>
 
-  <!-- SLIDE 3 : Employés -->
   <section class="slide" data-kicker="Gestion">
     <div class="slide-head">
       <div class="slide-kicker"><span class="line"></span>Gestion<span class="line r"></span></div>
@@ -349,14 +396,13 @@ body.auto .timer-btn .pause{display:inline}
       </div>
       <div class="features">
         <div class="feature"><div class="icon"><i class="fa-solid fa-address-card"></i></div><div><h4>Création rapide</h4><p>Ajoutez un collaborateur avec son matricule, service et fonction.</p></div></div>
+        <div class="feature"><div class="icon"><i class="fa-solid fa-envelope"></i></div><div><h4>Email professionnel</h4><p>Un email @globit.com généré automatiquement pour chaque employé.</p></div></div>
         <div class="feature"><div class="icon"><i class="fa-solid fa-pen-to-square"></i></div><div><h4>Modification</h4><p>Mettez à jour les informations en quelques clics.</p></div></div>
         <div class="feature"><div class="icon"><i class="fa-solid fa-magnifying-glass"></i></div><div><h4>Recherche</h4><p>Trouvez un employé instantanément par nom ou matricule.</p></div></div>
-        <div class="feature"><div class="icon"><i class="fa-solid fa-folder-tree"></i></div><div><h4>Filtres</h4><p>Filtrez par service, statut ou date d'embauche.</p></div></div>
       </div>
     </div>
   </section>
 
-  <!-- SLIDE 4 : Présences -->
   <section class="slide" data-kicker="Pointage">
     <div class="slide-head">
       <div class="slide-kicker"><span class="line"></span>Pointage<span class="line r"></span></div>
@@ -377,7 +423,6 @@ body.auto .timer-btn .pause{display:inline}
     </div>
   </section>
 
-  <!-- SLIDE 5 : Congés -->
   <section class="slide" data-kicker="Absences">
     <div class="slide-head">
       <div class="slide-kicker"><span class="line"></span>Absences<span class="line r"></span></div>
@@ -398,7 +443,6 @@ body.auto .timer-btn .pause{display:inline}
     </div>
   </section>
 
-  <!-- SLIDE 6 : Paie -->
   <section class="slide" data-kicker="Finances">
     <div class="slide-head">
       <div class="slide-kicker"><span class="line"></span>Finances<span class="line r"></span></div>
@@ -419,7 +463,6 @@ body.auto .timer-btn .pause{display:inline}
     </div>
   </section>
 
-  <!-- SLIDE 7 : Cartes QR -->
   <section class="slide" data-kicker="Sécurité">
     <div class="slide-head">
       <div class="slide-kicker"><span class="line"></span>Sécurité<span class="line r"></span></div>
@@ -440,7 +483,6 @@ body.auto .timer-btn .pause{display:inline}
     </div>
   </section>
 
-  <!-- SLIDE 8 : Rapports -->
   <section class="slide" data-kicker="Analyse">
     <div class="slide-head">
       <div class="slide-kicker"><span class="line"></span>Analyse<span class="line r"></span></div>
@@ -450,27 +492,53 @@ body.auto .timer-btn .pause{display:inline}
     <div class="slide-body">
       <div class="shot">
         <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Rapports</span></div>
-        <div class="shot-body"><img src="assets/demo/rapports.png" alt="Rapports"></div>
+        <div class="shot-body"><img src="assets/demo/journal.png" alt="Rapports"></div>
       </div>
       <div class="features">
         <div class="feature"><div class="icon"><i class="fa-solid fa-chart-line"></i></div><div><h4>Absentéisme</h4><p>Taux d'absence par employé et par mois.</p></div></div>
-        <div class="feature"><div class="icon"><i class="fa-solid fa-chart-line"></i></div><div><h4>Personnel</h4><p>Répartition des effectifs par service et par genre.</p></div></div>
-        <div class="feature"><div class="icon"><i class="fa-solid fa-receipt"></i></div><div><h4>Congés</h4><p>Synthèse des absences et des demandes.</p></div></div>
+        <div class="feature"><div class="icon"><i class="fa-solid fa-chart-pie"></i></div><div><h4>Personnel</h4><p>Répartition des effectifs par service et par genre.</p></div></div>
+        <div class="feature"><div class="icon"><i class="fa-solid fa-calendar-check"></i></div><div><h4>Congés</h4><p>Synthèse des absences et des demandes.</p></div></div>
         <div class="feature"><div class="icon"><i class="fa-solid fa-book-open"></i></div><div><h4>Journal</h4><p>Audit de toutes les actions pour la sécurité.</p></div></div>
       </div>
     </div>
   </section>
 
-  <!-- SLIDE 9 : Merci -->
+  <section class="slide" data-kicker="Applications">
+    <div class="slide-head">
+      <div class="slide-kicker"><span class="line"></span>Applications<span class="line r"></span></div>
+      <h2 class="slide-title">L'écosystème GLOBIT</h2>
+      <p class="slide-desc">Une plateforme web complète avec une application mobile intégrée.</p>
+    </div>
+    <div class="slide-body">
+      <div class="shot">
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Mobile</span></div>
+        <div class="shot-body"><img src="assets/demo/dashboard.png" alt="Applications"></div>
+      </div>
+      <div class="features">
+        <div class="feature"><div class="icon"><i class="fa-solid fa-globe"></i></div><div><h4>Plateforme web</h4><p>Administration complète avec interface AdminLTE et Bootstrap.</p></div></div>
+        <div class="feature"><div class="icon"><i class="fa-solid fa-mobile-screen-button"></i></div><div><h4>App mobile PWA</h4><p>Installable sur téléphone : pointage, congés et notifications.</p></div></div>
+        <div class="feature"><div class="icon"><i class="fa-solid fa-plug"></i></div><div><h4>API JSON</h4><p>API sécurisée par token pour connecter l'application mobile.</p></div></div>
+        <div class="feature"><div class="icon"><i class="fa-solid fa-bell"></i></div><div><h4>Notifications</h4><p>Alertes en temps réel pour chaque décision RH.</p></div></div>
+      </div>
+    </div>
+  </section>
+
   <section class="slide merci" data-kicker="Conclusion">
+    <div class="big-check"><i class="fa-solid fa-check"></i></div>
     <h2>Merci !</h2>
     <div class="sub">GLOBIT — le référentiel RH de votre entreprise.</div>
-    <p style="margin-top:28px;color:var(--muted);font-size:15px">Présences &middot; Congés &middot; Paie &middot; Formations &middot; Rapports</p>
+    <div class="modules">
+      <div class="module"><i class="fa-solid fa-users"></i>Employés</div>
+      <div class="module"><i class="fa-solid fa-clipboard-check"></i>Présences</div>
+      <div class="module"><i class="fa-solid fa-calendar-days"></i>Congés</div>
+      <div class="module"><i class="fa-solid fa-money-bill-wave"></i>Paie</div>
+      <div class="module"><i class="fa-solid fa-qrcode"></i>QR Code</div>
+      <div class="module"><i class="fa-solid fa-chart-line"></i>Rapports</div>
+    </div>
   </section>
 
 </div>
 
-<!-- Navigation -->
 <button class="nav-arrow prev" id="prev"><span>&#8592;</span></button>
 <button class="nav-arrow next" id="next"><span>&#8594;</span></button>
 
@@ -489,11 +557,10 @@ body.auto .timer-btn .pause{display:inline}
   var N = slides.length;
   var current = 0;
   var auto = true;
-  var DURATION = 10000; // 10s
+  var DURATION = 10000;
   var timer = null;
   var startTime = 0;
 
-  // Build dots
   slides.forEach(function(s, i){
     var d = document.createElement('div');
     d.className = 'dot' + (i===0 ? ' active' : '');
@@ -512,12 +579,12 @@ body.auto .timer-btn .pause{display:inline}
     slides[current].classList.add('active');
     dots[current].classList.add('active');
     counter.textContent = (current+1) + ' / ' + N;
+    document.body.classList.toggle('slide-dark', slides[current].classList.contains('merci'));
     progress.style.width = '0%';
-    // Cascade reveal des features du slide actif
     var feats = slides[current].querySelectorAll('.feature');
     feats.forEach(function(f){ f.classList.remove('revealed'); });
     feats.forEach(function(f, idx){
-      setTimeout(function(){ f.classList.add('revealed'); }, 120 * idx);
+      setTimeout(function(){ f.classList.add('revealed'); }, 130 * idx + 250);
     });
   }
 
@@ -566,7 +633,6 @@ body.auto .timer-btn .pause{display:inline}
     else if(e.key === 'p' || e.key === 'P'){ if(auto){stopAuto()}else{auto=true;startAuto()} }
   });
 
-  // Toucher swipe
   var touchX = 0;
   document.addEventListener('touchstart', function(e){ touchX = e.touches[0].clientX; });
   document.addEventListener('touchend', function(e){

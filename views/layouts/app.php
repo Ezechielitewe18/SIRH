@@ -1,4 +1,4 @@
-<?php $currentPage = basename($_SERVER['REQUEST_URI']); ?>
+<?php $currentPage = strtok(basename($_SERVER['REQUEST_URI']), '?'); ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -13,7 +13,6 @@
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
-    <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-white navbar-light">
         <ul class="navbar-nav">
             <li class="nav-item">
@@ -40,7 +39,6 @@
         </ul>
     </nav>
 
-    <!-- Sidebar -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
         <a href="<?= APP_URL ?>/dashboard" class="brand-link text-center">
             <span class="brand-text font-weight-bold" style="color: #fff;">
@@ -163,19 +161,18 @@
         </div>
     </aside>
 
-    <!-- Content Wrapper -->
     <div class="content-wrapper">
         <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success alert-dismissible" style="margin: 15px;">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <?= $_SESSION['success'] ?>
+            <?= htmlspecialchars($_SESSION['success']) ?>
         </div>
         <?php unset($_SESSION['success']); endif; ?>
 
         <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-danger alert-dismissible" style="margin: 15px;">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <?= $_SESSION['error'] ?>
+            <?= htmlspecialchars($_SESSION['error']) ?>
         </div>
         <?php unset($_SESSION['error']); endif; ?>
 
@@ -184,7 +181,7 @@
             <button type="button" class="close" data-dismiss="alert">&times;</button>
             <ul class="mb-0">
                 <?php foreach ($_SESSION['errors'] as $err): ?>
-                <li><?= $err ?></li>
+                <li><?= htmlspecialchars($err) ?></li>
                 <?php endforeach; ?>
             </ul>
         </div>

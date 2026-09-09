@@ -10,8 +10,8 @@ class ServiceModel extends Model {
     }
 
     public function getEmployeeCount() {
-        $sql = "SELECT s.*, COUNT(e.id_employe) as nombre_employes 
-                FROM {$this->table} s 
+        $sql = "SELECT s.*, COUNT(e.id_employe) as nombre_employes
+                FROM {$this->table} s
                 LEFT JOIN employes e ON s.id_service = e.id_service AND e.statut = 'actif'
                 GROUP BY s.id_service
                 ORDER BY s.nom_service ASC";

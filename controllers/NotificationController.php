@@ -20,7 +20,7 @@ class NotificationController {
     }
 
     public function markRead($id) {
-        $this->notificationModel->markRead($id);
+        $this->notificationModel->markRead($id, $_SESSION['user_id']);
         header('Location: ' . APP_URL . '/notifications');
         exit;
     }

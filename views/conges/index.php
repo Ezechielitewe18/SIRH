@@ -20,7 +20,6 @@ $role = $_SESSION['user_role'] ?? '';
 
 <section class="content">
     <?php if (in_array($role, ['admin', 'rh'])): ?>
-    <!-- Filtres -->
     <div class="card mb-3">
         <div class="card-body">
             <a href="<?= APP_URL ?>/conges" class="btn btn-outline-secondary btn-sm">Tous</a>
@@ -59,7 +58,7 @@ $role = $_SESSION['user_role'] ?? '';
                             <small class="text-muted"><?= htmlspecialchars($c['nom_service'] ?? '') ?></small>
                         </td>
                         <?php endif; ?>
-                        <td><span class="badge badge-info"><?= ucfirst($c['type_conge']) ?></span></td>
+                        <td><span class="badge badge-info"><?= htmlspecialchars(ucfirst($c['type_conge'])) ?></span></td>
                         <td><?= date('d/m/Y', strtotime($c['date_debut'])) ?></td>
                         <td><?= date('d/m/Y', strtotime($c['date_fin'])) ?></td>
                         <td><span class="badge badge-primary"><?= $c['nombre_jours'] ?></span></td>
@@ -78,17 +77,18 @@ $role = $_SESSION['user_role'] ?? '';
                         <td>
                             <?php if ($c['statut'] === 'en_attente'): ?>
                             <form method="POST" action="<?= APP_URL ?>/conges/approve/<?= $c['id_conge'] ?>" style="display:inline;">
+                                <?= csrf_field() ?>
                                 <button class="btn btn-sm btn-success" title="Approuver"><i class="fas fa-check"></i></button>
                             </form>
                             <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#rejectModal<?= $c['id_conge'] ?>" title="Refuser">
                                 <i class="fas fa-times"></i>
                             </button>
 
-                            <!-- Modal de refus -->
                             <div class="modal fade" id="rejectModal<?= $c['id_conge'] ?>" tabindex="-1" role="dialog">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <form method="POST" action="<?= APP_URL ?>/conges/reject/<?= $c['id_conge'] ?>">
+                                            <?= csrf_field() ?>
                                             <div class="modal-header">
                                                 <h5 class="modal-title">Refuser la demande</h5>
                                                 <button type="button" class="close" data-dismiss="modal">&times;</button>

@@ -15,7 +15,7 @@ class ExportController {
         $this->csvHeaders($filename);
 
         $out = fopen('php://output', 'w');
-        // BOM UTF-8 pour Excel
+        
         fwrite($out, "\xEF\xBB\xBF");
         fputcsv($out, ['Matricule', 'Nom', 'Postnom', 'Prenom', 'Sexe', 'Telephone', 'Email', 'Service', 'Poste', 'Date embauche', 'Salaire', 'Statut']);
 
@@ -41,6 +41,8 @@ class ExportController {
 
     public function presencesExcel() {
         $date = $_GET['date'] ?? date('Y-m-d');
+        
+        $date = preg_replace('/[^0-9\-]/', '', $date);
         $pm = new PresenceModel();
         $presences = $pm->findAllWithEmployee($date);
 
@@ -175,9 +177,9 @@ class ExportController {
     }
 
     private function renderPdf($filename, $html) {
-        // Générer un PDF simple sans bibliothèque externe
-        // (Approche: HTML -> on envoie en tant que texte structuré via un convertisseur minimal)
-        // Si wkhtmltopdf ou dompdf n'est pas dispo, on renvoie un fallback
+        
+        
+        
         $dompdfPath = __DIR__ . '/../lib/dompdf/autoload.inc.php';
 
         if (file_exists($dompdfPath)) {
@@ -190,7 +192,7 @@ class ExportController {
             exit;
         }
 
-        // Fallback: renvoyer en vue imprimable HTML si dompdf absent
+        
         header('Content-Type: text/html; charset=UTF-8');
         echo $html;
         echo "<script>window.print();</script>";

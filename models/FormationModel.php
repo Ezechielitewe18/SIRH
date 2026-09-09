@@ -6,7 +6,7 @@ class FormationModel extends Model {
     protected $primaryKey = 'id_formation';
 
     public function findAllWithCount() {
-        $sql = "SELECT f.*, 
+        $sql = "SELECT f.*,
                        (SELECT COUNT(*) FROM formations_employes fe WHERE fe.id_formation = f.id_formation) as nb_inscrits
                 FROM formations f
                 ORDER BY f.created_at DESC";
@@ -27,10 +27,11 @@ class FormationModel extends Model {
     }
 
     public function inscrireEmploye($idFormation, $idEmploye) {
-        $existant = $this->db->query(
-            "SELECT id FROM formations_employes 
-             WHERE id_formation = $idFormation AND id_employe = $idEmploye"
-        )->fetch();
+        $stmt = $this->db->prepare(
+            "SELECT id FROM formations_employes WHERE id_formation = :f AND id_employe = :e"
+        );
+        $stmt->execute(['f' => $idFormation, 'e' => $idEmploye]);
+        $existant = $stmt->fetch();
         if ($existant) {
             return ['success' => false, 'message' => 'Cet employé est déjà inscrit'];
         }

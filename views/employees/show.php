@@ -45,7 +45,20 @@
                         <tr><th>Lieu de naissance</th><td><?= htmlspecialchars($employee['lieu_naissance'] ?? 'N/A') ?></td></tr>
                         <tr><th>Adresse</th><td><?= htmlspecialchars($employee['adresse'] ?? 'N/A') ?></td></tr>
                         <tr><th>Téléphone</th><td><?= htmlspecialchars($employee['telephone'] ?? 'N/A') ?></td></tr>
-                        <tr><th>Email</th><td><?= htmlspecialchars($employee['email'] ?? 'N/A') ?></td></tr>
+                        <tr><th>Email professionnel</th><td>
+                            <?php if (!empty($employee['email'])): ?>
+                            <a href="mailto:<?= htmlspecialchars($employee['email']) ?>">
+                                <i class="fas fa-envelope"></i> <?= htmlspecialchars($employee['email']) ?>
+                            </a>
+                            <?php else: ?>N/A<?php endif; ?>
+                        </td></tr>
+                        <tr><th>Compte utilisateur</th><td>
+                            <?php if (!empty($employee['id_utilisateur'])): ?>
+                            <span class="badge badge-success"><i class="fas fa-check"></i> Actif</span>
+                            <?php else: ?>
+                            <span class="badge badge-warning"><i class="fas fa-times"></i> Non créé</span>
+                            <?php endif; ?>
+                        </td></tr>
                         <tr><th>Service</th><td><?= htmlspecialchars($employee['nom_service'] ?? 'N/A') ?></td></tr>
                         <tr><th>Poste</th><td><?= htmlspecialchars($employee['poste'] ?? 'N/A') ?></td></tr>
                         <tr><th>Date d'embauche</th><td><?= date('d/m/Y', strtotime($employee['date_embauche'])) ?></td></tr>

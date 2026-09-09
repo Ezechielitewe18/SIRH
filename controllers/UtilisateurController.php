@@ -44,7 +44,7 @@ class UtilisateurController {
                     'role' => $role
                 ]);
 
-                // Associer à l'employé si fourni
+                
                 if ($idEmploye) {
                     $sql = "UPDATE employes SET id_utilisateur = :uid WHERE id_employe = :eid";
                     $stmt = (Database::getInstance()->getConnection())->prepare($sql);
@@ -71,7 +71,7 @@ class UtilisateurController {
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Ne jamais désactiver son propre compte
+            
             if ($id == $_SESSION['user_id'] && ($_POST['statut'] ?? '') === 'inactif') {
                 $_SESSION['error'] = 'Vous ne pouvez pas désactiver votre propre compte';
                 header('Location: ' . APP_URL . '/utilisateurs');
@@ -84,7 +84,7 @@ class UtilisateurController {
                 'statut' => $_POST['statut']
             ];
 
-            // Nouveau mot de passe si fourni
+            
             if (!empty($_POST['password'])) {
                 if (strlen($_POST['password']) < 6) {
                     $_SESSION['errors'] = ['Le mot de passe doit contenir au moins 6 caractères'];

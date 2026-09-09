@@ -8,6 +8,7 @@
 <section class="content">
     <div class="card">
         <form method="POST" action="<?= APP_URL ?>/employees/create">
+            <?= csrf_field() ?>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
@@ -64,8 +65,14 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                            <label>Email professionnel</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="workEmail" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" readonly placeholder="Auto-généré">
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Généré automatiquement (ex: prenom.nom@globit.com)</small>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -108,6 +115,22 @@
         </form>
     </div>
 </section>
+
+<script>
+function slugify(str) {
+    return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+}
+document.addEventListener('input', function() {
+    var nom = slugify(document.querySelector('[name="nom"]')?.value || '');
+    var prenom = slugify(document.querySelector('[name="prenom"]')?.value || '');
+    var email = document.getElementById('workEmail');
+    if (prenom && nom) {
+        email.value = prenom + '.' + nom + '@globit.com';
+    } else {
+        email.value = '';
+    }
+});
+</script>
 
 <?php
 $content = ob_get_clean();

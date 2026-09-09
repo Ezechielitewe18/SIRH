@@ -1,13 +1,5 @@
--- =============================================
--- SIRH/GLOBIT - Tables pour les améliorations
--- 1. Paie, 3. Formations, 5. Notifications
--- =============================================
 USE sirh;
 
--- =============================================
--- Table: parametres_paie
--- Paramètres globaux de paie (congé taxe, heures supp, etc.)
--- =============================================
 CREATE TABLE IF NOT EXISTS parametres_paie (
     id_parametre INT AUTO_INCREMENT PRIMARY KEY,
     nom_parametre VARCHAR(100) NOT NULL,
@@ -18,10 +10,6 @@ CREATE TABLE IF NOT EXISTS parametres_paie (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- =============================================
--- Table: bulletins
--- Bulletins de paie par employé et par mois
--- =============================================
 CREATE TABLE IF NOT EXISTS bulletins (
     id_bulletin INT AUTO_INCREMENT PRIMARY KEY,
     id_employe INT NOT NULL,
@@ -42,10 +30,6 @@ CREATE TABLE IF NOT EXISTS bulletins (
     UNIQUE KEY unique_bulletin (id_employe, mois, annee)
 ) ENGINE=InnoDB;
 
--- =============================================
--- Table: formations
--- Catalogue des formations
--- =============================================
 CREATE TABLE IF NOT EXISTS formations (
     id_formation INT AUTO_INCREMENT PRIMARY KEY,
     titre VARCHAR(150) NOT NULL,
@@ -59,10 +43,6 @@ CREATE TABLE IF NOT EXISTS formations (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- =============================================
--- Table: formations_employes
--- Association employés -> formations (inscriptions)
--- =============================================
 CREATE TABLE IF NOT EXISTS formations_employes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_formation INT NOT NULL,
@@ -77,10 +57,6 @@ CREATE TABLE IF NOT EXISTS formations_employes (
     UNIQUE KEY unique_inscription (id_formation, id_employe)
 ) ENGINE=InnoDB;
 
--- =============================================
--- Table: notifications
--- Notifications internes aux utilisateurs
--- =============================================
 CREATE TABLE IF NOT EXISTS notifications (
     id_notification INT AUTO_INCREMENT PRIMARY KEY,
     id_utilisateur INT NOT NULL,
@@ -93,9 +69,6 @@ CREATE TABLE IF NOT EXISTS notifications (
     FOREIGN KEY (id_utilisateur) REFERENCES utilisateurs(id_utilisateur) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- =============================================
--- Données initiales: paramètres de paie
--- =============================================
 INSERT INTO parametres_paie (nom_parametre, valeur, type_parametre, description) VALUES
 ('Taxe professionnelle', 1.00, 'pourcentage', 'Pourcentage de l''impôt professionnel sur le brut'),
 ('Prestation sociale', 3.50, 'pourcentage', 'Cotisation sociale (fond social) sur le brut'),

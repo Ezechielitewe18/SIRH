@@ -1,18 +1,7 @@
 <?php
-/**
- * API JSON GLOBIT
- * Point d'accès REST pour l'application mobile (PWA) et intégrations externes.
- *
- * Authentification :
- *   POST /api.php?action=login  { email, password }  -> { token, expires_at, user }
- *   Toutes les autres requêtes : Header "Authorization: Bearer <token>"
- *
- * Réponses JSON unifiées : { success: bool, data: ..., message: string }
- */
 
 define('ROOT_PATH', __DIR__);
 
-// L'API doit toujours renvoyer du JSON propre : masquer les erreurs PHP d'affichage
 error_reporting(E_ALL);
 ini_set('display_errors', '0');
 
@@ -27,9 +16,6 @@ require_once ROOT_PATH . '/models/CongeModel.php';
 require_once ROOT_PATH . '/models/NotificationModel.php';
 require_once ROOT_PATH . '/models/PaieModel.php';
 
-// ------------------------------------------------------------------
-// Helpers JSON
-// ------------------------------------------------------------------
 function api_json($data, $code = 200) {
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
@@ -40,8 +26,9 @@ function api_error($message, $code = 400) {
     api_json(['success' => false, 'message' => $message], $code);
 }
 
-// CORS pour permettre l'accès depuis la PWA/autres origines
-header('Access-Control-Allow-Origin: *');
+$allowedOrigin = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http')
+    . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+header('Access-Control-Allow-Origin: ' . $allowedOrigin);
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -52,9 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $db = Database::getInstance()->getConnection();
 $action = $_GET['action'] ?? '';
 
-// ------------------------------------------------------------------
-// Gestion des tokens
-// ------------------------------------------------------------------
 function createToken($userId) {
     global $db;
     $token = bin2hex(random_bytes(32));
@@ -70,8 +54,6 @@ function authUser() {
     $auth = $headers['Authorization'] ?? '';
     if (preg_match('/Bearer\s+(.+)/i', $auth, $m)) {
         $token = trim($m[1]);
-    } elseif (isset($_POST['token']) || isset($_GET['token'])) {
-        $token = $_POST['token'] ?? $_GET['token'];
     } else {
         return null;
     }
@@ -107,9 +89,6 @@ function requireRole($user, $roles) {
     }
 }
 
-// ------------------------------------------------------------------
-// LOGIN
-// ------------------------------------------------------------------
 if ($action === 'login') {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') api_error('Méthode non autorisée', 405);
     $body = json_decode(file_get_contents('php://input'), true) ?? $_POST;
@@ -122,7 +101,6 @@ if ($action === 'login') {
     $user = $userModel->authenticate($email, $password);
     if (!$user) api_error('Email ou mot de passe incorrect.', 401);
 
-    // Associer l'employé si applicable
     $employeeModel = new EmployeeModel();
     $employee = $employeeModel->findByUserId($user['id_utilisateur']);
 
@@ -143,9 +121,6 @@ if ($action === 'login') {
     ]);
 }
 
-// ------------------------------------------------------------------
-// LOGOUT - révoque le token
-// ------------------------------------------------------------------
 if ($action === 'logout') {
     $user = requireAuth();
     global $db;
@@ -153,9 +128,6 @@ if ($action === 'logout') {
     api_json(['success' => true, 'message' => 'Déconnecté']);
 }
 
-// ------------------------------------------------------------------
-// PROFIL - infos de l'utilisateur connecté
-// ------------------------------------------------------------------
 if ($action === 'profil') {
     $user = requireAuth();
     $employeeModel = new EmployeeModel();
@@ -187,9 +159,6 @@ if ($action === 'profil') {
     api_json(['success' => true, 'data' => $profil]);
 }
 
-// ------------------------------------------------------------------
-// PRÉSENCE : statut du jour de l'employé
-// ------------------------------------------------------------------
 if ($action === 'presence_aujourdhui') {
     $user = requireAuth();
     $employeeModel = new EmployeeModel();
@@ -209,16 +178,12 @@ if ($action === 'presence_aujourdhui') {
     ]);
 }
 
-// ------------------------------------------------------------------
-// PRÉSENCE : déclarer son arrivée
-// ------------------------------------------------------------------
 if ($action === 'presence_declarer') {
     $user = requireAuth();
     $employeeModel = new EmployeeModel();
     $employee = $employeeModel->findByUserId($user['id_utilisateur']);
     if (!$employee) api_error('Aucun employé associé à ce compte.', 404);
 
-    // Notifier les gestionnaires
     $pm = new PresenceModel();
     $result = $pm->declarer($employee['id_employe']);
 
@@ -231,9 +196,6 @@ if ($action === 'presence_declarer') {
     api_json($result['success'] ? ['success' => true, 'message' => $result['message'], 'data' => $result['presence']] : api_error($result['message'], 409));
 }
 
-// ------------------------------------------------------------------
-// PRÉSENCE : pointer sa sortie
-// ------------------------------------------------------------------
 if ($action === 'presence_depart') {
     $user = requireAuth();
     $employeeModel = new EmployeeModel();
@@ -245,9 +207,6 @@ if ($action === 'presence_depart') {
     api_json($result['success'] ? ['success' => true, 'message' => $result['message']] : api_error($result['message'], 409));
 }
 
-// ------------------------------------------------------------------
-// PRÉSENCE : historique de l'employé
-// ------------------------------------------------------------------
 if ($action === 'presences') {
     $user = requireAuth();
     $employeeModel = new EmployeeModel();
@@ -267,9 +226,6 @@ if ($action === 'presences') {
     api_json(['success' => true, 'data' => $liste]);
 }
 
-// ------------------------------------------------------------------
-// PRÉSENCE : liste en attente de validation (admin/rh)
-// ------------------------------------------------------------------
 if ($action === 'presences_validation') {
     $user = requireAuth();
     requireRole($user, ['admin', 'rh']);
@@ -278,9 +234,6 @@ if ($action === 'presences_validation') {
     api_json(['success' => true, 'data' => $enAttente]);
 }
 
-// ------------------------------------------------------------------
-// PRÉSENCE : valider une déclaration (admin/rh)
-// ------------------------------------------------------------------
 if ($action === 'presence_valider') {
     $user = requireAuth();
     requireRole($user, ['admin', 'rh']);
@@ -293,9 +246,6 @@ if ($action === 'presence_valider') {
     api_json($ok ? ['success' => true, 'message' => 'Présence validée'] : api_error('Présence introuvable', 404));
 }
 
-// ------------------------------------------------------------------
-// CONGÉ : liste des congés de l'employé
-// ------------------------------------------------------------------
 if ($action === 'conges') {
     $user = requireAuth();
     $employeeModel = new EmployeeModel();
@@ -307,9 +257,6 @@ if ($action === 'conges') {
     api_json(['success' => true, 'data' => $conges]);
 }
 
-// ------------------------------------------------------------------
-// CONGÉ : soumettre une demande
-// ------------------------------------------------------------------
 if ($action === 'conge_demander') {
     $user = requireAuth();
     $employeeModel = new EmployeeModel();
@@ -341,7 +288,6 @@ if ($action === 'conge_demander') {
         'created_at' => date('Y-m-d H:i:s')
     ]);
 
-    // Notifier les gestionnaires
     $nm = new NotificationModel();
     $nm->notifyAllByRole(['admin', 'rh'], 'Nouvelle demande de congé',
         $employee['prenom'] . ' ' . $employee['nom'] . ' demande un congé ' . $type . ' (' . $nbJours . ' jours).',
@@ -350,9 +296,6 @@ if ($action === 'conge_demander') {
     api_json(['success' => true, 'message' => 'Demande de congé soumise', 'data' => ['id_conge' => $id, 'nombre_jours' => $nbJours]]);
 }
 
-// ------------------------------------------------------------------
-// CONGÉ : valider une demande (admin/rh)
-// ------------------------------------------------------------------
 if ($action === 'conge_approuver') {
     $user = requireAuth();
     requireRole($user, ['admin', 'rh']);
@@ -366,7 +309,6 @@ if ($action === 'conge_approuver') {
 
     $cm->approve($id, $user['id_utilisateur']);
 
-    // Notifier l'employé via son utilisateur
     $employeeModel = new EmployeeModel();
     $employee = $employeeModel->findById($conge['id_employe']);
     if ($employee && $employee['id_utilisateur']) {
@@ -378,9 +320,6 @@ if ($action === 'conge_approuver') {
     api_json(['success' => true, 'message' => 'Congé approuvé']);
 }
 
-// ------------------------------------------------------------------
-// CONGÉ : rejeter une demande (admin/rh)
-// ------------------------------------------------------------------
 if ($action === 'conge_refuser') {
     $user = requireAuth();
     requireRole($user, ['admin', 'rh']);
@@ -407,9 +346,6 @@ if ($action === 'conge_refuser') {
     api_json(['success' => true, 'message' => 'Congé refusé']);
 }
 
-// ------------------------------------------------------------------
-// NOTIFICATIONS : liste de l'utilisateur
-// ------------------------------------------------------------------
 if ($action === 'notifications') {
     $user = requireAuth();
     $nm = new NotificationModel();
@@ -418,9 +354,6 @@ if ($action === 'notifications') {
     api_json(['success' => true, 'data' => ['liste' => $notifs, 'non_lues' => $nonLues]]);
 }
 
-// ------------------------------------------------------------------
-// NOTIFICATIONS : marquer tout lu
-// ------------------------------------------------------------------
 if ($action === 'notifications_lues') {
     $user = requireAuth();
     $nm = new NotificationModel();
@@ -428,9 +361,6 @@ if ($action === 'notifications_lues') {
     api_json(['success' => true, 'message' => 'Notifications marquées comme lues']);
 }
 
-// ------------------------------------------------------------------
-// BULLETINS : bulletins de paie de l'employé
-// ------------------------------------------------------------------
 if ($action === 'bulletins') {
     $user = requireAuth();
     $employeeModel = new EmployeeModel();
@@ -438,14 +368,8 @@ if ($action === 'bulletins') {
     if (!$employee) api_error('Aucun employé associé à ce compte.', 404);
 
     $pm = new PaieModel();
-    $bulletins = $pm->findAllWithEmployee();
-    $mesBulletins = array_values(array_filter($bulletins, function($b) use ($employee) {
-        return $b['id_employe'] == $employee['id_employe'];
-    }));
+    $mesBulletins = $pm->findByEmployee($employee['id_employe']);
     api_json(['success' => true, 'data' => $mesBulletins]);
 }
 
-// ------------------------------------------------------------------
-// Route inconnue
-// ------------------------------------------------------------------
 api_error('Action inconnue : ' . $action, 404);

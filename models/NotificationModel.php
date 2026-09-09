@@ -16,7 +16,7 @@ class NotificationModel extends Model {
     }
 
     public function getByUser($idUtilisateur, $limit = 20) {
-        $sql = "SELECT * FROM notifications WHERE id_utilisateur = :id 
+        $sql = "SELECT * FROM notifications WHERE id_utilisateur = :id
                 ORDER BY created_at DESC LIMIT :lim";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue('id', $idUtilisateur, PDO::PARAM_INT);
@@ -26,7 +26,7 @@ class NotificationModel extends Model {
     }
 
     public function getUnreadCount($idUtilisateur) {
-        $sql = "SELECT COUNT(*) as total FROM notifications 
+        $sql = "SELECT COUNT(*) as total FROM notifications
                 WHERE id_utilisateur = :id AND est_lu = 0";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id' => $idUtilisateur]);
@@ -39,17 +39,22 @@ class NotificationModel extends Model {
         return $stmt->execute(['id' => $idUtilisateur]);
     }
 
-    public function markRead($idNotification) {
+    public function markRead($idNotification, $idUtilisateur = null) {
+        if ($idUtilisateur) {
+            $sql = "UPDATE notifications SET est_lu = 1 WHERE id_notification = :id AND id_utilisateur = :uid";
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute(['id' => $idNotification, 'uid' => $idUtilisateur]);
+        }
         return $this->update($idNotification, ['est_lu' => 1]);
     }
 
-    /**
-     * Notifier tous les utilisateurs ayant un rôle donné
-     */
+
     public function notifyAllByRole($roles, $titre, $message, $type = 'systeme', $lien = null) {
-        $roleList = implode(',', array_map(function($r){ return "'" . addslashes($r) . "'"; }, (array)$roles));
-        $sql = "SELECT id_utilisateur FROM utilisateurs WHERE role IN ($roleList) AND statut = 'actif'";
-        $stmt = $this->db->query($sql);
+        $roles = (array)$roles;
+        $placeholders = implode(',', array_fill(0, count($roles), '?'));
+        $sql = "SELECT id_utilisateur FROM utilisateurs WHERE role IN ($placeholders) AND statut = 'actif'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($roles);
         $users = $stmt->fetchAll();
 
         $count = 0;
@@ -60,19 +65,17 @@ class NotificationModel extends Model {
         return $count;
     }
 
-    /**
-     * Récupérer les adresses email des utilisateurs d'un rôle donné
-     */
+
     public function getEmailRecipients($roles) {
-        $roleList = implode(',', array_map(function($r){ return "'" . addslashes($r) . "'"; }, (array)$roles));
-        $sql = "SELECT email, nom_complet FROM utilisateurs WHERE role IN ($roleList) AND statut = 'actif' AND email IS NOT NULL";
-        $stmt = $this->db->query($sql);
+        $roles = (array)$roles;
+        $placeholders = implode(',', array_fill(0, count($roles), '?'));
+        $sql = "SELECT email, nom_complet FROM utilisateurs WHERE role IN ($placeholders) AND statut = 'actif' AND email IS NOT NULL";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($roles);
         return $stmt->fetchAll();
     }
 
-    /**
-     * Envoi d'email simple via PHP mail() ou démo
-     */
+
     public function sendEmail($to, $subject, $body) {
         $headers = "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
@@ -81,9 +84,7 @@ class NotificationModel extends Model {
         return @mail($to, $subject, $body, $headers);
     }
 
-    /**
-     * Générer un lien de notification (email HTML)
-     */
+
     public function emailTemplate($titre, $message, $lien = null) {
         $html = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;background:#f4f6f9;padding:20px;'>";
         $html .= "<div style='max-width:600px;margin:auto;background:#fff;border-radius:8px;overflow:hidden;'>";

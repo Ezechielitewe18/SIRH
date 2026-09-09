@@ -18,7 +18,7 @@ class PaieModel extends Model {
         return $stmt->fetch();
     }
 
-    /* Calcul du bulletin pour un employé donné sur un mois */
+
     public function calculerBulletin($idEmploye, $mois, $annee) {
         $em = new EmployeeModel();
         $emp = $em->findById($idEmploye);
@@ -29,7 +29,7 @@ class PaieModel extends Model {
 
         $salaireBase = (float)($emp['salaire'] ?? 0);
 
-        // Récupérer la prime logement et transport (en % du salaire base)
+
         $primeLogementPct = (float)($this->getParameter('Indemnité logement')['valeur'] ?? 0);
         $primeTransportPct = (float)($this->getParameter('Prime transport')['valeur'] ?? 0);
 
@@ -37,7 +37,7 @@ class PaieModel extends Model {
         $primeTransport = $salaireBase * $primeTransportPct / 100;
         $primes = $primeLogement + $primeTransport;
 
-        // Heures supplémentaires durant le mois
+
         $heuresSup = $this->calculerHeuresSupplementaires($idEmploye, $mois, $annee);
         $tauxHoraire = $this->calculerTauxHoraire($salaireBase);
         $majorationPct = (float)($this->getParameter('Taux heure supplémentaire')['valeur'] ?? 150) / 100;
@@ -45,7 +45,7 @@ class PaieModel extends Model {
 
         $totalBrut = $salaireBase + $primes + $montantHeuresSup;
 
-        // Retenues (en % du brut)
+
         $taxePct = (float)($this->getParameter('Taxe professionnelle')['valeur'] ?? 0);
         $socialPct = (float)($this->getParameter('Prestation sociale')['valeur'] ?? 0);
         $retraitePct = (float)($this->getParameter('Pension retraite')['valeur'] ?? 0);
@@ -83,14 +83,14 @@ class PaieModel extends Model {
     }
 
     public function calculerHeuresSupplementaires($idEmploye, $mois, $annee) {
-        // Heures de travail par jour (ex: 8h)
+
         $heureDebut = new DateTime(HEURE_DEBUT);
         $heureFin = new DateTime(HEURE_FIN);
         $ecart = $heureDebut->diff($heureFin);
         $heuresNormalesParJour = $ecart->h;
 
         $pm = new PresenceModel();
-        $sql = "SELECT * FROM presences 
+        $sql = "SELECT * FROM presences
                 WHERE id_employe = :id AND MONTH(date_presence) = :mois AND YEAR(date_presence) = :annee
                 AND validation IN ('auto','validee')
                 AND heure_arrivee IS NOT NULL AND heure_depart IS NOT NULL";
@@ -120,7 +120,7 @@ class PaieModel extends Model {
 
         $d = $resultat['data'];
 
-        // Vérifier si un bulletin existe déjà
+
         $existant = $this->find(['id_employe' => $idEmploye, 'mois' => $mois, 'annee' => $annee]);
         if (!empty($existant)) {
             $id = $existant[0]['id_bulletin'];
@@ -204,5 +204,12 @@ class PaieModel extends Model {
 
     public function payerBulletin($id) {
         return $this->update($id, ['statut' => 'paye']);
+    }
+
+    public function findByEmployee($idEmploye) {
+        $sql = "SELECT * FROM {$this->table} WHERE id_employe = :id ORDER BY annee DESC, mois DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $idEmploye]);
+        return $stmt->fetchAll();
     }
 }

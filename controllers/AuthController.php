@@ -17,18 +17,17 @@ class AuthController {
             $user = $this->userModel->authenticate($email, $password);
 
             if ($user) {
+                session_regenerate_id(true);
                 $_SESSION['user_id'] = $user['id_utilisateur'];
                 $_SESSION['user_name'] = $user['nom_complet'];
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_role'] = $user['role'];
 
-                // Récupérer l'employé associé si applicable
-                if ($user['role'] === 'employe' || $user['role'] === 'rh') {
-                    $employeeModel = new EmployeeModel();
-                    $employee = $employeeModel->findByUserId($user['id_utilisateur']);
-                    if ($employee) {
-                        $_SESSION['employee_id'] = $employee['id_employe'];
-                    }
+                
+                $employeeModel = new EmployeeModel();
+                $employee = $employeeModel->findByUserId($user['id_utilisateur']);
+                if ($employee) {
+                    $_SESSION['employee_id'] = $employee['id_employe'];
                 }
 
                 header('Location: ' . APP_URL . '/dashboard');
@@ -58,7 +57,7 @@ class AuthController {
             if (strlen($password) < 6) $errors[] = 'Le mot de passe doit contenir au moins 6 caractères';
             if ($password !== $password_confirm) $errors[] = 'Les mots de passe ne correspondent pas';
 
-            // Vérifier si l'email existe déjà
+            
             if (empty($errors)) {
                 $existing = $this->userModel->findByEmail($email);
                 if ($existing) {
@@ -71,13 +70,14 @@ class AuthController {
                     'nom_complet' => $nom,
                     'email' => $email,
                     'mot_de_passe' => $password,
-                    'role' => 'admin'
+                    'role' => 'employe'
                 ]);
 
+                session_regenerate_id(true);
                 $_SESSION['user_id'] = $userId;
                 $_SESSION['user_name'] = $nom;
                 $_SESSION['user_email'] = $email;
-                $_SESSION['user_role'] = 'admin';
+                $_SESSION['user_role'] = 'employe';
 
                 header('Location: ' . APP_URL . '/dashboard');
                 exit;
@@ -90,6 +90,13 @@ class AuthController {
     }
 
     public function logout() {
+        $_SESSION = [];
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]);
+        }
         session_destroy();
         header('Location: ' . APP_URL . '/login');
         exit;

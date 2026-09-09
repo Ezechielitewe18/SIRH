@@ -6,7 +6,6 @@
 </section>
 
 <section class="content">
-    <!-- ============ MA JOURNÉE (employé connecté) ============ -->
     <?php if (isset($_SESSION['employee_id'])): ?>
     <div class="row mb-3">
         <div class="col-md-8">
@@ -51,12 +50,14 @@
                         <?php if (empty($maPresence['heure_depart']) && $maPresence['statut'] !== 'absent' && $maPresence['validation'] !== 'rejetee'): ?>
                         <hr>
                         <form method="POST" action="<?= APP_URL ?>/presences/checkout" class="d-inline">
+                            <?= csrf_field() ?>
                             <button type="submit" class="btn btn-warning"><i class="fas fa-sign-out-alt"></i> Départ</button>
                         </form>
                         <?php endif; ?>
                     <?php else: ?>
                         <p class="text-muted">Vous n'avez pas encore déclaré votre arrivée aujourd'hui.</p>
                         <form method="POST" action="<?= APP_URL ?>/presences/declarer">
+                            <?= csrf_field() ?>
                             <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-sign-in-alt"></i> Déclarer mon arrivée</button>
                         </form>
                         <p class="text-muted mt-2 mb-0"><small>Votre déclaration sera vérifiée par la RH. Le pointage par QR code est réservé à la Direction Générale.</small></p>
@@ -68,7 +69,6 @@
     </div>
     <?php endif; ?>
 
-    <!-- ============ VALIDATION RH (gestionnaires) ============ -->
     <?php if ($isManager): ?>
     <div class="row mb-3">
         <div class="col-12">
@@ -103,6 +103,7 @@
                                 </td>
                                 <td>
                                     <form method="POST" action="<?= APP_URL ?>/presences/valider/<?= $p['id_presence'] ?>" class="d-inline">
+                                        <?= csrf_field() ?>
                                         <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Valider</button>
                                     </form>
                                     <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalRejet"
@@ -122,10 +123,10 @@
         </div>
     </div>
 
-    <!-- Modal de rejet -->
     <div class="modal fade" id="modalRejet" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <form method="POST" action="<?= APP_URL ?>/presences/rejeter">
+                <?= csrf_field() ?>
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Rejeter la déclaration de <span id="rejetNom"></span></h5>
@@ -148,7 +149,6 @@
     </div>
     <?php endif; ?>
 
-    <!-- ============ REGISTRE ============ -->
     <div class="card">
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
@@ -193,7 +193,7 @@
                         <td><?= htmlspecialchars($p['nom_service'] ?? 'N/A') ?></td>
                         <td><?= $p['heure_arrivee'] ? date('H:i', strtotime($p['heure_arrivee'])) : '-' ?></td>
                         <td><?= $p['heure_depart'] ? date('H:i', strtotime($p['heure_depart'])) : '-' ?></td>
-                        <td><?= $p['retard'] > 0 ? $p['retard'] . ' min' : '-' ?></td>
+                        <td><?= !empty($p['retard']) && $p['retard'] > 0 ? $p['retard'] . ' min' : '-' ?></td>
                         <td>
                             <span class="badge badge-<?= $p['statut'] === 'present' ? 'success' : ($p['statut'] === 'retard' ? 'warning' : 'danger') ?>">
                                 <?= ucfirst($p['statut']) ?>

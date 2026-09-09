@@ -29,9 +29,9 @@ class PresenceController {
         require __DIR__ . '/../views/presences/index.php';
     }
 
-    /**
-     * Déclaration d'arrivée par l'employé -> en attente de validation RH
-     */
+    
+
+
     public function declarer() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $employeeId = $_SESSION['employee_id'] ?? null;
@@ -40,7 +40,7 @@ class PresenceController {
             } else {
                 $result = $this->presenceModel->declarer($employeeId);
                 if (isset($result['success']) && $result['success']) {
-                    // Prévenir les gestionnaires qu'une déclaration attend validation
+                    
                     $employeeModel = new EmployeeModel();
                     $employee = $employeeModel->findById($employeeId);
                     $nom = $employee ? ($employee['prenom'] . ' ' . $employee['nom']) : 'Un employé';
@@ -60,7 +60,7 @@ class PresenceController {
         exit;
     }
 
-    // Ancien bouton "Arrivée" : devient une déclaration (source manuelle -> validation RH)
+    
     public function checkin() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $employeeId = $_SESSION['employee_id'] ?? null;

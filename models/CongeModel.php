@@ -8,8 +8,8 @@ class CongeModel extends Model {
     public function findAllWithEmployee($statut = null) {
         $sql = "SELECT c.*, e.nom, e.prenom, e.matricule, s.nom_service,
                        u.nom_complet as approbateur_nom
-                FROM {$this->table} c 
-                INNER JOIN employes e ON c.id_employe = e.id_employe 
+                FROM {$this->table} c
+                INNER JOIN employes e ON c.id_employe = e.id_employe
                 LEFT JOIN services s ON e.id_service = s.id_service
                 LEFT JOIN utilisateurs u ON c.approuve_par = u.id_utilisateur";
 
@@ -26,7 +26,7 @@ class CongeModel extends Model {
 
     public function findByEmployee($id_employe) {
         $sql = "SELECT c.*, u.nom_complet as approbateur_nom
-                FROM {$this->table} c 
+                FROM {$this->table} c
                 LEFT JOIN utilisateurs u ON c.approuve_par = u.id_utilisateur
                 WHERE c.id_employe = :id_employe
                 ORDER BY c.created_at DESC";
@@ -65,7 +65,7 @@ class CongeModel extends Model {
         if (!$year) $year = date('Y');
 
         $sql = "SELECT type_conge, COUNT(*) as nombre, statut
-                FROM {$this->table} 
+                FROM {$this->table}
                 WHERE MONTH(created_at) = :month AND YEAR(created_at) = :year
                 GROUP BY type_conge, statut
                 ORDER BY type_conge";

@@ -1,7 +1,4 @@
 <?php
-/**
- * Connexion à la base de données (Singleton PDO)
- */
 class Database {
     private static $instance = null;
     private $connection;
@@ -15,7 +12,8 @@ class Database {
                 PDO::ATTR_EMULATE_PREPARES => false,
             ]);
         } catch (PDOException $e) {
-            die("Erreur de connexion à la base de données: " . $e->getMessage());
+            error_log('Erreur DB: ' . $e->getMessage());
+            die("Erreur de connexion à la base de données. Veuillez réessayer plus tard.");
         }
     }
 
@@ -30,10 +28,8 @@ class Database {
         return $this->connection;
     }
 
-    // Empêcher le clonage
     private function __clone() {}
 
-    // Empêcher la désérialisation
     public function __wakeup() {
         throw new \Exception("Cannot unserialize singleton");
     }

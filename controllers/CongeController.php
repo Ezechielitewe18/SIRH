@@ -62,7 +62,7 @@ class CongeController {
                     'statut' => 'en_attente'
                 ]);
 
-                // Notifier les RH et admins d'une nouvelle demande
+                
                 $employee = $employeeId ? $this->employeeModel->findById($employeeId) : null;
                 $nomEmploye = $employee ? ($employee['prenom'] . ' ' . $employee['nom']) : 'Un employé';
                 $lien = APP_URL . '/conges';
@@ -74,7 +74,7 @@ class CongeController {
                     $lien
                 );
 
-                // Envoyer un email aux RH/admin
+                
                 foreach ($this->notificationModel->getEmailRecipients(['admin', 'rh']) as $rec) {
                     $this->notificationModel->sendEmail(
                         $rec['email'],
@@ -96,9 +96,16 @@ class CongeController {
 
     public function approve($id) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $conge = $this->congeModel->findById($id);
+            if (!$conge || $conge['statut'] !== 'en_attente') {
+                $_SESSION['error'] = 'Impossible d\'approuver ce congé (statut invalide)';
+                header('Location: ' . APP_URL . '/conges');
+                exit;
+            }
+
             $this->congeModel->approve($id, $_SESSION['user_id']);
 
-            // Notifier l'employé
+            
             $conge = $this->congeModel->findById($id);
             if ($conge) {
                 $emp = $this->employeeModel->findById($conge['id_employe']);
@@ -122,9 +129,22 @@ class CongeController {
     public function reject($id) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $motifRefus = trim($_POST['motif_refus'] ?? '');
+            if (empty($motifRefus)) {
+                $_SESSION['error'] = 'Le motif du refus est obligatoire';
+                header('Location: ' . APP_URL . '/conges');
+                exit;
+            }
+
+            $conge = $this->congeModel->findById($id);
+            if (!$conge || $conge['statut'] !== 'en_attente') {
+                $_SESSION['error'] = 'Impossible de refuser ce congé (statut invalide)';
+                header('Location: ' . APP_URL . '/conges');
+                exit;
+            }
+
             $this->congeModel->reject($id, $_SESSION['user_id'], $motifRefus);
 
-            // Notifier l'employé
+            
             $conge = $this->congeModel->findById($id);
             if ($conge) {
                 $emp = $this->employeeModel->findById($conge['id_employe']);

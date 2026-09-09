@@ -37,7 +37,7 @@
                         </td>
                         <td>
                             <?php if ($u['emp_nom']): ?>
-                            <?= htmlspecialchars($u['emp_prenom'] . ' ' . $u['emp_nom']) ?> <small class="text-muted">(<?= $u['emp_matricule'] ?>)</small>
+                            <?= htmlspecialchars($u['emp_prenom'] . ' ' . $u['emp_nom']) ?> <small class="text-muted">(<?= htmlspecialchars($u['emp_matricule'] ?? '') ?>)</small>
                             <?php else: ?> <span class="text-muted">—</span> <?php endif; ?>
                         </td>
                         <td><?= $u['derniere_connexion'] ? date('d/m/Y H:i', strtotime($u['derniere_connexion'])) : 'Jamais' ?></td>
@@ -49,6 +49,7 @@
                         <td>
                             <a href="<?= APP_URL ?>/utilisateurs/edit/<?= $u['id_utilisateur'] ?>" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
                             <form method="POST" action="<?= APP_URL ?>/utilisateurs/toggle/<?= $u['id_utilisateur'] ?>" style="display:inline;">
+                                <?= csrf_field() ?>
                                 <button class="btn btn-sm btn-<?= $u['statut'] === 'actif' ? 'secondary' : 'success' ?>" title="<?= $u['statut'] === 'actif' ? 'Désactiver' : 'Activer' ?>">
                                     <i class="fas fa-<?= $u['statut'] === 'actif' ? 'ban' : 'check' ?>"></i>
                                 </button>
@@ -57,11 +58,11 @@
                                 <i class="fas fa-key"></i>
                             </button>
 
-                            <!-- Modal reset password -->
                             <div class="modal fade" id="resetModal<?= $u['id_utilisateur'] ?>" tabindex="-1" role="dialog">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <form method="POST" action="<?= APP_URL ?>/utilisateurs/resetPassword/<?= $u['id_utilisateur'] ?>">
+                                            <?= csrf_field() ?>
                                             <div class="modal-header">
                                                 <h5 class="modal-title">Réinitialiser le mot de passe</h5>
                                                 <button type="button" class="close" data-dismiss="modal">&times;</button>

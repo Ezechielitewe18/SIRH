@@ -1,4 +1,3 @@
-/* GLOBIT - Service Worker PWA */
 const CACHE_NAME = 'globit-v5';
 const APP_SHELL = [
   './',
@@ -7,7 +6,6 @@ const APP_SHELL = [
   './public/img/icon-512.png'
 ];
 
-// Installation : pré-cacher le shell applicatif
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -16,7 +14,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activation : SUPPRIME TOUS les anciens caches et prend le contrôle immédiatement
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -29,28 +26,17 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Permettre la mise à jour immédiate du SW demandée par l'app
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
 
-// GLOBIT - Service Worker PWA
-// Stratégie corrigée (v5) :
-//  - API => toujours réseau (jamais de cache)
-//  - mobile.php (le code HTML) => NETWORK ONLY (toujours le réseau),
-//    pour que les correctifs de code arrivent TOUJOURS au téléphone
-//    (le cache ne sert qu'en secours hors-ligne)
-//  - assets statiques immuables (icônes) => cache-first
-
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Ne pas intercepter les requêtes cross-origin
   if (url.origin !== location.origin) return;
 
-  // 1. Les requêtes API ne doivent JAMAIS être servies depuis le cache
   if (url.pathname.includes('/api.php')) {
     event.respondWith(fetch(event.request).catch(() =>
       new Response(JSON.stringify({ success: false, message: 'Hors ligne' }),
@@ -59,7 +45,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Le HTML de l'app (mobile.php) et la racine => NETWORK ONLY (toujours frais)
   const isNav = event.request.mode === 'navigate';
   const isShell = url.pathname.endsWith('/mobile.php') || url.pathname.endsWith('/SIRH/') || url.pathname.endsWith('/SIRH');
 
@@ -67,7 +52,6 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Mettre à jour le cache avec la version fraîche (secours hors-ligne)
           if (response && response.status === 200) {
             const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
@@ -81,7 +65,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Assets statiques (icônes, etc.) => CACHE FIRST avec mise en cache
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
@@ -96,7 +79,6 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Notifications push (à brancher plus tard avec un endpoint d'envoi)
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
   const options = {

@@ -33,7 +33,6 @@ body{
 }
 .app{position:relative;z-index:1}
 
-/* Topbar */
 .topbar{
   display:flex;align-items:center;gap:12px;padding:16px 18px 10px;
 }
@@ -56,12 +55,10 @@ body{
   display:flex;align-items:center;justify-content:center;padding:0 4px;display:none;
 }
 
-/* Sections */
 .section{display:none;padding:8px 16px;animation:fade .3s ease}
 .section.active{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-/* Cartes */
 .card{
   background:var(--panel);border:1px solid rgba(255,255,255,.06);
   border-radius:14px;padding:16px;margin-bottom:14px;
@@ -71,7 +68,6 @@ body{
 .card .big{font-size:30px;font-weight:800;margin-top:6px}
 .green{color:var(--green)}.red{color:var(--red)}.gold{color:var(--gold)}.cyan{color:var(--cyan)}
 
-/* Stats row */
 .stat-row{display:flex;gap:12px;margin-bottom:14px}
 .stat{
   flex:1;background:var(--panel);border:1px solid rgba(255,255,255,.06);
@@ -80,7 +76,6 @@ body{
 .stat .n{font-size:22px;font-weight:800}
 .stat .l{font-size:11px;color:var(--muted);margin-top:2px}
 
-/* Boutons */
 .btn{
   display:block;width:100%;padding:14px;border:none;border-radius:12px;
   background:linear-gradient(135deg,var(--accent),var(--accent2));
@@ -93,7 +88,6 @@ body{
 .btn.green{background:linear-gradient(135deg,#16a34a,#22c55e)}
 .btn.red{background:linear-gradient(135deg,#dc2626,#ef4444)}
 
-/* Listes */
 .list-item{
   display:flex;align-items:center;gap:12px;padding:12px 0;
   border-bottom:1px solid rgba(255,255,255,.05);
@@ -108,7 +102,6 @@ body{
 .list-item .tt{font-size:14px;font-weight:600}
 .list-item .dd{font-size:12px;color:var(--muted);margin-top:2px}
 
-/* Badge statut */
 .st{
   font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;
 }
@@ -116,7 +109,6 @@ body{
 .st.approuve,.st.validee,.st.auto{background:rgba(34,197,94,.15);color:var(--green)}
 .st.refuse,.st.rejetee{background:rgba(239,68,68,.15);color:var(--red)}
 
-/* Formulaire */
 label{display:block;font-size:12.5px;color:var(--muted);margin:12px 0 6px;font-weight:600}
 input,select,textarea{
   width:100%;padding:13px;border-radius:10px;border:1.5px solid rgba(255,255,255,.1);
@@ -126,7 +118,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 .row{display:flex;gap:10px}
 .row>div{flex:1}
 
-/* Modal */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:none;align-items:flex-end}
 .modal-bg.show{display:flex}
 .modal{
@@ -137,7 +128,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 @keyframes up{from{transform:translateY(100%)}to{transform:none}}
 .modal h3{font-size:17px;font-weight:800;margin-bottom:14px}
 
-/* Login */
 .login-screen{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;flex-direction:column}
 .login-card{width:100%;max-width:360px}
 .login-logo{
@@ -151,11 +141,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 .login-card .tag{text-align:center;color:var(--muted);font-size:13px;margin-bottom:22px}
 .login-err{color:var(--red);font-size:13px;text-align:center;margin-top:12px;display:none}
 
-/* Champ mot de passe visible */
 .pw-wrap{position:relative}
 .pw-wrap .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:15px}
 
-/* Bottom nav */
 .bottom-nav{
   position:fixed;bottom:0;left:0;right:0;z-index:40;
   max-width:430px;margin:0 auto;
@@ -170,7 +158,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 .bottom-nav .nb i{font-size:19px}
 .bottom-nav .nb.active{color:var(--cyan)}
 
-/* Install banner */
 .install-banner{
   position:fixed;bottom:70px;left:16px;right:16px;z-index:45;
   max-width:398px;margin:0 auto;
@@ -197,7 +184,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 
 <div class="bg"></div>
 
-<!-- ============ LOGIN ============ -->
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
     <div class="login-logo">G</div>
@@ -219,7 +205,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
   </div>
 </div>
 
-<!-- ============ APP ============ -->
 <div class="app" id="app" style="display:none">
 
   <div class="topbar">
@@ -228,7 +213,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
     <div class="bell" onclick="go('notifs')"><span id="bellCnt">🔔</span><span class="badge" id="bellBadge">0</span></div>
   </div>
 
-  <!-- ACCUEIL -->
   <div class="section active" id="sec-home">
     <div class="card">
       <h3 id="welcome">Bonjour 👋</h3>
@@ -248,7 +232,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
     </div>
   </div>
 
-  <!-- PRESENCE -->
   <div class="section" id="sec-pres">
     <h2 style="font-size:22px;font-weight:800;margin-bottom:14px">Présence</h2>
     <div class="card">
@@ -269,7 +252,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
     </div>
   </div>
 
-  <!-- CONGES -->
   <div class="section" id="sec-conge">
     <h2 style="font-size:22px;font-weight:800;margin-bottom:14px">Mes congés</h2>
     <button class="btn" onclick="openModal('congeModal')">＋ Nouvelle demande</button>
@@ -277,13 +259,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
     <div id="congeList"><div class="empty"><i>🗓</i>Aucun congé</div></div>
   </div>
 
-  <!-- NOTIFS -->
   <div class="section" id="sec-notifs">
     <h2 style="font-size:22px;font-weight:800;margin-bottom:14px">Notifications</h2>
     <div id="notifList"><div class="empty"><i>🔔</i>Aucune notification</div></div>
   </div>
 
-  <!-- PROFIL -->
   <div class="section" id="sec-profil">
     <div class="card" style="text-align:center">
       <div style="width:72px;height:72px;border-radius:50%;margin:6px auto 10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff">G</div>
@@ -296,7 +276,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 
 </div>
 
-<!-- Bottom nav -->
 <div class="bottom-nav" id="bottomNav" style="display:none">
   <div class="nb active" data-sec="home"><i>🏠</i>Accueil</div>
   <div class="nb" data-sec="pres"><i>⏱</i>Présence</div>
@@ -305,14 +284,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
   <div class="nb" data-sec="profil"><i>👤</i>Profil</div>
 </div>
 
-<!-- Install banner -->
 <div class="install-banner" id="installBanner">
   <img src="public/img/icon-192.png" alt="GLOBIT">
   <div class="txt"><b>Installer GLOBIT</b>Ajoutez l'app à votre écran d'accueil.</div>
   <div class="cl" onclick="installApp()">Installer</div>
 </div>
 
-<!-- Modal conge -->
 <div class="modal-bg" id="congeModal">
   <div class="modal">
     <h3>Nouvelle demande de congé</h3>
@@ -345,9 +322,8 @@ var USER_KEY = 'globit_user';
 var token = localStorage.getItem(TOKEN_KEY) || '';
 var user = JSON.parse(localStorage.getItem(USER_KEY) || 'null');
 var deferredPrompt = null;
-var SW_SCOPE = ''; // détecté
+var SW_SCOPE = '';
 
-// ---------- Utilitaires ----------
 function api(action, method, data) {
   var opts = {
     method: method || 'GET',
@@ -356,16 +332,13 @@ function api(action, method, data) {
   if (token) opts.headers['Authorization'] = 'Bearer ' + token;
   if (data) opts.body = JSON.stringify(data);
   return fetch(API_BASE + '?action=' + action, opts).then(function(r) {
-    // Parser le JSON meme en cas d'erreur HTTP (400/401/403/404/409)
     var ct = r.headers.get('Content-Type') || '';
     if (ct.indexOf('application/json') === -1) {
-      // Reponse non-JSON (erreur serveur HTML) => creer une erreur propre
       if (!r.ok) throw { http: r.status, msg: 'Erreur serveur (HTTP ' + r.status + ')' };
       throw { http: 0, msg: 'Reponse inattendue du serveur' };
     }
     return r.json().then(function(j) {
       if (!r.ok) {
-        // Token expire ou invalide : deconnexion automatique
         if (r.status === 401 && action !== 'login') {
           token = ''; user = null;
           localStorage.removeItem(TOKEN_KEY);
@@ -377,13 +350,11 @@ function api(action, method, data) {
       return j;
     });
   }).catch(function(e) {
-    // Erreur reseau (telephone hors-ligne, timeout, etc.)
     if (e && e.http !== undefined) throw e;
     throw { http: 0, msg: 'Erreur reseau. Verifiez votre connexion.' };
   });
 }
 
-// ---------- Interface ----------
 var sections = ['home','pres','conge','notifs','profil'];
 function go(sec) {
   document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
@@ -414,7 +385,6 @@ document.querySelectorAll('.modal-bg').forEach(function(m){
   m.addEventListener('click', function(e){ if(e.target===m) m.classList.remove('show'); });
 });
 
-// ---------- Login ----------
 function doLogin() {
   var email = document.getElementById('loginEmail').value.trim();
   var pw = document.getElementById('loginPass').value;
@@ -442,7 +412,6 @@ function enterApp() {
   document.getElementById('app').style.display = 'block';
   document.getElementById('bottomNav').style.display = 'flex';
   document.getElementById('navName').childNodes[0].textContent = (user.nom_complet || '').split(' ')[0];
-  // Version visible (confirme quelle version du code est chargee)
   document.getElementById('navName').innerHTML = (user.nom_complet || '').split(' ')[0] + '<small>GLOBIT SIRH · v5</small>';
   document.getElementById('navAvatar').textContent = (user.nom_complet || 'G')[0].toUpperCase();
   registerSW();
@@ -457,13 +426,11 @@ function logout() {
   location.reload();
 }
 
-// ---------- Accueil ----------
 function loadHome() {
   var now = new Date();
   document.getElementById('welcome').textContent = 'Bonjour, ' + (user.nom_complet||'').split(' ')[0] + ' 👋';
-  var preset = user && user.id_employe; // vrai employé (a une fiche) ? sinon admin/rh
+  var preset = user && user.id_employe;
 
-  // ADMIN / RH : PAS d'employé associé => indicateurs de gestion (présences en attente)
   if (!preset) {
     var presStat = document.getElementById('statPres');
     var congeStat = document.getElementById('statConge');
@@ -474,11 +441,9 @@ function loadHome() {
     document.getElementById('homeSub').textContent = 'Aujourd\'hui, ' + formatDate(new Date()) + ' · Vue gestion RH.';
     congeStat.textContent = '—';
     paieStat.textContent = '—';
-    // Masquer le bouton de pointage (pas d'employé pour un admin/RH)
     btn.style.display = 'none';
     box.textContent = 'Compte de gestion : validez les présences depuis l\'app.';
 
-    // Compte les présences en attente de validation
     api('presences_validation','GET').then(function(j){
       var n = (j.data||[]).length;
       presStat.textContent = n;
@@ -489,7 +454,6 @@ function loadHome() {
     return;
   }
 
-  // EMPLOYÉ : indicateurs personnels
   api('conges','GET').then(function(j){
     document.getElementById('statConge').textContent = (j.data||[]).length;
   }).catch(function(){ document.getElementById('statConge').textContent = '—'; });
@@ -522,7 +486,6 @@ function loadHome() {
   document.getElementById('homeSub').textContent = 'Aujourd\'hui, ' + formatDate(new Date()) + ' · Voici vos indicateurs.';
 }
 
-// ---------- Présence ----------
 function loadPresence() {
   if (!(user && user.id_employe)) {
     var box = document.getElementById('presTodayBox');
@@ -581,9 +544,7 @@ function pointerSortie() {
   }).catch(function(e){ toast(e.msg||'Erreur'); });
 }
 
-// ---------- Congés ----------
 function loadConges() {
-  // Admin / RH (pas d'employé) : module réservé aux employés
   if (!(user && user.id_employe)) {
     document.getElementById('congeList').innerHTML = '<div class="empty"><i>🗓</i>Cette vue est réservée aux employés.</div>';
     return;
@@ -612,7 +573,6 @@ function submitConge() {
   }).catch(function(e){ toast(e.msg||'Erreur'); });
 }
 
-// ---------- Notifications ----------
 function loadNotifs() {
   api('notifications','GET').then(function(j){
     var list = (j.data||{}).liste || [];
@@ -630,7 +590,6 @@ function loadNotifs() {
   }).catch(function(){});
 }
 
-// ---------- Profil ----------
 function loadProfil() {
   api('profil','GET').then(function(j){
     var d = j.data || {};
@@ -650,7 +609,6 @@ function loadProfil() {
   }).catch(function(){});
 }
 
-// ---------- Helpers ----------
 function formatMoney(n){ return Number(n||0).toLocaleString('fr-FR',{style:'currency',currency:'USD',maximumFractionDigits:0}); }
 function formatDate(s, mode){
   if(!s) return '—';
@@ -670,11 +628,9 @@ function toast(msg){
   setTimeout(function(){t.remove();},2900);
 }
 
-// ---------- Service Worker + Install ----------
 function registerSW(){
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').then(function(reg){
-      // Forcer la prise en compte de toute nouvelle version de sw.js
       if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
       reg.addEventListener('updatefound', function(){
         var w = reg.installing;
@@ -686,7 +642,6 @@ function registerSW(){
       });
     }).catch(function(){});
   }
-  // Install prompt
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault();
     deferredPrompt = e;
@@ -702,7 +657,6 @@ function installApp(){
   });
 }
 
-// ---------- Init ----------
 if (token && user) {
   enterApp();
 } else {

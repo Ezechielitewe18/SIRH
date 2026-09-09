@@ -27,6 +27,7 @@
                         <i class="fas fa-edit"></i> Modifier
                     </a>
                     <form method="POST" action="<?= APP_URL ?>/services/delete/<?= $service['id_service'] ?>" style="display:inline;" onsubmit="return confirm('Supprimer ce service ?')">
+                        <?= csrf_field() ?>
                         <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Supprimer</button>
                     </form>
                 </div>

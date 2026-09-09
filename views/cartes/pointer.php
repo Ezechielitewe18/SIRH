@@ -15,10 +15,10 @@
         </div>
         <div class="card-body text-center">
             <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success"><?= $_SESSION['success'] ?></div>
+            <div class="alert alert-success"><?= htmlspecialchars($_SESSION['success']) ?></div>
             <?php unset($_SESSION['success']); endif; ?>
             <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-danger"><?= $_SESSION['error'] ?></div>
+            <div class="alert alert-danger"><?= htmlspecialchars($_SESSION['error']) ?></div>
             <?php unset($_SESSION['error']); endif; ?>
 
             <div class="mb-4">
@@ -31,6 +31,7 @@
             <p class="text-muted">Matricule: <?= htmlspecialchars($employee['matricule']) ?> | <?= htmlspecialchars($employee['nom_service']) ?></p>
             <div class="mt-3">
                 <form method="POST" action="<?= APP_URL ?>/cartes/checkin" class="d-inline">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="code" value="<?= htmlspecialchars($_GET['code'] ?? '') ?>">
                     <button class="btn btn-success btn-lg"><i class="fas fa-sign-in-alt"></i> Pointer l'arrivée</button>
                 </form>

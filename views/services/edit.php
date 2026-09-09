@@ -8,6 +8,7 @@
 <section class="content">
     <div class="card">
         <form method="POST" action="<?= APP_URL ?>/services/edit/<?= $service['id_service'] ?>">
+            <?= csrf_field() ?>
             <div class="card-body">
                 <div class="form-group">
                     <label>Nom du service *</label>

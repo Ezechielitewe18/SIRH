@@ -19,7 +19,7 @@ class CarteController {
 
     public function index() {
         $employees = $this->employeeModel->findAllWithService();
-        // Générer les cartes pour les employés qui n'en ont pas
+        
         $cartes = [];
         foreach ($employees as $e) {
             $carte = $this->carteModel->getByEmploye($e['id_employe']);
@@ -50,9 +50,9 @@ class CarteController {
         exit;
     }
 
-    /**
-     * Page de pointage par QR code (ouverture publique à partir d'un lien scanner)
-     */
+    
+
+
     public function pointer() {
         $code = $_GET['code'] ?? null;
         $employee = null;
@@ -65,7 +65,7 @@ class CarteController {
             }
         }
 
-        // Si pas de code, afficher la page de scan
+        
         require __DIR__ . '/../views/cartes/scan.php';
     }
 
@@ -74,7 +74,7 @@ class CarteController {
             $code = $_POST['code'] ?? '';
             $employee = $this->carteModel->findByCode($code);
             if ($employee && $employee['actif']) {
-                // Le pointage QR (matériel) est réservé à la Direction Générale
+                
                 if (empty($employee['est_direction'])) {
                     $_SESSION['error'] = 'Le pointage QR est réservé à la Direction Générale. Utilisez « Déclarer mon arrivée ».';
                     header('Location: ' . APP_URL . '/cartes/pointer?code=' . urlencode($code));

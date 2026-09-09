@@ -5,6 +5,7 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1><i class="fas fa-history text-secondary"></i> Journal d'activité</h1>
         <form method="POST" action="<?= APP_URL ?>/journal/clear" onsubmit="return confirm('Vider tout le journal ?')">
+            <?= csrf_field() ?>
             <button class="btn btn-danger"><i class="fas fa-trash"></i> Vider le journal</button>
         </form>
     </div>

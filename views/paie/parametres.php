@@ -11,6 +11,7 @@
 <section class="content">
     <div class="card">
         <form method="POST" action="<?= APP_URL ?>/paie/parametres">
+            <?= csrf_field() ?>
             <div class="card-body">
                 <p class="text-muted">Modifiez les paramètres utilisés pour le calcul automatique des bulletins de paie.</p>
                 <div class="table-responsive">

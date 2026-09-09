@@ -5,11 +5,9 @@ class CarteModel extends Model {
     protected $table = 'cartes_employes';
     protected $primaryKey = 'id_carte';
 
-    /**
-     * Générer une carte QR pour un employé
-     */
+
     public function genererPourEmploye($idEmploye) {
-        // Vérifier si une carte existe déjà
+
         $existant = $this->find(['id_employe' => $idEmploye], 'id_carte DESC');
         if (!empty($existant)) {
             return $existant[0];

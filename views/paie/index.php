@@ -11,10 +11,12 @@
             <a href="<?= APP_URL ?>/paie/parametres" class="btn btn-secondary">
                 <i class="fas fa-cog"></i> Paramètres
             </a>
-            <a href="<?= APP_URL ?>/paie/generer?mois=<?= $mois ?>&annee=<?= $annee ?>" class="btn btn-success"
-               onclick="return confirm('Générer les bulletins de paie pour <?= $mois ?>/<?= $annee ?> ?')">
-                <i class="fas fa-sync-alt"></i> Générer les bulletins
-            </a>
+            <form method="POST" action="<?= APP_URL ?>/paie/generer" style="display:inline;" onsubmit="return confirm('Générer les bulletins de paie pour <?= $mois ?>/<?= $annee ?> ?')">
+                <?= csrf_field() ?>
+                <input type="hidden" name="mois" value="<?= $mois ?>">
+                <input type="hidden" name="annee" value="<?= $annee ?>">
+                <button type="submit" class="btn btn-success"><i class="fas fa-sync-alt"></i> Générer les bulletins</button>
+            </form>
             <a href="<?= APP_URL ?>/export/paie?mois=<?= $mois ?>&annee=<?= $annee ?>" class="btn btn-info">
                 <i class="fas fa-file-excel"></i> Export Excel
             </a>
@@ -23,7 +25,6 @@
 </section>
 
 <section class="content">
-    <!-- Filtre par mois -->
     <div class="row">
         <div class="col-md-12">
             <div class="card">
@@ -49,7 +50,6 @@
         </div>
     </div>
 
-    <!-- Totaux -->
     <div class="row">
         <div class="col-lg-3 col-6">
             <div class="small-box bg-info">
@@ -126,11 +126,13 @@
                             <a href="<?= APP_URL ?>/paie/detail/<?= $b['id_bulletin'] ?>" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
                             <?php if ($b['statut'] === 'brouillon'): ?>
                             <form method="POST" action="<?= APP_URL ?>/paie/valider/<?= $b['id_bulletin'] ?>" style="display:inline;">
+                                <?= csrf_field() ?>
                                 <button class="btn btn-sm btn-primary" title="Valider"><i class="fas fa-check"></i></button>
                             </form>
                             <?php endif; ?>
                             <?php if ($b['statut'] !== 'paye'): ?>
                             <form method="POST" action="<?= APP_URL ?>/paie/payer/<?= $b['id_bulletin'] ?>" style="display:inline;" onsubmit="return confirm('Marquer comme payé ?')">
+                                <?= csrf_field() ?>
                                 <button class="btn btn-sm btn-success" title="Marquer payé"><i class="fas fa-hand-holding-usd"></i></button>
                             </form>
                             <?php endif; ?>

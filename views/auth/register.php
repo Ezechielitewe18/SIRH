@@ -15,19 +15,20 @@
     </div>
     <div class="card">
         <div class="card-body register-card-body">
-            <p class="login-box-msg">Créer un compte administrateur</p>
+            <p class="login-box-msg">Créer un compte utilisateur</p>
 
             <?php if (!empty($errors)): ?>
             <div class="alert alert-danger">
                 <ul class="mb-0">
                     <?php foreach ($errors as $err): ?>
-                    <li><?= $err ?></li>
+                    <li><?= htmlspecialchars($err) ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
             <?php endif; ?>
 
             <form method="POST" action="">
+                <?= csrf_field() ?>
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" placeholder="Nom complet" name="nom_complet" value="<?= htmlspecialchars($_POST['nom_complet'] ?? '') ?>" required>
                     <div class="input-group-append">

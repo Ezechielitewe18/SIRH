@@ -1,7 +1,4 @@
 <?php
-/**
- * Classe Model de base
- */
 class Model {
     protected $db;
     protected $table;
@@ -12,6 +9,9 @@ class Model {
     }
 
     public function findAll($orderBy = 'id DESC') {
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*(?:\s+(?:ASC|DESC))?$/i', $orderBy)) {
+            $orderBy = $this->primaryKey . ' DESC';
+        }
         $sql = "SELECT * FROM {$this->table} ORDER BY {$orderBy}";
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll();
@@ -37,6 +37,9 @@ class Model {
             $sql .= " WHERE " . implode(' AND ', $where);
         }
 
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*(?:\s+(?:ASC|DESC))?$/i', $orderBy)) {
+            $orderBy = $this->primaryKey . ' DESC';
+        }
         $sql .= " ORDER BY {$orderBy}";
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
@@ -91,6 +94,9 @@ class Model {
     }
 
     public function search($column, $term) {
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $column)) {
+            return [];
+        }
         $sql = "SELECT * FROM {$this->table} WHERE {$column} LIKE :term ORDER BY {$this->primaryKey} DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['term' => "%{$term}%"]);

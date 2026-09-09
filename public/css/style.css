@@ -1,13 +1,7 @@
-/* ============================================
-   SIRH - Styles personnalisés
-   ============================================ */
-
-/* Général */
 .content-wrapper {
     min-height: 100vh;
 }
 
-/* Cards */
 .card {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -20,7 +14,6 @@
     border-radius: 8px 8px 0 0 !important;
 }
 
-/* Tables */
 .table th {
     background-color: #f8f9fa;
     font-weight: 600;
@@ -32,14 +25,12 @@
     vertical-align: middle;
 }
 
-/* Badges */
 .badge {
     font-weight: 500;
     padding: 5px 10px;
     border-radius: 4px;
 }
 
-/* Sidebar */
 .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
     background-color: #007bff;
     color: #fff;
@@ -55,7 +46,6 @@
     text-decoration: none;
 }
 
-/* Login / Register */
 .login-page, .register-page {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -68,7 +58,6 @@
     font-size: 2rem;
 }
 
-/* Small boxes */
 .small-box {
     border-radius: 8px;
     transition: transform 0.2s;
@@ -82,7 +71,6 @@
     font-size: 2rem;
 }
 
-/* Buttons */
 .btn {
     border-radius: 6px;
     font-weight: 500;
@@ -99,7 +87,6 @@
     border-color: #0062cc;
 }
 
-/* Forms */
 .form-control {
     border-radius: 6px;
     border: 1px solid #dee2e6;
@@ -117,13 +104,11 @@
     margin-bottom: 5px;
 }
 
-/* Alerts */
 .alert {
     border-radius: 6px;
     border: none;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .login-box {
         width: 90%;
@@ -134,7 +119,6 @@
     }
 }
 
-/* Animation */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -144,7 +128,6 @@
     animation: fadeIn 0.3s ease-in;
 }
 
-/* Profile image placeholder */
 .profile-image-placeholder {
     width: 100px;
     height: 100px;

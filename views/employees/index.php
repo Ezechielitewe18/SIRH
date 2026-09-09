@@ -39,7 +39,7 @@
                     <tr>
                         <th>Matricule</th>
                         <th>Nom complet</th>
-                        <th>Sexe</th>
+                        <th>Email professionnel</th>
                         <th>Service</th>
                         <th>Poste</th>
                         <th>Téléphone</th>
@@ -52,7 +52,15 @@
                     <tr>
                         <td><span class="badge badge-info"><?= htmlspecialchars($emp['matricule']) ?></span></td>
                         <td><strong><?= htmlspecialchars($emp['prenom'] . ' ' . $emp['nom']) ?></strong></td>
-                        <td><?= $emp['sexe'] === 'M' ? 'Masculin' : 'Féminin' ?></td>
+                        <td>
+                            <?php if (!empty($emp['email'])): ?>
+                            <a href="mailto:<?= htmlspecialchars($emp['email']) ?>" style="color:#007bff;">
+                                <i class="fas fa-envelope"></i> <?= htmlspecialchars($emp['email']) ?>
+                            </a>
+                            <?php else: ?>
+                            <span class="text-muted">—</span>
+                            <?php endif; ?>
+                        </td>
                         <td><?= htmlspecialchars($emp['nom_service'] ?? 'N/A') ?></td>
                         <td><?= htmlspecialchars($emp['poste'] ?? 'N/A') ?></td>
                         <td><?= htmlspecialchars($emp['telephone'] ?? 'N/A') ?></td>
@@ -69,6 +77,7 @@
                                 <i class="fas fa-edit"></i>
                             </a>
                             <form method="POST" action="<?= APP_URL ?>/employees/delete/<?= $emp['id_employe'] ?>" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet employé ?')">
+                                <?= csrf_field() ?>
                                 <button class="btn btn-sm btn-danger" title="Supprimer"><i class="fas fa-trash"></i></button>
                             </form>
                         </td>

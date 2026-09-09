@@ -8,6 +8,7 @@
 <section class="content">
     <div class="card">
         <form method="POST" action="<?= APP_URL ?>/employees/edit/<?= $employee['id_employe'] ?>">
+            <?= csrf_field() ?>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
@@ -69,8 +70,14 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($employee['email'] ?? '') ?>">
+                            <label>Email professionnel</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="<?= htmlspecialchars($employee['email'] ?? '') ?>" readonly>
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Email professionnel lié au compte</small>
                         </div>
                     </div>
                     <div class="col-md-6">

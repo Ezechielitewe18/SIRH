@@ -1,22 +1,13 @@
 <?php
-/**
- * Point d'entrée principal du SIRH
- * Routeur MVC - Apache rewrite vers ce fichier
- */
-
-// Définir le chemin racine
 define('ROOT_PATH', __DIR__);
 
-// Charger la configuration
 require_once ROOT_PATH . '/config/config.php';
 require_once ROOT_PATH . '/config/database.php';
 
-// Charger le routeur
 require_once ROOT_PATH . '/core/Router.php';
 require_once ROOT_PATH . '/core/Database.php';
 require_once ROOT_PATH . '/core/Model.php';
 
-// Charger les controlleurs
 require_once ROOT_PATH . '/controllers/AuthController.php';
 require_once ROOT_PATH . '/controllers/DashboardController.php';
 require_once ROOT_PATH . '/controllers/EmployeeController.php';
@@ -32,7 +23,6 @@ require_once ROOT_PATH . '/controllers/LogController.php';
 require_once ROOT_PATH . '/controllers/CarteController.php';
 require_once ROOT_PATH . '/controllers/RapportController.php';
 
-// Charger les modèles (nécessaires pour le layout)
 require_once ROOT_PATH . '/models/NotificationModel.php';
 require_once ROOT_PATH . '/models/PaieModel.php';
 require_once ROOT_PATH . '/models/FormationModel.php';
@@ -44,118 +34,111 @@ require_once ROOT_PATH . '/models/CongeModel.php';
 require_once ROOT_PATH . '/models/LogModel.php';
 require_once ROOT_PATH . '/models/CarteModel.php';
 
-// Initialiser le routeur
 $router = new Router();
 $auth = new AuthController();
 
-// ============================================
-// Routes d'authentification (pas d'auth requise)
-// ============================================
 $router->get('/login', function() use ($auth) { $auth->login(); });
 $router->post('/login', function() use ($auth) { $auth->login(); });
-$router->get('/register', function() use ($auth) { $auth->register(); });
-$router->post('/register', function() use ($auth) { $auth->register(); });
+$router->get('/register', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $auth->register();
+});
+$router->post('/register', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $auth->register();
+});
 $router->get('/logout', function() use ($auth) { $auth->logout(); });
 
-// ============================================
-// Routes protégées
-// ============================================
-
-// Dashboard
 $router->get('/dashboard', function() use ($auth) {
     $auth->checkAuth();
     $controller = new DashboardController();
     $controller->index();
 });
 
-// À propos / Droits d'auteur
 $router->get('/about', function() use ($auth) {
     $auth->checkAuth();
     $pageTitle = 'À propos';
     require ROOT_PATH . '/views/about.php';
 });
 
-// Employés
 $router->get('/employees', function() use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin', 'rh']);
     $controller = new EmployeeController();
     $controller->index();
 });
 
 $router->get('/employees/create', function() use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin', 'rh']);
     $controller = new EmployeeController();
     $controller->create();
 });
 
 $router->post('/employees/create', function() use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin', 'rh']);
     $controller = new EmployeeController();
     $controller->create();
 });
 
 $router->get('/employees/show/{id}', function($id) use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin', 'rh']);
     $controller = new EmployeeController();
     $controller->show($id);
 });
 
 $router->get('/employees/edit/{id}', function($id) use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin', 'rh']);
     $controller = new EmployeeController();
     $controller->edit($id);
 });
 
 $router->post('/employees/edit/{id}', function($id) use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin', 'rh']);
     $controller = new EmployeeController();
     $controller->edit($id);
 });
 
 $router->post('/employees/delete/{id}', function($id) use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin', 'rh']);
     $controller = new EmployeeController();
     $controller->delete($id);
 });
 
-// Services
 $router->get('/services', function() use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin']);
     $controller = new ServiceController();
     $controller->index();
 });
 
 $router->get('/services/create', function() use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin']);
     $controller = new ServiceController();
     $controller->create();
 });
 
 $router->post('/services/create', function() use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin']);
     $controller = new ServiceController();
     $controller->create();
 });
 
 $router->get('/services/edit/{id}', function($id) use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin']);
     $controller = new ServiceController();
     $controller->edit($id);
 });
 
 $router->post('/services/edit/{id}', function($id) use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin']);
     $controller = new ServiceController();
     $controller->edit($id);
 });
 
 $router->post('/services/delete/{id}', function($id) use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin']);
     $controller = new ServiceController();
     $controller->delete($id);
 });
 
-// Présences
 $router->get('/presences', function() use ($auth) {
     $auth->checkAuth();
     $controller = new PresenceController();
@@ -181,18 +164,17 @@ $router->post('/presences/checkout', function() use ($auth) {
 });
 
 $router->post('/presences/valider/{id}', function($id) use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin', 'rh']);
     $controller = new PresenceController();
     $controller->valider($id);
 });
 
 $router->post('/presences/rejeter', function() use ($auth) {
-    $auth->checkAuth();
+    $auth->requireRole(['admin', 'rh']);
     $controller = new PresenceController();
     $controller->rejeter();
 });
 
-// Congés
 $router->get('/conges', function() use ($auth) {
     $auth->checkAuth();
     $controller = new CongeController();
@@ -223,22 +205,19 @@ $router->post('/conges/reject/{id}', function($id) use ($auth) {
     $controller->reject($id);
 });
 
-// ============================================
-// Paie (admin + rh)
-// ============================================
 $router->get('/paie', function() use ($auth) {
     $auth->requireRole(['admin', 'rh']);
     $controller = new PaieController();
     $controller->index();
 });
 
-$router->get('/paie/generer', function() use ($auth) {
+$router->post('/paie/generer', function() use ($auth) {
     $auth->requireRole(['admin', 'rh']);
     $controller = new PaieController();
     $controller->generer();
 });
 
-$router->get('/paie/generer/{id}', function($id) use ($auth) {
+$router->post('/paie/generer/{id}', function($id) use ($auth) {
     $auth->requireRole(['admin', 'rh']);
     $controller = new PaieController();
     $controller->genererUnEmploye($id);
@@ -280,9 +259,6 @@ $router->post('/paie/parametres', function() use ($auth) {
     $controller->parametres();
 });
 
-// ============================================
-// Formations (admin + rh)
-// ============================================
 $router->get('/formations', function() use ($auth) {
     $auth->requireRole(['admin', 'rh']);
     $controller = new FormationController();
@@ -331,9 +307,6 @@ $router->post('/formations/delete/{id}', function($id) use ($auth) {
     $controller->delete($id);
 });
 
-// ============================================
-// Notifications
-// ============================================
 $router->get('/notifications', function() use ($auth) {
     $auth->checkAuth();
     $controller = new NotificationController();
@@ -352,9 +325,6 @@ $router->get('/notifications/read/{id}', function($id) use ($auth) {
     $controller->markRead($id);
 });
 
-// ============================================
-// Exports (Excel/PDF) - admin + rh
-// ============================================
 $router->get('/export/employees/excel', function() use ($auth) {
     $auth->requireRole(['admin', 'rh']);
     $controller = new ExportController();
@@ -385,9 +355,6 @@ $router->get('/export/paie', function() use ($auth) {
     $controller->paieExcel();
 });
 
-// ============================================
-// Gestion des utilisateurs (admin)
-// ============================================
 $router->get('/utilisateurs', function() use ($auth) {
     $auth->requireRole(['admin']);
     $controller = new UtilisateurController();
@@ -430,9 +397,6 @@ $router->post('/utilisateurs/resetPassword/{id}', function($id) use ($auth) {
     $controller->resetPassword($id);
 });
 
-// ============================================
-// Journal d'activité (admin)
-// ============================================
 $router->get('/journal', function() use ($auth) {
     $auth->requireRole(['admin']);
     $controller = new LogController();
@@ -445,9 +409,6 @@ $router->post('/journal/clear', function() use ($auth) {
     $controller->clear();
 });
 
-// ============================================
-// Cartes QR (admin + rh)
-// ============================================
 $router->get('/cartes', function() use ($auth) {
     $auth->requireRole(['admin', 'rh']);
     $controller = new CarteController();
@@ -466,7 +427,6 @@ $router->post('/cartes/toggle/{id}', function($id) use ($auth) {
     $controller->toggle($id);
 });
 
-// Page publique de pointage par QR (accessible à tous)
 $router->get('/cartes/pointer', function() use ($auth) {
     $controller = new CarteController();
     $controller->pointer();
@@ -477,9 +437,6 @@ $router->post('/cartes/checkin', function() use ($auth) {
     $controller->checkin();
 });
 
-// ============================================
-// Rapports (admin + rh)
-// ============================================
 $router->get('/rapports', function() use ($auth) {
     $auth->requireRole(['admin', 'rh']);
     $controller = new RapportController();
@@ -498,17 +455,15 @@ $router->get('/rapports/conges', function() use ($auth) {
     $controller->congesRapport();
 });
 
-// Route par défaut
 $router->get('/', function() use ($auth) {
     $auth->checkAuth();
     header('Location: ' . APP_URL . '/dashboard');
     exit;
 });
-// Route 404
+
 $router->notFound(function() {
     http_response_code(404);
     echo "<div style='text-align:center;padding:50px;'><h1>404</h1><p>Page non trouvée</p><a href='" . APP_URL . "/dashboard'>Retour au tableau de bord</a></div>";
 });
 
-// Dispatcher la requête
 $router->dispatch();
