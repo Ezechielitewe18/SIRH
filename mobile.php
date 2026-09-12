@@ -446,7 +446,7 @@ function enterApp() {
   document.getElementById('app').style.display = 'block';
   document.getElementById('bottomNav').style.display = 'flex';
   document.getElementById('navName').childNodes[0].textContent = (user.nom_complet || '').split(' ')[0];
-  document.getElementById('navName').innerHTML = (user.nom_complet || '').split(' ')[0] + '<small>GLOBIT SIRH · v5</small>';
+  document.getElementById('navName').innerHTML = (user.nom_complet || '').split(' ')[0] + '<small>GLOBIT SIRH · v6</small>';
   document.getElementById('navAvatar').textContent = (user.nom_complet || 'G')[0].toUpperCase();
   registerSW();
   go('home');

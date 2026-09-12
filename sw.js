@@ -1,4 +1,4 @@
-const CACHE_NAME = 'globit-v5';
+const CACHE_NAME = 'globit-v7';
 const APP_SHELL = [
   './',
   './manifest.webmanifest',
@@ -45,10 +45,27 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  const isNav = event.request.mode === 'navigate';
+  const isStatic = /\.(js|css|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|json|webmanifest)(\?.*)?$/i.test(url.pathname);
+
+  if (isStatic) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        if (cached) return cached;
+        return fetch(event.request).then((response) => {
+          if (response && response.status === 200 && response.type === 'basic') {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        }).catch(() => caches.match('./public/img/icon-192.png'));
+      })
+    );
+    return;
+  }
+
   const isShell = url.pathname.endsWith('/mobile.php') || url.pathname.endsWith('/SIRH/') || url.pathname.endsWith('/SIRH');
 
-  if (isShell || isNav) {
+  if (isShell || event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
@@ -66,16 +83,15 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        if (response && response.status === 200 && response.type === 'basic') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return response;
-      }).catch(() => caches.match('./mobile.php'));
-    })
+    fetch(event.request).then((response) => {
+      if (response && response.status === 200 && response.type === 'basic') {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+      }
+      return response;
+    }).catch(() => caches.match(event.request).then((cached) =>
+      cached || caches.match('./mobile.php')
+    ))
   );
 });
 

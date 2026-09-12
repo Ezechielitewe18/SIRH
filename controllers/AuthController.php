@@ -47,6 +47,7 @@ class AuthController {
             $email = trim($_POST['email'] ?? '');
             $password = $_POST['password'] ?? '';
             $password_confirm = $_POST['password_confirm'] ?? '';
+            $role = in_array($_POST['role'] ?? 'employe', ['employe', 'rh']) ? $_POST['role'] : 'employe';
 
             $errors = [];
 
@@ -70,14 +71,14 @@ class AuthController {
                     'nom_complet' => $nom,
                     'email' => $email,
                     'mot_de_passe' => $password,
-                    'role' => 'employe'
+                    'role' => $role
                 ]);
 
                 session_regenerate_id(true);
                 $_SESSION['user_id'] = $userId;
                 $_SESSION['user_name'] = $nom;
                 $_SESSION['user_email'] = $email;
-                $_SESSION['user_role'] = 'employe';
+                $_SESSION['user_role'] = $role;
 
                 header('Location: ' . APP_URL . '/dashboard');
                 exit;

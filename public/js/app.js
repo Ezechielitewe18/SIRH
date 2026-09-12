@@ -12,12 +12,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 });
-
-document.querySelectorAll('button[type="submit"]').forEach(btn => {
-    btn.addEventListener('click', function() {
-        if (this.form) {
-            this.disabled = true;
-            setTimeout(() => { this.disabled = false; }, 3000);
-        }
-    });
-});
