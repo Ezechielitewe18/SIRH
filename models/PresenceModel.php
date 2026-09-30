@@ -40,15 +40,16 @@ class PresenceModel extends Model {
         return $this->findByEmployee($id_employe, date('Y-m-d'));
     }
 
-    public function checkIn($id_employe, $source = 'manuel', $autoValidate = true) {
+    public function checkIn($id_employe, $source = 'declaration', $autoValidate = false) {
         $today = date('Y-m-d');
         $heure = date('H:i:s');
+        $limite = LIMITE_DECLARATION . ':00';
 
-
-        $retard = 0;
         $statut = 'present';
+        $retard = 0;
         $heureDebut = HEURE_DEBUT;
-        if ($heure > $heureDebut) {
+
+        if ($heure > $heureDebut && $heure <= $limite) {
             $debut = new DateTime($heureDebut);
             $maintenant = new DateTime($heure);
             $diff = $debut->diff($maintenant);
@@ -56,12 +57,17 @@ class PresenceModel extends Model {
             if ($retard > 0) {
                 $statut = 'retard';
             }
+        } elseif ($heure > $limite) {
+            return ['success' => false, 'message' => 'Délai de déclaration dépassé (10h00). Vous êtes marqué absent. Contactez le service RH pour justifier votre absence.'];
         }
-
 
         $existing = $this->findByEmployee($id_employe, $today);
         if (!empty($existing)) {
             $ex = $existing[0];
+
+            if ($ex['statut'] === 'absent' && $ex['validation'] === 'auto') {
+                return ['success' => false, 'message' => 'Délai de déclaration dépassé (10h00). Vous êtes marqué absent. Contactez le service RH pour justifier votre absence.', 'presence' => $ex];
+            }
 
             if ($ex['validation'] === 'rejetee') {
                 $this->update($ex['id_presence'], [
@@ -76,7 +82,7 @@ class PresenceModel extends Model {
                 ]);
                 return ['success' => true, 'message' => 'Nouvelle déclaration enregistrée (en attente de validation RH)', 'presence' => $this->findById($ex['id_presence'])];
             }
-            return ['success' => false, 'message' => 'Vous avez déjà pointé/déclaré aujourd\'hui', 'presence' => $ex];
+            return ['success' => false, 'message' => 'Vous avez déjà déclaré votre présence aujourd\'hui', 'presence' => $ex];
         }
 
         $id = $this->create([
@@ -89,7 +95,7 @@ class PresenceModel extends Model {
             'validation' => $autoValidate ? 'auto' : 'en_attente'
         ]);
 
-        $validation = $autoValidate ? 'validée automatiquement (préuve physique)' : 'en attente de validation RH';
+        $validation = 'en attente de validation RH';
         return [
             'success' => true,
             'message' => 'Arrivée enregistrée (' . $validation . ')',
@@ -208,5 +214,59 @@ class PresenceModel extends Model {
             'date_presence' => $date,
             'statut' => 'absent'
         ]);
+    }
+
+    public function marquerAbsentsAvantLimite() {
+        $today = date('Y-m-d');
+        $now = date('H:i:s');
+        if ($now < LIMITE_DECLARATION . ':00') {
+            return 0;
+        }
+        $sql = "SELECT e.id_employe FROM employes e
+                WHERE e.statut = 'actif'
+                AND NOT EXISTS (
+                    SELECT 1 FROM presences p
+                    WHERE p.id_employe = e.id_employe AND p.date_presence = :date
+                )";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['date' => $today]);
+        $employes = $stmt->fetchAll();
+
+        $count = 0;
+        foreach ($employes as $e) {
+            $this->create([
+                'id_employe' => $e['id_employe'],
+                'date_presence' => $today,
+                'statut' => 'absent',
+                'source' => 'manuel',
+                'validation' => 'auto'
+            ]);
+            $count++;
+        }
+        return $count;
+    }
+
+    public function regulariser($id_presence, $valide_par, $statut = 'justifie') {
+        $presence = $this->findById($id_presence);
+        if (!$presence || $presence['statut'] !== 'absent') return false;
+        return $this->update($id_presence, [
+            'statut' => $statut,
+            'validation' => 'validee',
+            'valide_par' => $valide_par,
+            'valide_le' => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    public function findAbsentsDuJour($date = null) {
+        $date = $date ?: date('Y-m-d');
+        $sql = "SELECT p.*, e.nom, e.prenom, e.matricule, s.nom_service
+                FROM {$this->table} p
+                INNER JOIN employes e ON p.id_employe = e.id_employe
+                LEFT JOIN services s ON e.id_service = s.id_service
+                WHERE p.date_presence = :date AND p.statut = 'absent'
+                ORDER BY e.nom ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['date' => $date]);
+        return $stmt->fetchAll();
     }
 }

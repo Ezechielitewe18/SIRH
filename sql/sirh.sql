@@ -1,7 +1,7 @@
 -- ============================================================================
 --  GLOBIT SIRH - Base de donnees complete
 --  Systeme d'Information des Ressources Humaines
---  Contenu : base + 16 tables + donnees de demonstration
+--  Contenu : base + 15 tables + donnees de demonstration
 --  Fichier unique : importer tel quel dans phpMyAdmin (onglet Importer)
 --  Encodage : UTF-8 (utf8mb4)
 -- ============================================================================
@@ -67,22 +67,6 @@ CREATE TABLE `bulletins` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `bulletins` WRITE;
-UNLOCK TABLES;
-DROP TABLE IF EXISTS `cartes_employes`;
-CREATE TABLE `cartes_employes` (
-  `id_carte` int(11) NOT NULL AUTO_INCREMENT,
-  `id_employe` int(11) NOT NULL,
-  `code_qr` varchar(64) NOT NULL,
-  `actif` tinyint(1) NOT NULL DEFAULT 1,
-  `date_creation` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id_carte`),
-  UNIQUE KEY `code_qr` (`code_qr`),
-  KEY `id_employe` (`id_employe`),
-  CONSTRAINT `cartes_employes_ibfk_1` FOREIGN KEY (`id_employe`) REFERENCES `employes` (`id_employe`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-LOCK TABLES `cartes_employes` WRITE;
-INSERT INTO `cartes_employes` VALUES (1,2,'GLOBIT-57738C8FC5E9',1,'2026-09-13 10:10:30');
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `conges`;
 CREATE TABLE `conges` (
@@ -208,7 +192,7 @@ CREATE TABLE `journal_activite` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `journal_activite` WRITE;
-INSERT INTO `journal_activite` VALUES (1,1,'Réinitialisation mot de passe','Mot de passe réinitialisé pour l\'utilisateur #3','utilisateurs','::1','2026-09-13 10:02:58'),(2,1,'Génération carte','Carte générée pour l\'employé #2','cartes','::1','2026-09-13 10:10:30'),(3,1,'Génération carte','Carte générée pour l\'employé #2','cartes','::1','2026-09-13 10:11:33');
+INSERT INTO `journal_activite` VALUES (1,1,'Réinitialisation mot de passe','Mot de passe réinitialisé pour l\'utilisateur #3','utilisateurs','::1','2026-09-13 10:02:58');
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `messages`;
 CREATE TABLE `messages` (
@@ -264,12 +248,12 @@ DROP TABLE IF EXISTS `presences`;
 CREATE TABLE `presences` (
   `id_presence` int(11) NOT NULL AUTO_INCREMENT,
   `id_employe` int(11) NOT NULL,
-  `source` enum('qrcode','declaration','manuel') NOT NULL DEFAULT 'manuel',
+  `source` enum('declaration','manuel') NOT NULL DEFAULT 'manuel',
   `date_presence` date NOT NULL,
   `heure_arrivee` time DEFAULT NULL,
   `heure_depart` time DEFAULT NULL,
   `retard` int(11) DEFAULT 0 COMMENT 'Retard en minutes',
-  `statut` enum('present','absent','retard','conge') NOT NULL DEFAULT 'present',
+  `statut` enum('present','absent','retard','conge','justifie') NOT NULL DEFAULT 'present',
   `validation` enum('auto','en_attente','validee','rejetee') NOT NULL DEFAULT 'auto',
   `valide_par` int(11) DEFAULT NULL,
   `valide_le` datetime DEFAULT NULL,

@@ -20,7 +20,6 @@ require_once ROOT_PATH . '/controllers/NotificationController.php';
 require_once ROOT_PATH . '/controllers/ExportController.php';
 require_once ROOT_PATH . '/controllers/UtilisateurController.php';
 require_once ROOT_PATH . '/controllers/LogController.php';
-require_once ROOT_PATH . '/controllers/CarteController.php';
 require_once ROOT_PATH . '/controllers/RapportController.php';
 require_once ROOT_PATH . '/controllers/MessageController.php';
 
@@ -34,13 +33,14 @@ require_once ROOT_PATH . '/models/ServiceModel.php';
 require_once ROOT_PATH . '/models/PresenceModel.php';
 require_once ROOT_PATH . '/models/CongeModel.php';
 require_once ROOT_PATH . '/models/LogModel.php';
-require_once ROOT_PATH . '/models/CarteModel.php';
 
 $router = new Router();
 $auth = new AuthController();
 
 $router->get('/login', function() use ($auth) { $auth->login(); });
 $router->post('/login', function() use ($auth) { $auth->login(); });
+$router->get('/forgot-password', function() use ($auth) { $auth->forgotPassword(); });
+$router->post('/forgot-password', function() use ($auth) { $auth->forgotPassword(); });
 $router->get('/register', function() use ($auth) {
     $auth->requireRole(['admin']);
     $auth->register();
@@ -175,6 +175,12 @@ $router->post('/presences/rejeter', function() use ($auth) {
     $auth->requireRole(['admin', 'rh']);
     $controller = new PresenceController();
     $controller->rejeter();
+});
+
+$router->post('/presences/regulariser', function() use ($auth) {
+    $auth->requireRole(['admin', 'rh']);
+    $controller = new PresenceController();
+    $controller->regulariser();
 });
 
 $router->get('/conges', function() use ($auth) {
@@ -409,34 +415,6 @@ $router->post('/journal/clear', function() use ($auth) {
     $auth->requireRole(['admin']);
     $controller = new LogController();
     $controller->clear();
-});
-
-$router->get('/cartes', function() use ($auth) {
-    $auth->requireRole(['admin', 'rh']);
-    $controller = new CarteController();
-    $controller->index();
-});
-
-$router->post('/cartes/generer/{id}', function($id) use ($auth) {
-    $auth->requireRole(['admin', 'rh']);
-    $controller = new CarteController();
-    $controller->generer($id);
-});
-
-$router->post('/cartes/toggle/{id}', function($id) use ($auth) {
-    $auth->requireRole(['admin', 'rh']);
-    $controller = new CarteController();
-    $controller->toggle($id);
-});
-
-$router->get('/cartes/pointer', function() use ($auth) {
-    $controller = new CarteController();
-    $controller->pointer();
-});
-
-$router->post('/cartes/checkin', function() use ($auth) {
-    $controller = new CarteController();
-    $controller->checkin();
 });
 
 $router->get('/rapports', function() use ($auth) {

@@ -14,6 +14,9 @@
                     <h3 class="card-title"><i class="fas fa-user-clock"></i> Ma présence aujourd'hui</h3>
                 </div>
                 <div class="card-body">
+                    <?php if (!$maPresence || $maPresence['statut'] === 'absent'): ?>
+                    <div id="compteARebours" class="mb-3"></div>
+                    <?php endif; ?>
                     <?php if ($maPresence): ?>
                         <div class="row">
                             <div class="col-md-3">
@@ -27,7 +30,7 @@
                             <div class="col-md-3">
                                 <small class="text-muted">Statut</small>
                                 <div>
-                                    <span class="badge badge-<?= $maPresence['statut'] === 'present' ? 'success' : ($maPresence['statut'] === 'retard' ? 'warning' : 'danger') ?>">
+                                    <span class="badge badge-<?= $maPresence['statut'] === 'present' ? 'success' : ($maPresence['statut'] === 'retard' ? 'warning' : ($maPresence['statut'] === 'justifie' ? 'info' : 'danger')) ?>">
                                         <?= ucfirst($maPresence['statut']) ?><?= $maPresence['retard'] > 0 ? ' (+' . $maPresence['retard'] . ' min)' : '' ?>
                                     </span>
                                 </div>
@@ -47,6 +50,20 @@
                                 </div>
                             </div>
                         </div>
+                        <?php if ($maPresence['statut'] === 'absent'): ?>
+                        <hr>
+                        <div class="alert alert-danger mb-2">
+                            Vous êtes marqué <strong>absent</strong> aujourd'hui (aucune déclaration avant 10h00).
+                            Si vous avez une justification valable, <a href="<?= APP_URL ?>/messages">contactez le service RH en privé</a>.
+                        </div>
+                        <?php endif; ?>
+                        <?php if ($maPresence['statut'] === 'justifie'): ?>
+                        <hr>
+                        <div class="alert alert-info mb-2">
+                            <i class="fas fa-clipboard-check"></i> Votre absence a été <strong>régularisée</strong> par le service RH.
+                            Pensez à pointer votre départ avant de quitter.
+                        </div>
+                        <?php endif; ?>
                         <?php if (empty($maPresence['heure_depart']) && $maPresence['statut'] !== 'absent' && $maPresence['validation'] !== 'rejetee'): ?>
                         <hr>
                         <form method="POST" action="<?= APP_URL ?>/presences/checkout" class="d-inline">
@@ -58,9 +75,9 @@
                         <p class="text-muted">Vous n'avez pas encore déclaré votre arrivée aujourd'hui.</p>
                         <form method="POST" action="<?= APP_URL ?>/presences/declarer">
                             <?= csrf_field() ?>
-                            <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-sign-in-alt"></i> Déclarer mon arrivée</button>
+                            <button type="submit" class="btn btn-success btn-lg" id="btnDeclarer"><i class="fas fa-sign-in-alt"></i> Déclarer mon arrivée</button>
                         </form>
-                        <p class="text-muted mt-2 mb-0"><small>Votre déclaration sera vérifiée par la RH. Le pointage par QR code est réservé à la Direction Générale.</small></p>
+                        <p class="text-muted mt-2 mb-0" style="font-size:12px">Déclarez votre présence avant <strong>10h00</strong> : avant 08h00 = présent, entre 08h00 et 10h00 = retard. Passé 10h00, vous serez marqué absent.</p>
                     <?php endif; ?>
                     <div id="currentTime" class="text-muted mt-2"><small></small></div>
                 </div>
@@ -149,6 +166,49 @@
     </div>
     <?php endif; ?>
 
+    <?php if ($isManager && !empty($absents)): ?>
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card card-danger">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-user-times"></i> Absents (non déclarés avant 10h00) — <?= count($absents) ?></h3>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-hover text-nowrap">
+                        <thead>
+                            <tr>
+                                <th>Matricule</th>
+                                <th>Nom complet</th>
+                                <th>Service</th>
+                                <th>Date</th>
+                                <th>Régularisation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($absents as $a): ?>
+                            <tr>
+                                <td><span class="badge badge-info"><?= htmlspecialchars($a['matricule']) ?></span></td>
+                                <td><?= htmlspecialchars($a['prenom'] . ' ' . $a['nom']) ?></td>
+                                <td><?= htmlspecialchars($a['nom_service'] ?? 'N/A') ?></td>
+                                <td><?= date('d/m/Y', strtotime($a['date_presence'])) ?></td>
+                                <td>
+                                    <form method="POST" action="<?= APP_URL ?>/presences/regulariser" class="d-inline" onsubmit="return confirm('Régulariser cette absence ?');">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="id" value="<?= $a['id_presence'] ?>">
+                                        <input type="hidden" name="statut" value="justifie">
+                                        <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Marquer justifié</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <div class="card">
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
@@ -181,8 +241,8 @@
                 </thead>
                 <tbody>
                     <?php
-                    $sclass = ['qrcode' => 'primary', 'declaration' => 'info', 'manuel' => 'secondary'];
-                    $slabel = ['qrcode' => 'QR', 'declaration' => 'Déclaration', 'manuel' => 'Manuel'];
+                    $sclass = ['declaration' => 'info', 'manuel' => 'secondary'];
+                    $slabel = ['declaration' => 'Déclaration', 'manuel' => 'Manuel'];
                     $vclass = ['auto' => 'success', 'validee' => 'success', 'en_attente' => 'warning', 'rejetee' => 'danger'];
                     $vlabel = ['auto' => 'Automatique', 'validee' => 'Validée', 'en_attente' => 'En attente', 'rejetee' => 'Rejetée'];
                     ?>
@@ -217,14 +277,48 @@
     </div>
 </section>
 
-<?php $extraScripts = '<script>
+<?php
+$serveurNowMs = (int)round(microtime(true) * 1000);
+$limiteMs = strtotime(date('Y-m-d') . ' ' . LIMITE_DECLARATION . ':00') * 1000;
+$extraScripts = '<script>
+var SERVER_NOW_MS = ' . $serveurNowMs . ';
+var LIMITE_DECLARATION_MS = ' . $limiteMs . ';
+var CLOCK_OFFSET = SERVER_NOW_MS - Date.now();
+function maintenantMs() { return Date.now() + CLOCK_OFFSET; }
+function heureTzFmt(ms, avecSecondes) {
+    try {
+        return new Intl.DateTimeFormat("fr-FR", { timeZone: "Africa/Kinshasa", hour: "2-digit", minute: "2-digit", second: avecSecondes ? "2-digit" : undefined }).format(new Date(ms));
+    } catch (e) {
+        return new Date(ms).toLocaleTimeString("fr-FR");
+    }
+}
 function updateClock() {
-    const now = new Date();
     const el = document.getElementById("currentTime");
-    if (el) el.textContent = "Heure actuelle: " + now.toLocaleTimeString("fr-FR");
+    if (el) el.textContent = "Heure actuelle: " + heureTzFmt(maintenantMs(), true);
 }
 setInterval(updateClock, 1000);
 updateClock();
+
+function updateCompteARebours() {
+    const el = document.getElementById("compteARebours");
+    if (!el) return;
+    const diff = LIMITE_DECLARATION_MS - maintenantMs();
+    const btn = document.getElementById("btnDeclarer");
+    if (diff <= 0) {
+        el.innerHTML = "<div class=\"alert alert-danger mb-2\" style=\"font-size:13px;padding:10px 12px\"><i class=\"fas fa-hourglass-end\"></i> Délai dépassé : vous êtes marqué <strong>absent</strong> aujourd\'hui. Contactez le service RH pour justifier votre absence.</div>";
+        el.className = "mb-3";
+        if (btn) btn.style.display = "none";
+        return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    const txt = "Temps restant pour déclarer votre arrivée : <strong>" + h + "h " + m + "min " + s + "s</strong>";
+    el.innerHTML = "<div class=\"alert alert-warning mb-2\" style=\"font-size:13px;padding:10px 12px\"><i class=\"fas fa-hourglass-half\"></i> " + txt + "<br><small style=\"font-size:11px\">Avant 08h00 = présent · Entre 08h00 et 10h00 = retard · Passé 10h00 = absent</small></div>";
+    el.className = "mb-3";
+}
+setInterval(updateCompteARebours, 1000);
+updateCompteARebours();
 
 $("#modalRejet").on("show.bs.modal", function (e) {
     const btn = $(e.relatedTarget);

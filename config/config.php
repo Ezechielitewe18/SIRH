@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('Africa/Kinshasa');
+
 define('APP_NAME', 'GLOBIT');
 
 $scheme = 'http';
@@ -17,6 +19,7 @@ define('APP_VERSION', '1.0.0');
 
 define('HEURE_DEBUT', '08:00');
 define('HEURE_FIN', '17:00');
+define('LIMITE_DECLARATION', '10:00');
 
 define('JOURS_CONGE_ANNUEL', 30);
 

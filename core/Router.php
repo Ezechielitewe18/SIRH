@@ -22,9 +22,7 @@ class Router {
 
         if ($method === 'POST') {
             $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-            $exempt = strpos($path, 'api.php') !== false
-                   || strpos($path, 'cartes/checkin') !== false
-                   || strpos($path, 'cartes/pointer') !== false;
+            $exempt = strpos($path, 'api.php') !== false;
             if (!$exempt && function_exists('csrf_verify') && !csrf_verify()) {
                 http_response_code(403);
                 die("Erreur de sécurité : token CSRF invalide. Veuillez réessayer.");

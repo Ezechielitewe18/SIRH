@@ -116,12 +116,6 @@
                             <p>Rapports</p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="<?= APP_URL ?>/cartes" class="nav-link <?= strpos($currentPage, 'carte') !== false ? 'active' : '' ?>">
-                            <i class="nav-icon fas fa-qrcode text-primary"></i>
-                            <p>Cartes QR</p>
-                        </a>
-                    </li>
                     <?php endif; ?>
 
                     <?php if ($_SESSION['user_role'] === 'admin'): ?>

@@ -1,12 +1,15 @@
 <?php
 require_once __DIR__ . '/../models/UserModel.php';
 require_once __DIR__ . '/../models/EmployeeModel.php';
+require_once __DIR__ . '/../models/LogModel.php';
 
 class AuthController {
     private $userModel;
+    private $logModel;
 
     public function __construct() {
         $this->userModel = new UserModel();
+        $this->logModel = new LogModel();
     }
 
     public function login() {
@@ -88,6 +91,26 @@ class AuthController {
         } else {
             require __DIR__ . '/../views/auth/register.php';
         }
+    }
+
+    public function forgotPassword() {
+        $message = '';
+        $erreur = '';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = trim($_POST['email'] ?? '');
+            if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $erreur = 'Veuillez saisir une adresse e-mail valide.';
+            } else {
+                $user = $this->userModel->findByEmail($email);
+                if ($user) {
+                    $this->logModel->log('reset_demande', $email, 'auth');
+                }
+                $message = 'Si un compte est associé à cette adresse, des instructions de réinitialisation vous seront envoyées.';
+            }
+        }
+
+        require __DIR__ . '/../views/auth/forgot.php';
     }
 
     public function logout() {

@@ -339,7 +339,6 @@ body.auto .timer-btn .pause{display:inline}
       <div class="chip"><i class="fa-solid fa-clipboard-check"></i>Présences</div>
       <div class="chip"><i class="fa-solid fa-money-bill-wave"></i>Paie</div>
       <div class="chip"><i class="fa-solid fa-mobile-screen-button"></i>Mobile</div>
-      <div class="chip"><i class="fa-solid fa-qrcode"></i>QR Code</div>
     </div>
   </section>
 
@@ -463,22 +462,22 @@ body.auto .timer-btn .pause{display:inline}
     </div>
   </section>
 
-  <section class="slide" data-kicker="Sécurité">
+  <section class="slide" data-kicker="Pointage">
     <div class="slide-head">
-      <div class="slide-kicker"><span class="line"></span>Sécurité<span class="line r"></span></div>
-      <h2 class="slide-title">Pointage par QR Code</h2>
-      <p class="slide-desc">Des badges électroniques sécurisés réservés à la Direction.</p>
+      <div class="slide-kicker"><span class="line"></span>Pointage<span class="line r"></span></div>
+      <h2 class="slide-title">Déclaration de présence avant 10h00</h2>
+      <p class="slide-desc">Un pointage déclaratif simple, avec compte à rebours et régularisation RH.</p>
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Cartes QR</span></div>
-        <div class="shot-body"><img src="assets/demo/cartes.png" alt="Cartes QR"></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Présences</span></div>
+        <div class="shot-body"><img src="assets/demo/presences.png" alt="Présences"></div>
       </div>
       <div class="features">
-        <div class="feature"><div class="icon"><i class="fa-solid fa-qrcode"></i></div><div><h4>Génération</h4><p>Créez un badge QR unique pour chaque employé.</p></div></div>
-        <div class="feature"><div class="icon"><i class="fa-solid fa-camera"></i></div><div><h4>Scannage</h4><p>Pointer en scannant le QR à l'entrée.</p></div></div>
-        <div class="feature"><div class="icon"><i class="fa-solid fa-shield-halved"></i></div><div><h4>Réservé DG</h4><p>Le pointage QR est uniquement réservé à la Direction Générale.</p></div></div>
-        <div class="feature"><div class="icon"><i class="fa-solid fa-receipt"></i></div><div><h4>Traçabilité</h4><p>Chaque scan est enregistré dans le journal d'activité.</p></div></div>
+        <div class="feature"><div class="icon"><i class="fa-solid fa-clock"></i></div><div><h4>Compte à rebours</h4><p>Chaque employé voit le temps restant pour déclarer son arrivée avant 10h00.</p></div></div>
+        <div class="feature"><div class="icon"><i class="fa-solid fa-stopwatch"></i></div><div><h4>Retard automatique</h4><p>Déclaration entre 08h00 et 10h00 = statut retard avec minutes comptées.</p></div></div>
+        <div class="feature"><div class="icon"><i class="fa-solid fa-user-slash"></i></div><div><h4>Absence après 10h00</h4><p>Sans déclaration à 10h00, l'employé est marqué absent automatiquement.</p></div></div>
+        <div class="feature"><div class="icon"><i class="fa-solid fa-scale-balanced"></i></div><div><h4>Régularisation</h4><p>Le service RH peut justifier une absence après échange privé avec l'employé.</p></div></div>
       </div>
     </div>
   </section>
@@ -532,7 +531,6 @@ body.auto .timer-btn .pause{display:inline}
       <div class="module"><i class="fa-solid fa-clipboard-check"></i>Présences</div>
       <div class="module"><i class="fa-solid fa-calendar-days"></i>Congés</div>
       <div class="module"><i class="fa-solid fa-money-bill-wave"></i>Paie</div>
-      <div class="module"><i class="fa-solid fa-qrcode"></i>QR Code</div>
       <div class="module"><i class="fa-solid fa-chart-line"></i>Rapports</div>
     </div>
   </section>

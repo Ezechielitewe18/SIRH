@@ -13,12 +13,15 @@ class PresenceController {
     }
 
     public function index() {
+        $this->presenceModel->marquerAbsentsAvantLimite();
+
         $date = $_GET['date'] ?? date('Y-m-d');
         $presences = $this->presenceModel->findAllWithEmployee($date);
 
         $role = $_SESSION['user_role'] ?? '';
         $isManager = in_array($role, ['admin', 'rh', 'directeur']);
         $enAttente = $isManager ? $this->presenceModel->trouverEnAttente() : [];
+        $absents = $isManager ? $this->presenceModel->findAbsentsDuJour($date) : [];
 
         $maPresence = null;
         if (!empty($_SESSION['employee_id'])) {
@@ -111,6 +114,21 @@ class PresenceController {
                 $_SESSION['success'] = 'Déclaration rejetée';
             } else {
                 $_SESSION['error'] = 'Échec du rejet';
+            }
+        }
+        header('Location: ' . APP_URL . '/presences');
+        exit;
+    }
+
+    public function regulariser() {
+        $this->requireManager();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = (int)($_POST['id'] ?? 0);
+            $statut = in_array($_POST['statut'] ?? '', ['justifie', 'present', 'retard']) ? $_POST['statut'] : 'justifie';
+            if ($this->presenceModel->regulariser($id, $_SESSION['user_id'], $statut)) {
+                $_SESSION['success'] = 'Absence régularisée';
+            } else {
+                $_SESSION['error'] = 'Échec de la régularisation';
             }
         }
         header('Location: ' . APP_URL . '/presences');

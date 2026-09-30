@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/config/config.php'; ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -225,9 +226,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
     </div>
     <div class="card" id="todayCard">
       <h3>Ma présence aujourd'hui</h3>
+      <div class="sub" id="countdownHome"></div>
       <div class="sub" id="todayDetail">Aucun pointage</div>
-      <div style="margin-top:12px">
-        <button class="btn" id="btnCheckIn" onclick="declarerPresence()">✅ Déclarer mon arrivée</button>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn" id="btnCheckIn" onclick="declarerPresence()" style="flex:2">✅ Déclarer mon arrivée</button>
+        <button class="btn outline" id="btnCheckOut" onclick="pointerSortie()" style="flex:2;display:none">⏱ Pointer sortie</button>
       </div>
     </div>
   </div>
@@ -236,6 +239,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
     <h2 style="font-size:22px;font-weight:800;margin-bottom:14px">Présence</h2>
     <div class="card">
       <h3>Pointage du jour</h3>
+      <div class="sub" id="countdownPres"></div>
       <div id="presTodayBox">
         <div class="sub">Chargement...</div>
         <div style="margin-top:12px">
@@ -388,6 +392,15 @@ function api(action, method, data) {
   });
 }
 
+var SERVER_NOW_MS = <?= (int)round(microtime(true) * 1000) ?>;
+var LIMITE_DECLARATION_MS = <?= strtotime(date('Y-m-d') . ' ' . LIMITE_DECLARATION . ':00') * 1000 ?>;
+var CLOCK_OFFSET = SERVER_NOW_MS - Date.now();
+function mow() { return Date.now() + CLOCK_OFFSET; }
+function heureKin(ms, avecSec) {
+  try { return new Intl.DateTimeFormat('fr-FR', { timeZone: 'Africa/Kinshasa', hour: '2-digit', minute: '2-digit', second: avecSec ? '2-digit' : undefined }).format(new Date(ms)); }
+  catch (e) { return new Date(ms).toLocaleTimeString('fr-FR'); }
+}
+
 var sections = ['home','pres','conge','notifs','profil'];
 function go(sec) {
   document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
@@ -460,6 +473,77 @@ function logout() {
   location.reload();
 }
 
+var compteARebours = null;
+function demarrerCompteARebours() {
+  if (!(user && user.id_employe)) { masquerCompteARebours(); return; }
+  if (compteARebours) clearInterval(compteARebours);
+  majCompteARebours();
+  compteARebours = setInterval(majCompteARebours, 1000);
+}
+function majCompteARebours() {
+  var limites = ['countdownHome','countdownPres'];
+  var diff = LIMITE_DECLARATION_MS - mow();
+  limites.forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (diff <= 0) {
+      el.style.display = 'block';
+      el.innerHTML = '<span style="color:#e74c3c">⛔ Délai de déclaration dépassé (10h00).<br><a href="#" onclick="go(\'msg\')" style="text-decoration:underline">Contacter le service RH</a></span>';
+    } else {
+      var h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+      el.style.display = 'block';
+      el.innerHTML = '⏳ Il reste <b>'+h+'h '+m+'m '+s+'s</b> pour déclarer votre arrivée.<br><small>Avant 08h00 = présent · 08h00→10h00 = retard · après = absent</small>';
+    }
+  });
+}
+function masquerCompteARebours() {
+  ['countdownHome','countdownPres'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display='none'; });
+}
+
+function renderMobilePresence(p, box, btn, btnDepart, mode) {
+  if (!p) {
+    demarrerCompteARebours();
+    if (btn) { btn.style.display = 'block'; btn.textContent = '✅ Déclarer mon arrivée'; }
+    if (btnDepart) btnDepart.style.display = 'none';
+    box.innerHTML = '<div class="sub">Aucun pointage aujourd\'hui</div>';
+    return;
+  }
+  var st = p.validation;
+  var label = st==='auto'?'Auto-validée':st==='validee'?'Validée':st==='en_attente'?'En attente':'Rejetée';
+  var done = !!p.heure_depart;
+  var badge = (p.statut==='retard'?'Retard (arrivé)':p.statut==='justifie'?'Justifié':p.statut==='absent'?'Absent':label);
+
+  if (p.statut === 'absent') {
+    masquerCompteARebours();
+    if (btn) btn.style.display = 'none';
+    if (btnDepart) btnDepart.style.display = 'none';
+    box.innerHTML = '<div class="tt" style="color:#e74c3c;font-weight:700">Absent</div>'
+      + '<div class="dd">Aucune déclaration avant 10h00. '
+      + '<a href="#" onclick="go(\'msg\')" style="text-decoration:underline">Justifier auprès du RH</a>.</div>';
+    return;
+  }
+
+  masquerCompteARebours();
+  if (btn) {
+    if (st === 'rejetee') { btn.style.display = 'block'; btn.textContent = '↻ Redéclarer mon arrivée'; }
+    else btn.style.display = 'none';
+  }
+  if (btnDepart) {
+    btnDepart.style.display = (st !== 'rejetee' && !done) ? 'block' : 'none';
+  }
+
+  if (p.statut === 'justifie' && !p.heure_arrivee) {
+    box.innerHTML = '<div class="list-item"><div class="ic">✅</div><div class="ct"><div class="tt">Absence régularisée</div>'
+      + '<div class="dd">Justifiée par le RH. Pointez votre départ avant de quitter.</div></div>'
+      + '<span class="st validee">Justifié</span></div>';
+    return;
+  }
+
+  box.innerHTML = '<div class="list-item"><div class="ic">⏱</div><div class="ct"><div class="tt">'+label+'</div>'
+    + '<div class="dd">Arrivée '+(p.heure_arrivee||'—')+(p.heure_depart?' · Départ '+p.heure_depart:'')+'</div></div>'
+    + '<span class="st '+st+'">'+badge+'</span></div>';
+}
+
 function loadHome() {
   var now = new Date();
   document.getElementById('welcome').textContent = 'Bonjour, ' + (user.nom_complet||'').split(' ')[0] + ' 👋';
@@ -499,20 +583,8 @@ function loadHome() {
 
   api('presence_aujourdhui','GET').then(function(j){
     var p = (j.data||{}).presence;
-    var box = document.getElementById('todayDetail');
-    var btn = document.getElementById('btnCheckIn');
+    renderMobilePresence(p, document.getElementById('todayDetail'), document.getElementById('btnCheckIn'), document.getElementById('btnCheckOut'), 'home');
     document.getElementById('statPres').textContent = p ? '√' : '—';
-    if (p) {
-      var st = p.validation;
-      var label = st==='auto'?'Auto-validée':st==='validee'?'Validée':st==='en_attente'?'En attente':'Rejetée';
-      box.innerHTML = '<span class="st '+st+'">'+label+'</span> Arrivée ' + (p.heure_arrivee||'') + (p.heure_depart? ' · Départ '+p.heure_depart : '');
-      btn.style.display = (st==='rejetee') ? 'block' : 'none';
-      if (st==='rejetee') btn.textContent = '↻ Redéclarer mon arrivée';
-    } else {
-      box.textContent = 'Aucun pointage aujourd\'hui.';
-      btn.style.display = 'block';
-      btn.textContent = '✅ Déclarer mon arrivée';
-    }
   }).catch(function(){
     document.getElementById('statPres').textContent = '—';
   });
@@ -522,6 +594,7 @@ function loadHome() {
 
 function loadPresence() {
   if (!(user && user.id_employe)) {
+    masquerCompteARebours();
     var box = document.getElementById('presTodayBox');
     var hist = document.getElementById('presHistory');
     document.getElementById('presTodayBox').innerHTML = '<div class="sub">Compte de gestion RH.</div>';
@@ -539,13 +612,15 @@ function loadPresence() {
   api('presence_aujourdhui','GET').then(function(j){
     var p = (j.data||{}).presence;
     var box = document.getElementById('presTodayBox');
-    if (p) {
-      var st = p.validation;
-      var label = st==='auto'?'Auto-validée':st==='validee'?'Validée':st==='en_attente'?'En attente':'Rejetée';
-      box.innerHTML = '<div class="list-item"><div class="ic">⏱</div><div class="ct"><div class="tt">' + label + '</div><div class="dd">Arrivée ' + (p.heure_arrivee||'—') + (p.heure_depart? ' · Départ '+p.heure_depart : '') + '</div></div><span class="st '+st+'">'+(p.statut==='retard'?'Retard':p.statut)+'</span></div>';
-      box.innerHTML += '<div style="margin-top:10px;display:flex;gap:8px"><button class="btn red" style="flex:2" onclick="declarerPresence(true)">'+(st==='rejetee'?'↻ Redéclarer':'Déclarer arrivée')+'</button><button class="btn outline" style="flex:2" onclick="pointerSortie()">⏱ Sortie</button></div>';
-    } else {
-      box.innerHTML = '<div class="sub">Aucun pointage aujourd\'hui</div><div style="margin-top:12px;display:flex;gap:8px"><button class="btn" style="flex:2" onclick="declarerPresence(true)">✅ Déclarer arrivée</button><button class="btn outline" style="flex:2" onclick="pointerSortie()">⏱ Sortie</button></div>';
+    renderMobilePresence(p, box, null, null, 'pres');
+    if (p && p.statut !== 'absent' && !p.heure_depart && p.validation !== 'rejetee') {
+      box.innerHTML += '<div style="margin-top:10px;display:flex;gap:8px"><button class="btn outline" style="flex:2" onclick="pointerSortie()">⏱ Pointer sortie</button></div>';
+    } else if (p && p.validation === 'rejetee') {
+      box.innerHTML += '<div style="margin-top:10px"><button class="btn" style="width:100%" onclick="declarerPresence(true)">↻ Redéclarer mon arrivée</button></div>';
+    } else if (p && p.statut === 'absent') {
+      box.innerHTML += '<div style="margin-top:10px"><button class="btn" style="width:100%" onclick="go(\'msg\')">💬 Justifier auprès du RH</button></div>';
+    } else if (!p) {
+      box.innerHTML += '<div style="margin-top:10px;display:flex;gap:8px"><button class="btn" style="flex:2" onclick="declarerPresence(true)">✅ Déclarer arrivée</button></div>';
     }
     loadPresHistory();
   }).catch(function(){ document.getElementById('presTodayBox').innerHTML='<div class="sub">Erreur de chargement</div>'; });
@@ -557,9 +632,10 @@ function loadPresHistory() {
     var html = '';
     if (!list.length) { html = '<div class="empty"><i>📋</i>Aucune présence</div>'; }
     list.forEach(function(p){
-      var st = p.validation;
-      var stl = st==='auto'?'auto':st==='validee'?'validee':st==='en_attente'?'en_attente':'rejetee';
-      html += '<div class="list-item"><div class="ic">📅</div><div class="ct"><div class="tt">'+p.date_presence+'</div><div class="dd">Arrivée '+(p.heure_arrivee||'—')+' · Départ '+(p.heure_depart||'—')+'</div></div><span class="st '+stl+'">'+(st==='auto'?'Validée':st)+'</span></div>';
+      var stl = p.validation==='auto'?'auto':p.validation==='validee'?'validee':p.validation==='en_attente'?'en_attente':'rejetee';
+      var stat = p.statut || '';
+      var badge = stat==='retard'?'<span class="st en_attente">Retard</span> ':stat==='absent'?'<span class="st rejetee">Absent</span> ':stat==='congé'||stat==='conge'?'<span class="st auto">Congé</span> ':'';
+      html += '<div class="list-item"><div class="ic">📅</div><div class="ct"><div class="tt">'+p.date_presence+'</div><div class="dd">Arrivée '+(p.heure_arrivee||'—')+' · Départ '+(p.heure_depart||'—')+'</div></div><span class="st '+stl+'">'+badge+(p.validation==='auto'?'Validée':p.validation)+'</span></div>';
     });
     document.getElementById('presHistory').innerHTML = html;
   }).catch(function(){});

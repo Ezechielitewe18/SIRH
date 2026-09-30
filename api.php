@@ -167,6 +167,7 @@ if ($action === 'presence_aujourdhui') {
     if (!$employee) api_error('Aucun employé associé à ce compte.', 404);
 
     $pm = new PresenceModel();
+    $pm->marquerAbsentsAvantLimite();
     $presence = $pm->findTodayByEmployee($employee['id_employe']);
 
     api_json([
@@ -245,6 +246,34 @@ if ($action === 'presence_valider') {
     $pm = new PresenceModel();
     $ok = $pm->valider($id, $user['id_utilisateur']);
     api_json($ok ? ['success' => true, 'message' => 'Présence validée'] : api_error('Présence introuvable', 404));
+}
+
+if ($action === 'presences_absents') {
+    $user = requireAuth();
+    requireRole($user, ['admin', 'rh']);
+    $pm = new PresenceModel();
+    $pm->marquerAbsentsAvantLimite();
+    $absents = $pm->findAbsentsDuJour();
+    api_json(['success' => true, 'data' => $absents]);
+}
+
+if ($action === 'presence_regulariser') {
+    $user = requireAuth();
+    requireRole($user, ['admin', 'rh']);
+    $body = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+    $id = $body['id_presence'] ?? $_GET['id'] ?? null;
+    if (!$id) api_error('id_presence requis.');
+    $statut = ($body['statut'] ?? 'justifie') === 'present' ? 'present' : 'justifie';
+
+    $pm = new PresenceModel();
+    $ok = $pm->regulariser((int)$id, $user['id_utilisateur'], $statut);
+    if ($ok) {
+        $nm = new NotificationModel();
+        $nm->notifyAllByRole(['admin', 'rh'], 'Absence régularisée',
+            'Une absence a été régularisée (statut : ' . $statut . ').',
+            'systeme', APP_URL . '/presences');
+    }
+    api_json($ok ? ['success' => true, 'message' => 'Absence régularisée'] : api_error('Absence introuvable ou déjà traitée', 404));
 }
 
 if ($action === 'conges') {
