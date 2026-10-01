@@ -131,6 +131,23 @@ class AuthController {
             header('Location: ' . APP_URL . '/login');
             exit;
         }
+        $this->verifierFicheEmploye();
+    }
+
+    /**
+     * Le lien session -> fiche employe est verifie a chaque requete : si la fiche
+     * a ete supprimee (ou l'employe desactive) pendant la session, le compte
+     * perd aussitot l'acces a son QR et a la carte "Ma presence".
+     */
+    private function verifierFicheEmploye() {
+        if (empty($_SESSION['employee_id'])) {
+            return;
+        }
+        $employeeModel = new EmployeeModel();
+        $employe = $employeeModel->findById($_SESSION['employee_id']);
+        if (!$employe || $employe['statut'] !== 'actif') {
+            unset($_SESSION['employee_id']);
+        }
     }
 
     public function requireRole($roles) {

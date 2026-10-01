@@ -233,19 +233,19 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
       <div class="sub" id="countdownHome"></div>
       <div class="sub" id="todayDetail">Aucun pointage</div>
       <div style="margin-top:12px">
-        <button class="btn" id="btnCheckIn" onclick="ouvrirQr()" style="width:100%">📱 Afficher mon QR d'arrivée</button>
+        <button class="btn" id="btnQr" onclick="ouvrirQr()" style="width:100%">📱 Afficher mon QR d'arrivée</button>
       </div>
     </div>
     <div class="card" id="qrCard" style="border:1px solid var(--accent);background:rgba(59,130,246,.10)">
       <h3>📱 Mon QR de pointage</h3>
-      <div class="sub">Présentez ce code à l'accueil pour pointer votre <b>arrivée</b>, puis votre <b>départ</b>.</div>
+      <div class="sub">Présentez ce code à l'accueil pour pointer votre <b>ARRIVÉE</b>, puis votre <b>DÉPART</b>.</div>
       <div style="margin-top:12px">
         <a class="btn" href="<?= APP_URL ?>/presences/qr" style="width:100%;display:block;text-align:center;text-decoration:none">📷 Afficher mon QR</a>
       </div>
     </div>
     <div class="card" id="scanCard" style="display:none">
       <h3>Réception — scan d'arrivée</h3>
-      <div class="sub">Présentez le QR de l'employé : 1<sup>er</sup> scan = arrivée, 2<sup>e</sup> = départ.</div>
+      <div class="sub" style="margin:0">Réceptionniste : présentez le QR de l'employé — <b>1<sup>er</sup> scan = ARRIVÉE</b>, <b>2<sup>e</sup> scan = DÉPART</b>.</div>
       <div style="margin-top:12px">
         <a class="btn" href="<?= APP_URL ?>/presences/scan" style="width:100%;display:block;text-align:center;text-decoration:none">📷 Ouvrir le scanner</a>
       </div>
@@ -505,11 +505,11 @@ function majCompteARebours() {
     if (!el) return;
     if (diff <= 0) {
       el.style.display = 'block';
-      el.innerHTML = '<span style="color:#e74c3c">⛔ Délai de déclaration dépassé (10h00).<br><a href="#" onclick="go(\'msg\')" style="text-decoration:underline">Contacter le service RH</a></span>';
+      el.innerHTML = '<span style="color:#e74c3c">⛔ Délai de déclaration dépassé (<?= LIMITE_DECLARATION ?>).<br><a href="#" onclick="go(\'msg\')" style="text-decoration:underline">Contacter le service RH</a></span>';
     } else {
       var h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
       el.style.display = 'block';
-      el.innerHTML = '⏳ Pointage à la réception dans <b>'+h+'h '+m+'m '+s+'s</b>.<br><small>Présentez votre QR · avant 08h00 = présent · 08h00→10h00 = retard · après = absent</small>';
+      el.innerHTML = '📷 Présentez votre QR à la réception : <b>1<sup>er</sup> scan = ARRIVÉE</b>, <b>2<sup>e</sup> scan = DÉPART</b>.<br><small>Le code change toutes les 30 secondes · après <?= LIMITE_DECLARATION ?> = retard</small>';
     }
   });
 }
@@ -535,7 +535,7 @@ function renderMobilePresence(p, box, btn, btnDepart, mode) {
     if (btn) { btn.style.display = 'block'; btn.textContent = '📱 Afficher mon QR'; }
     if (btnDepart) btnDepart.style.display = 'none';
     box.innerHTML = '<div class="tt" style="color:#e74c3c;font-weight:700">Absent</div>'
-      + '<div class="dd">Aucun pointage avant 10h00. Si vous arrivez, présentez votre QR à l\'accueil : la réception enregistrera votre arrivée tardive. '
+      + '<div class="dd">Aucun pointage avant <?= LIMITE_DECLARATION ?>. Si vous arrivez, présentez votre QR à l\'accueil : la réception enregistrera votre arrivée tardive. '
       + '<a href="#" onclick="go(\'msg\')" style="text-decoration:underline">Justifier auprès du RH</a>.</div>';
     return;
   }
@@ -571,7 +571,7 @@ function loadHome() {
     var congeStat = document.getElementById('statConge');
     var paieStat = document.getElementById('statPaie');
     var box = document.getElementById('todayDetail');
-    var btn = document.getElementById('btnCheckIn');
+    var btn = document.getElementById('btnQr');
 
     document.getElementById('homeSub').textContent = 'Aujourd\'hui, ' + formatDate(new Date()) + ' · Vue gestion RH.';
     congeStat.textContent = '—';
@@ -604,7 +604,7 @@ function loadHome() {
 
   api('presence_aujourdhui','GET').then(function(j){
     var p = (j.data||{}).presence;
-    renderMobilePresence(p, document.getElementById('todayDetail'), document.getElementById('btnCheckIn'), document.getElementById('btnCheckOut'), 'home');
+    renderMobilePresence(p, document.getElementById('todayDetail'), document.getElementById('btnQr'), null, 'home');
     document.getElementById('statPres').textContent = p ? '√' : '—';
   }).catch(function(){
     document.getElementById('statPres').textContent = '—';

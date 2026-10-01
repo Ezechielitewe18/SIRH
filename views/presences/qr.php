@@ -201,12 +201,6 @@
 
         <div class="jauge"><span id="barre"></span></div>
         <div class="chrono">Changement de code dans <b id="restant"><?= QR_PERIODE ?></b> s</div>
-        <?php if (QR_PERIODE > 60): ?>
-        <div class="etat warn" style="margin-top:10px">
-            <b>⚠ MODE TEST</b>
-            Code valable <?= intdiv(QR_PERIODE, 60) ?> h (rotation désactivée pour l'essai). Le réglage normal de 30 s sera rétabli après le test.
-        </div>
-        <?php endif; ?>
 
         <div class="consigne">Scannez ce QR avec le poste de la réception : votre <strong>arrivée</strong> sera enregistrée à l'instant du scan. Un second scan pointera votre <strong>départ</strong>.</div>
 

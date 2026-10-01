@@ -147,12 +147,6 @@ $router->get('/presences', function() use ($auth) {
     $controller->index();
 });
 
-$router->post('/presences/declarer', function() use ($auth) {
-    $auth->checkAuth();
-    $controller = new PresenceController();
-    $controller->declarer();
-});
-
 $router->get('/presences/qr', function() use ($auth) {
     $auth->checkAuth();
     $controller = new PresenceController();
@@ -175,18 +169,6 @@ $router->post('/presences/scan', function() use ($auth) {
     $auth->requireRole(['admin', 'rh']);
     $controller = new PresenceController();
     $controller->scanValider();
-});
-
-$router->post('/presences/checkin', function() use ($auth) {
-    $auth->checkAuth();
-    $controller = new PresenceController();
-    $controller->checkin();
-});
-
-$router->post('/presences/checkout', function() use ($auth) {
-    $auth->checkAuth();
-    $controller = new PresenceController();
-    $controller->checkout();
 });
 
 $router->post('/presences/valider/{id}', function($id) use ($auth) {

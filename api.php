@@ -193,35 +193,6 @@ if ($action === 'presence_aujourdhui') {
     ]);
 }
 
-if ($action === 'presence_declarer') {
-    $user = requireAuth();
-    $employeeModel = new EmployeeModel();
-    $employee = $employeeModel->findByUserId($user['id_utilisateur']);
-    if (!$employee) api_error('Aucun employé associé à ce compte.', 404);
-
-    $pm = new PresenceModel();
-    $result = $pm->declarer($employee['id_employe']);
-
-    if ($result['success']) {
-        $nm = new NotificationModel();
-        $nm->notifyAllByRole(['admin', 'rh'], 'Nouvelle déclaration de présence',
-            $employee['prenom'] . ' ' . $employee['nom'] . ' a déclaré son arrivée.',
-            'systeme', APP_URL . '/presences');
-    }
-    api_json($result['success'] ? ['success' => true, 'message' => $result['message'], 'data' => $result['presence']] : api_error($result['message'], 409));
-}
-
-if ($action === 'presence_depart') {
-    $user = requireAuth();
-    $employeeModel = new EmployeeModel();
-    $employee = $employeeModel->findByUserId($user['id_utilisateur']);
-    if (!$employee) api_error('Aucun employé associé à ce compte.', 404);
-
-    $pm = new PresenceModel();
-    $result = $pm->checkOut($employee['id_employe']);
-    api_json($result['success'] ? ['success' => true, 'message' => $result['message']] : api_error($result['message'], 409));
-}
-
 if ($action === 'presences') {
     $user = requireAuth();
     $employeeModel = new EmployeeModel();

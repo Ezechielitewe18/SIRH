@@ -19,13 +19,18 @@ define('APP_VERSION', '1.0.0');
 
 define('HEURE_DEBUT', '08:00');
 define('HEURE_FIN', '17:00');
+// Limite d'arrivee : au-dela, le scan reste accepte mais compte comme retard.
 define('LIMITE_DECLARATION', '10:00');
+
+// Creation automatique des lignes "absent" apres la limite d'arrivee.
+// false (par defaut) : rien n'est ecrit pour un employe qui n'a pas scanne,
+// il n'apparait dans la journee qu'apres son premier scan reussi.
+define('MARQUER_ABSENTS_AUTO', false);
 
 define('JOURS_CONGE_ANNUEL', 30);
 
 // QR dynamique de presence : duree de validite d'un jeton (secondes)
-// TEST : 3600 = code quasi statique pendant l'essai. Remettre a 30 apres le test.
-define('QR_PERIODE', 3600);
+define('QR_PERIODE', 30);
 // Fenetre de tolerance (en periodes) acceptee a la validation du scan
 define('QR_FENETRE', 1);
 

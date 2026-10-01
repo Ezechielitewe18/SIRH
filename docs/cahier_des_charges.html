@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>GLOBIT — Cahier des charges SIRH v1.1</title>
+<style>
+  @page { size: A4; margin: 17mm 16mm 16mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", "Inter", Arial, sans-serif; font-size: 9.6pt; line-height: 1.5; color: #1b1f2a; margin: 0; }
+  h1, h2, h3, h4 { font-family: "Segoe UI", "Inter", Arial, sans-serif; }
+  .cover { height: 247mm; display: flex; flex-direction: column; justify-content: space-between; page-break-after: always; }
+  .cover-top { border-top: 5px solid #2563EB; padding-top: 10mm; }
+  .brand { font-size: 26pt; font-weight: 800; letter-spacing: 4px; color: #0A0826; }
+  .brand span { color: #2563EB; }
+  .cover h1 { font-size: 19pt; color: #0A0826; margin: 12mm 0 3mm; line-height: 1.25; }
+  .cover .sub { font-size: 11pt; color: #475069; }
+  .badge { display: inline-block; background: #eaf1ff; color: #1d4ed8; border: 1px solid #bfd4ff; border-radius: 20px; padding: 2mm 5mm; font-size: 9pt; font-weight: 600; margin-top: 4mm; }
+  .cover-meta { border-top: 1px solid #dde3ee; padding-top: 5mm; font-size: 9pt; color: #475069; }
+  .cover-meta b { color: #0A0826; }
+  h2 { font-size: 14pt; color: #0A0826; border-bottom: 2px solid #2563EB; padding-bottom: 2mm; margin: 0 0 4mm; page-break-after: avoid; }
+  h3 { font-size: 11pt; color: #12306e; margin: 6mm 0 2mm; page-break-after: avoid; }
+  h4 { font-size: 9.8pt; color: #0A0826; margin: 4mm 0 1.5mm; page-break-after: avoid; }
+  p { margin: 0 0 2.5mm; text-align: justify; }
+  ul, ol { margin: 0 0 3mm; padding-left: 5mm; }
+  li { margin-bottom: 1.2mm; }
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 8.7pt; page-break-inside: avoid; }
+  th { background: #0A0826; color: #fff; text-align: left; padding: 1.8mm 2.2mm; font-weight: 600; }
+  td { padding: 1.6mm 2.2mm; border-bottom: 1px solid #e2e7f0; vertical-align: top; }
+  tr:nth-child(even) td { background: #f6f8fc; }
+  code, .mono { font-family: Consolas, "Courier New", monospace; font-size: 8.6pt; background: #eef2fb; color: #12306e; padding: 0 1mm; border-radius: 2px; }
+  .box { border: 1px solid #c9d8f5; border-left: 3px solid #2563EB; background: #f4f8ff; padding: 3mm 3.5mm; margin: 3mm 0; page-break-inside: avoid; }
+  .box.green { border-color: #bfe6cd; border-left-color: #16a34a; background: #f2fdf6; }
+  .box.red { border-color: #f5c6c6; border-left-color: #dc2626; background: #fef4f4; }
+  .box b { color: #0A0826; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 3mm; border-radius: 3px; font-size: 8pt; line-height: 1.35; overflow: hidden; white-space: pre; }
+  .toc td { border-bottom: 1px dotted #c8d0e0; }
+  .toc td:first-child { width: 12mm; color: #2563EB; font-weight: 700; }
+  .new { color: #16a34a; font-weight: 700; }
+  .del { color: #b91c1c; font-weight: 700; text-decoration: line-through; }
+  .small { font-size: 8.4pt; color: #5a6478; }
+  .pagebreak { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-top">
+    <div class="brand">GLOB<span>IT</span></div>
+    <h1>Cahier des charges<br>Système d'Information des Ressources Humaines</h1>
+    <div class="sub">Gestion des employés, pointage par QR code, congés, paie et messagerie interne</div>
+    <div class="badge">Version 1.1 — refonte du module Présences en pointage QR dynamique</div>
+  </div>
+  <div class="cover-meta">
+    <table style="margin:0">
+      <tr><td style="width:45mm;border:none;background:none"><b>Version du document</b></td><td style="border:none;background:none">1.1 (remplace la version 1.0 du 17/09/2026)</td></tr>
+      <tr><td style="border:none;background:none"><b>Date de rédaction</b></td><td style="border:none;background:none">1<sup>er</sup> octobre 2026</td></tr>
+      <tr><td style="border:none;background:none"><b>Version de l'application</b></td><td style="border:none;background:none">1.1.0</td></tr>
+      <tr><td style="border:none;background:none"><b>Auteur</b></td><td style="border:none;background:none">Ezechiel Itewe Nzukumayi</td></tr>
+      <tr><td style="border:none;background:none"><b>Client</b></td><td style="border:none;background:none">GLOBIT — République Démocratique du Congo</td></tr>
+    </table>
+  </div>
+</div>
+
+<h2>Sommaire</h2>
+<table class="toc">
+  <tr><td>1.</td><td>Présentation générale du projet</td></tr>
+  <tr><td>2.</td><td>Objectifs du système</td></tr>
+  <tr><td>3.</td><td>Périmètre fonctionnel (12 modules)</td></tr>
+  <tr><td>4.</td><td>Acteurs, rôles et permissions</td></tr>
+  <tr><td>5.</td><td>Règles de gestion</td></tr>
+  <tr><td>6.</td><td>Architecture technique</td></tr>
+  <tr><td>7.</td><td>Base de données</td></tr>
+  <tr><td>8.</td><td>API mobile (application PWA)</td></tr>
+  <tr><td>9.</td><td>Interfaces, pages et poste de réception</td></tr>
+  <tr><td>10.</td><td>Sécurité</td></tr>
+  <tr><td>11.</td><td>Comptes par défaut</td></tr>
+  <tr><td>12.</td><td>Guide d'installation</td></tr>
+  <tr><td>13.</td><td>Maintenance et évolution</td></tr>
+</table>
+
+<h2>1. Présentation générale du projet</h2>
+
+<h3>1.1 Contexte</h3>
+<p>GLOBIT souhaite disposer d'un outil informatique de gestion des ressources humaines permettant de centraliser les informations du personnel, d'automatiser et de fiabiliser le suivi des présences, de digitaliser les demandes de congés et d'assurer une communication interne fluide entre les employés, les responsables RH et l'administration.</p>
+<p>La version 1.0 du système reposait sur une <b>déclaration d'arrivée par l'employé lui-même</b> (bouton « Déclarer » / « Départ »), ce qui laissait la place à des forgotten, des doublons et à des manipulations. La version 1.1 supprime totalement ce mode de fonctionnement : le pointage passe désormais par un <b>QR code dynamique scanné au poste de réception</b>.</p>
+
+<h3>1.2 Intitulé du projet</h3>
+<table>
+  <tr><th style="width:45mm">Libellé</th><th>Détail</th></tr>
+  <tr><td>Nom du système</td><td>GLOBIT SIRH</td></tr>
+  <tr><td>Intitulé complet</td><td>Système d'Information des Ressources Humaines</td></tr>
+  <tr><td>Domaine</td><td>Ressources Humaines (RH)</td></tr>
+  <tr><td>Type d'application</td><td>Application web (PHP) + Progressive Web App (PWA) mobile</td></tr>
+  <tr><td>Technologies</td><td>PHP 8.1 (MVC natif), MySQL/MariaDB, JavaScript, Bootstrap, AdminLTE 3, jsQR, qrcode.js</td></tr>
+  <tr><td>Version application</td><td>1.1.0</td></tr>
+  <tr><td>Année</td><td>2026</td></tr>
+  <tr><td>Développeur</td><td>Ezechiel Itewe Nzukumayi</td></tr>
+</table>
+
+<h3>1.3 Historique des versions</h3>
+<table>
+  <tr><th style="width:20mm">Version</th><th style="width:26mm">Date</th><th>Évolutions</th></tr>
+  <tr><td>1.0</td><td>17/09/2026</td><td>Version initiale : 12 modules, déclaration de présence par l'employé, 15 tables, PWA mobile.</td></tr>
+  <tr><td>1.1</td><td>01/10/2026</td><td>Module Présences refondé : QR code dynamique (rotation 30 s) signé HMAC, scan au poste de réception, arrivée/départ par le nombre de scans, suppression de tous les moyens de déclaration à distance, suppression du marquage automatique des absents (une journée reste vide tant que personne n'a scanné), secrets QR par employé, sécurités HTTPS/localhost, documentation et tests.</td></tr>
+</table>
+
+<h2>2. Objectifs du système</h2>
+
+<h3>2.1 Objectif général</h3>
+<p>Fournir à GLOBIT une plateforme unique, sécurisée et accessible sur ordinateur et sur mobile, pour administrer l'ensemble du cycle de vie du personnel.</p>
+
+<h3>2.2 Objectifs spécifiques</h3>
+<ul>
+  <li>Centraliser les données des employés dans une base unique (identité, poste, salaire, service).</li>
+  <li><b>Fiabiliser le pointage des présences</b> par un QR code dynamique : le secret n'est jamais stocké ni transmis en clair, il change toutes les 30 secondes et le pointage ne peut être réalisé que depuis le poste de réception.</li>
+  <li>Supprimer toute déclaration d'arrivée ou de départ effectuée à distance par l'employé.</li>
+  <li>Calculer automatiquement les retards à partir de la limite officielle d'arrivée (<span class="mono">LIMITE_DECLARATION</span>).</li>
+  <li>Digitaliser le circuit des congés : demande, validation RH, approbation admin, historique.</li>
+  <li>Générer les bulletins de paie à partir des paramètres configurés (impôt, CNSS, pension).</li>
+  <li>Favoriser la communication via une messagerie interne et des annonces de la direction.</li>
+  <li>Proposer une application mobile installable (PWA) affichant le QR personnel de l'employé.</li>
+  <li>Tracer les actions importantes (journal d'activité) pour la traçabilité.</li>
+  <li>Proposer des exports de données (Excel / PDF) pour les rapports de gestion.</li>
+</ul>
+
+<h2>3. Périmètre fonctionnel</h2>
+<p>Le système couvre douze (12) modules fonctionnels principaux :</p>
+<table>
+  <tr><th style="width:34mm">Module</th><th>Fonctionnalités principales</th></tr>
+  <tr><td>Authentification</td><td>Connexion, inscription, déconnexion, gestion de session, jeton API mobile.</td></tr>
+  <tr><td>Tableau de bord</td><td>Statistiques, graphiques (Chart.js), indicateurs clés.</td></tr>
+  <tr><td>Employés</td><td>Ajout, modification, consultation, suppression, recherche, exports, <b>génération du secret QR</b>.</td></tr>
+  <tr><td>Services</td><td>Gestion des départements / services de l'entreprise.</td></tr>
+  <tr><td><b>Présences</b></td><td><b>QR code dynamique par employé (rotation 30 s), scan au poste de réception, arrivée (1<sup>er</sup> scan) et départ (2<sup>e</sup> scan), calcul des retards, compteurs temps réel, validation, rejet, régularisation.</b></td></tr>
+  <tr><td>Congés</td><td>Demande, approbation, refus, historique, solde annuel.</td></tr>
+  <tr><td>Paie</td><td>Paramètres, génération des bulletins, validation, paiement, archives.</td></tr>
+  <tr><td>Formations</td><td>Planification, suivi des formations, attribution aux employés.</td></tr>
+  <tr><td>Messagerie</td><td>Conversations employé &lt;-&gt; RH / Administration.</td></tr>
+  <tr><td>Annonces</td><td>Publication d'annonces par la direction / RH.</td></tr>
+  <tr><td>Notifications</td><td>Alertes, journal des notifications, non-lues.</td></tr>
+  <tr><td>Rapports &amp; journal</td><td>Absentéisme, congés, exports Excel / PDF, journal d'activité.</td></tr>
+</table>
+
+<h3>3.1 Focus : fonctionnement du pointage par QR code</h3>
+<div class="box">
+  <b>Principe.</b> Chaque employé possède un secret unique de 256 bits stocké en base. À l'ouverture de sa page « Mon QR », le téléphone demande au serveur un <b>jeton signé</b> valable 30 secondes ; l'image QR est dessinée à la volée sur le téléphone et n'est <b>jamais enregistrée</b> nulle part. À la réception, le poste scanners lit ce code et valide le jeton auprès du serveur.
+</div>
+<table>
+  <tr><th style="width:34mm">Étape</th><th>Détail</th></tr>
+  <tr><td>1. L'employé ouvre « Mon QR »</td><td>Sur le web ou la PWA mobile (session ouverte). Le bouton est visible en permanence, que l'employé soit présent ou absent.</td></tr>
+  <tr><td>2. Le serveur signe un jeton</td><td><span class="mono">SIRHQR1 | id_employe | période(30 s) | signature HMAC-SHA256</span></td></tr>
+  <tr><td>3. Le téléphone dessine le QR</td><td>Compte à rebours visible, nouvelle image à chaque rotation.</td></tr>
+  <tr><td>4. La réception scanne</td><td>Webcam du poste (jsQR) ou lecteur d'écran de code-barres ; saisie manuelle possible en secours.</td></tr>
+  <tr><td>5. Le serveur vérifie</td><td>Signature, période en cours, employé actif, journée non déjà complète.</td></tr>
+  <tr><td>6. Le pointage est enregistré</td><td>1<sup>er</sup> scan = arrivée, 2<sup>e</sup> scan = départ, 3<sup>e</sup> scan = refusé.</td></tr>
+</table>
+
+<h2>4. Acteurs, rôles et permissions</h2>
+
+<h3>4.1 Acteurs identifiés</h3>
+<table>
+  <tr><th style="width:42mm">Acteur</th><th>Description</th></tr>
+  <tr><td>Administrateur (admin)</td><td>Super-utilisateur : gestion complète, paramètres, utilisateurs, <b>scan du QR à la réception</b>, validation et régularisation des présences. Le compte d'administration n'a pas de fiche employé : il ne peut pas être pointé lui-même.</td></tr>
+  <tr><td>Responsable RH</td><td>Gestion du personnel, validation des présences et congés, paie, annonces, <b>scan du QR à la réception</b>.</td></tr>
+  <tr><td>Employé</td><td>Consulte ses informations, <b>affiche son QR personnel</b>, demande des congés, lit ses bulletins. <b>Aucun bouton de pointage.</b></td></tr>
+  <tr><td>Directeur</td><td>Consultation des tableaux de bord et rapports ; accès au scan réservé à l'admin et aux RH.</td></tr>
+</table>
+
+<h3>4.2 Matrice des permissions</h3>
+<table>
+  <tr><th>Fonctionnalité</th><th style="width:22mm">Admin</th><th style="width:22mm">RH</th><th style="width:22mm">Employé</th></tr>
+  <tr><td>Connexion / déconnexion</td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
+  <tr><td>Consulter le tableau de bord</td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
+  <tr><td>Gérer les employés et services</td><td>Oui</td><td>Oui</td><td>Non</td></tr>
+  <tr><td><b>Afficher son QR personnel (30 s)</b></td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
+  <tr><td><b>Scanner le QR au poste de réception</b></td><td>Oui</td><td>Oui</td><td>Non</td></tr>
+  <tr><td><b>Pointer sa présence à distance (API, formulaire)</b></td><td>Non</td><td>Non</td><td>Non</td></tr>
+  <tr><td>Valider / rejeter / régulariser une présence</td><td>Oui</td><td>Oui</td><td>Non</td></tr>
+  <tr><td>Demander un congé</td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
+  <tr><td>Valider les congés</td><td>Oui</td><td>Oui</td><td>Non</td></tr>
+  <tr><td>Gérer la paie / les bulletins</td><td>Oui</td><td>Oui</td><td>Non</td></tr>
+  <tr><td>Consulter ses bulletins</td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
+  <tr><td>Messagerie interne</td><td>Oui</td><td>Oui</td><td>Oui (vers RH / admin)</td></tr>
+  <tr><td>Publier des annonces</td><td>Oui</td><td>Oui</td><td>Non</td></tr>
+</table>
+<div class="box">
+  <b>Fiche employé obligatoire pour être pointé.</b> Le QR personnel n'existe que pour un compte relié à une fiche <span class="mono">employes</span> (matricule, poste, service, salaire, secret QR). Un compte de direction sans fiche — comme le compte <span class="mono">admin@sirh.local</span> livré avec le jeu de démonstration — ne peut donc ni afficher de QR ni être scanné : c'est volontaire, un compte technique ne doit pas être un joueur présumé.
+</div>
+<div class="box red">
+  <b>Suppression volontaire (v1.1).</b> Les routes web <span class="mono">POST /presences/declarer</span>, <span class="mono">/presences/checkin</span>, <span class="mono">/presences/checkout</span> et les actions API <span class="mono">presence_declarer</span> / <span class="mono">presence_depart</span> ont été retirées : elles renvoient désormais une erreur 404 / « Action inconnue ». Le pointage n'existe que par scan.
+</div>
+
+<h2>5. Règles de gestion</h2>
+
+<h3>5.1 Règles générales</h3>
+<ul>
+  <li>Un employé est rattaché à un seul service (département) au moment de sa création.</li>
+  <li>Le matricule est généré automatiquement et est unique.</li>
+  <li>Les heures de travail standard vont de 08h00 à 17h00 (<span class="mono">HEURE_DEBUT</span> / <span class="mono">HEURE_FIN</span>).</li>
+  <li>Le fuseau horaire officiel est <b>Africa/Kinshasa (UTC+01:00)</b>, appliqué au PHP et à MariaDB.</li>
+  <li>Le droit de congé annuel est de 30 jours (configurable).</li>
+  <li>Toute demande de congé doit être validée par le RH ou l'admin avant d'être comptabilisée.</li>
+  <li>Un employé peut écrire à un RH ou à l'admin via la messagerie, mais pas directement aux autres employés.</li>
+  <li>Seuls le RH et l'admin peuvent publier des annonces visibles par tous.</li>
+  <li>Toute action sensible est tracée dans le journal d'activité.</li>
+</ul>
+
+<h3>5.2 Règles du pointage par QR code</h3>
+<ul>
+  <li><b>Rotation :</b> un jeton QR est valable <span class="mono">QR_PERIODE = 30 secondes</span>. Passé ce délai, le code précédent est refusé, même s'il a été capturé par photographie.</li>
+  <li><b>Signature :</b> le jeton contient une signature <b>HMAC-SHA256</b> calculée avec le secret de l'employé et une clé applicative. Un code forgé ou modifié est rejeté.</li>
+  <li><b>Un secret par employé :</b> 64 caractères hexadécimaux (256 bits) générés aléatoirement, stockés en base (<span class="mono">employes.qr_secret</span>) et jamais affichés en clair dans l'interface. Seul un compte disposant d'une fiche employé possède un QR.</li>
+  <li><b>Ordre des scans :</b> le 1<sup>er</sup> scan de la journée enregistre l'arrivée, le 2<sup>e</sup> le départ, un 3<sup>e</sup> scan est refusé (« journée déjà complète »).</li>
+  <li><b>Limite horaire :</b> une arrivée enregistrée avant <span class="mono">LIMITE_DECLARATION</span> donne le statut « présent » ; après cette limite, la présence reste acceptée mais le retard est calculé en minutes ; faute de scan, l'employé est marqué absent. <br><span class="small">Valeur livrée : <b>10:00</b> (réglable dans <span class="mono">config/config.php</span>).</span></li>
+  <li><b>Aucune ligne automatique :</b> un employé qui n'a pas encore scanné <b>n'apparaît pas</b> dans la journée — ni « présent », ni « absent », rien du tout. La table ne contient une ligne qu'après un <b>scan QR réussi</b> (source <span class="mono">qr</span>). Le marquage manuel des absents reste possible, mais il doit être <b>volontaire</b> (<span class="mono">scripts/marquer_absents.php</span> ou le statut choisi par le RH).</li>
+  <li><b>Un seul pointage par jour :</b> la ligne de présence de la journée est créée au premier scan puis mise à jour (départ, régularisation), jamais dupliquée.</li>
+  <li><b>Validation :</b> un pointage par QR est enregistré avec la source <span class="mono">qr</span> et automatiquement validé ; le RH peut néanmoins le rejeter ou le régulariser (justifié, présence, etc.).</li>
+  <li><b>Pointage hors ligne :</b> le jeton est généré par le serveur, une coupure réseau bloque le pointage.</li>
+</ul>
+
+<h3>5.3 Statuts d'une présence</h3>
+<table>
+  <tr><th style="width:32mm">Statut</th><th>Signification</th></tr>
+  <tr><td><span class="mono">present</span></td><td>Arrivée enregistrée avant la limite <span class="mono">LIMITE_DECLARATION</span>.</td></tr>
+  <tr><td><span class="mono">retard</span></td><td>Arrivée après la limite ; le nombre de minutes de retard est stocké.</td></tr>
+  <tr><td><span class="mono">absent</span></td><td>Absence <b>marquée manuellement</b> (script ou RH) ou présence rejetée. Jamais attribuée automatiquement.</td></tr>
+  <tr><td><span class="mono">conge</span></td><td>Journée couverte par un congé approuvé.</td></tr>
+  <tr><td><span class="mono">justifie</span></td><td>Absence régularisée par le RH ou la direction.</td></tr>
+</table>
+
+<h2 class="pagebreak">6. Architecture technique</h2>
+
+<h3>6.1 Modèle MVC</h3>
+<p>L'application est développée en PHP natif suivant le patron MVC (Modèle - Vue - Contrôleur), sans framework externe. Le point d'entrée unique est le fichier <span class="mono">index.php</span> qui instancie le routeur.</p>
+<pre>SIRH/
+|-- config/       Configuration (config.php, database.php)
+|-- core/         Noyau MVC (Router, Database, Model)
+|-- controllers/  Logique metier (14 controleurs)
+|-- models/       Acces aux donnees (11 modeles, dont QrcodeModel)
+|-- views/        Interfaces HTML (layouts + pages)
+|   `-- presences/    index.php (liste), qr.php (QR employe), scan.php (reception)
+|-- public/       Assets (CSS, JS, images) dont jsQR.js et qrcode.min.js
+|-- sql/          sirh.sql (import unique : base + tables + donnees)
+|-- scripts/      Scripts utilitaires (init_qr_secrets.php, marquer_absents.php...)
+|-- api.php       API JSON pour l'application mobile
+|-- mobile.php    Interface mobile (PWA)
+|-- sw.js         Service Worker (cache / hors ligne)
+|-- index.php     Point d'entree (routeur)</pre>
+
+<h3>6.2 Composants du noyau</h3>
+<table>
+  <tr><th style="width:48mm">Composant</th><th>Rôle</th></tr>
+  <tr><td>core/Router.php</td><td>Routing des URL vers les contrôleurs (GET/POST).</td></tr>
+  <tr><td>core/Database.php</td><td>Connexion PDO (singleton) à MySQL/MariaDB, requêtes préparées.</td></tr>
+  <tr><td>core/Model.php</td><td>Classe de base des modèles.</td></tr>
+  <tr><td>models/QrcodeModel.php</td><td>Génération et vérification des jetons QR signés (HMAC-SHA256), périodes, expiration.</td></tr>
+  <tr><td>models/PresenceModel.php</td><td>Arrivée / départ / scanPointage(), retards, absences automatiques, validation, régularisation.</td></tr>
+</table>
+
+<h3>6.3 Contrôleurs et modèles</h3>
+<table>
+  <tr><th style="width:48mm">Contrôleurs (14)</th><th style="width:48mm">Modèles (11)</th></tr>
+  <tr><td>Auth, Employee, Presence, Conge, Paie, Dashboard, Service, Formation, Message, Notification, Log, Rapport, Export, Utilisateur</td><td>Utilisateur, Employee, Presence, Qrcode, Conge, Paie, Service, Formation, Message, Notification, Log</td></tr>
+</table>
+
+<h3>6.4 Configuration clé (config/config.php)</h3>
+<table>
+  <tr><th>Constante</th><th style="width:26mm">Valeur</th><th>Rôle</th></tr>
+  <tr><td><span class="mono">HEURE_DEBUT</span> / <span class="mono">HEURE_FIN</span></td><td>08:00 / 17:00</td><td>Journée de travail.</td></tr>
+  <tr><td><span class="mono">LIMITE_DECLARATION</span></td><td>10:00</td><td>Limite d'arrivée : au-delà, le scan reste accepté mais compte comme retard.</td></tr>
+  <tr><td><span class="mono">MARQUER_ABSENTS_AUTO</span></td><td>false</td><td>Aucune création automatique de ligne « absent ». <span class="new">Passer à true pour activer le marquage automatique.</span></td></tr>
+  <tr><td><span class="mono">QR_PERIODE</span></td><td><b>30</b> (secondes)</td><td>Durée de validité d'un jeton QR.</td></tr>
+  <tr><td><span class="mono">QR_FENETRE</span></td><td>1</td><td>Tolérance de période(s) à la vérification. <span class="new">0 = validation stricte.</span></td></tr>
+  <tr><td><span class="mono">QR_SECRET_APP</span></td><td>chaîne secrète</td><td>Clé de signature applicative ; à personnaliser en production.</td></tr>
+  <tr><td><span class="mono">APP_TIMEZONE</span></td><td>Africa/Kinshasa</td><td>Fuseau officiel GLOBIT.</td></tr>
+</table>
+
+<h2>7. Base de données</h2>
+<p>La base de données s'appelle <span class="mono">sirh</span>, en <span class="mono">utf8mb4</span>. Elle comporte <b>15 tables</b>, créées et remplies par le fichier unique <span class="mono">sql/sirh.sql</span>.</p>
+<table>
+  <tr><th style="width:44mm">Table</th><th>Description</th></tr>
+  <tr><td>utilisateurs</td><td>Comptes de connexion (admin, rh, employe).</td></tr>
+  <tr><td>employes</td><td>Fiches du personnel : infos, poste, service, salaire, <b>qr_secret</b>.</td></tr>
+  <tr><td>services</td><td>Départements / services de l'entreprise.</td></tr>
+  <tr><td>presences</td><td>Pointages arrivée / départ, retards, statut, validation, justification.</td></tr>
+  <tr><td>conges</td><td>Demandes de congés et leur workflow.</td></tr>
+  <tr><td>bulletins</td><td>Bulletins de paie générés.</td></tr>
+  <tr><td>parametres_paie</td><td>Paramètres de calcul (impôt, CNSS, pension…).</td></tr>
+  <tr><td>formations</td><td>Catalogue des formations.</td></tr>
+  <tr><td>formations_employes</td><td>Attribution des formations aux employés.</td></tr>
+  <tr><td>conversations</td><td>Conversations de messagerie interne.</td></tr>
+  <tr><td>messages</td><td>Messages échangés dans les conversations.</td></tr>
+  <tr><td>annonces</td><td>Annonces publiées par la direction.</td></tr>
+  <tr><td>notifications</td><td>Notifications utilisateurs.</td></tr>
+  <tr><td>journal_activite</td><td>Traces des actions sensibles.</td></tr>
+  <tr><td>api_tokens</td><td>Jetons d'authentification de l'API mobile.</td></tr>
+</table>
+
+<h3>7.1 Table <span class="mono">presences</span> (colonnes principales)</h3>
+<table>
+  <tr><th style="width:44mm">Colonne</th><th>Contenu</th></tr>
+  <tr><td>source</td><td><span class="mono">enum('declaration','manuel','qr')</span> — la valeur <span class="mono">qr</span> identifie les pointages de la version 1.1 (les anciennes valeurs sont conservées pour l'historique).</td></tr>
+  <tr><td>date_presence</td><td>Date de la journée pointée (une ligne par employé et par jour).</td></tr>
+  <tr><td>heure_arrivee / heure_depart</td><td>Heures des 1<sup>er</sup> et 2<sup>e</sup> scans.</td></tr>
+  <tr><td>retard</td><td>Minutes de retard calculées automatiquement.</td></tr>
+  <tr><td>statut</td><td><span class="mono">enum('present','absent','retard','conge','justifie')</span></td></tr>
+  <tr><td>validation</td><td><span class="mono">enum('auto','en_attente','validee','rejetee')</span></td></tr>
+  <tr><td>justification / observation</td><td>Motif de régularisation saisi par le RH.</td></tr>
+</table>
+
+<h3>7.2 Secret QR</h3>
+<p>Chaque ficheemployé possède la colonne <span class="mono">qr_secret varchar(64)</span>. Les secrets sont générés par le script <span class="mono">scripts/init_qr_secrets.php</span> (option <span class="mono">--all</span> pour tout régénérer) et ne sont jamais affichés dans l'interface.</p>
+
+<h3>7.3 Paramètres de paie (valeurs par défaut)</h3>
+<table>
+  <tr><th>Paramètre</th><th style="width:26mm">Valeur</th><th style="width:26mm">Unité</th><th>Paramètre</th><th style="width:26mm">Valeur</th><th style="width:26mm">Unité</th></tr>
+  <tr><td>Taxe professionnelle</td><td>1.00</td><td>%</td><td>Indemnité logement</td><td>20.00</td><td>%</td></tr>
+  <tr><td>Prestation sociale</td><td>3.50</td><td>%</td><td>Prime transport</td><td>10.00</td><td>%</td></tr>
+  <tr><td>Pension retraite</td><td>5.00</td><td>%</td><td>Taux heure supplémentaire</td><td>150.00</td><td>%</td></tr>
+  <tr><td>Heures travail / mois</td><td>176.00</td><td>heures</td><td></td><td></td><td></td></tr>
+</table>
+
+<h2>8. API mobile (application PWA)</h2>
+<p>L'application mobile est une Progressive Web App. Elle communique avec le serveur via <span class="mono">api.php</span> en JSON. L'authentification se fait par jeton <span class="mono">Bearer</span> valable 30 jours ; la connexion ouvre également une session PHP, ce qui permet d'afficher la page QR.</p>
+<table>
+  <tr><th style="width:46mm">Action</th><th style="width:18mm">Méthode</th><th>Description</th></tr>
+  <tr><td>login / logout</td><td>POST</td><td>Authentification (jeton + session), déconnexion.</td></tr>
+  <tr><td>profil</td><td>GET</td><td>Profil de l'utilisateur connecté.</td></tr>
+  <tr><td>presence_aujourdhui / presences</td><td>GET</td><td>Présence du jour et historique.</td></tr>
+  <tr><td>presences_validation / presence_valider</td><td>GET / POST</td><td>Présences à valider et validation (RH).</td></tr>
+  <tr><td>presences_absents / presence_regulariser</td><td>GET / POST</td><td>Absents du jour et régularisation.</td></tr>
+  <tr><td>conges / conge_demander / conge_approuver / conge_refuser</td><td>GET / POST</td><td>Circuit des congés.</td></tr>
+  <tr><td>notifications / notifications_lues</td><td>GET / POST</td><td>Notifications et marquage lu.</td></tr>
+  <tr><td>bulletins</td><td>GET</td><td>Bulletins de paie de l'employé.</td></tr>
+  <tr><td>messages / messages_ouvrir / messages_envoyer</td><td>GET / POST</td><td>Messagerie interne.</td></tr>
+  <tr><td>personnel</td><td>GET</td><td>Liste du personnel (RH / Admin).</td></tr>
+</table>
+<div class="box">
+  <b>Aucune action de pointage n'existe dans l'API.</b> Les actions <span class="mono">presence_declarer</span> et <span class="mono">presence_depart</span> ont été supprimées en v1.1. Le QR est produit par les routes web <span class="mono">/presences/qr</span> et <span class="mono">/presences/qr-code</span>, qui exigent une session valide.
+</div>
+
+<h2>9. Interfaces, pages et poste de réception</h2>
+
+<h3>9.1 Application web (ordinateur)</h3>
+<table>
+  <tr><th style="width:60mm">Page</th><th style="width:44mm">URL (sous /SIRH)</th><th>Accès</th></tr>
+  <tr><td>Connexion / inscription</td><td>/login &nbsp;/register</td><td>Public</td></tr>
+  <tr><td>Tableau de bord</td><td>/dashboard</td><td>Tous</td></tr>
+  <tr><td>Employés (liste, création)</td><td>/employees &nbsp;/employees/create</td><td>Admin, RH</td></tr>
+  <tr><td>Services</td><td>/services</td><td>Admin, RH</td></tr>
+  <tr><td><b>Présences</b> (compteurs, journal, validation)</td><td>/presences</td><td>Admin, RH</td></tr>
+  <tr><td><b>Mon QR</b> (affichage + compte à rebours)</td><td>/presences/qr</td><td>Employé</td></tr>
+  <tr><td><b>Poste de réception</b> (webcam, lecteur, saisie)</td><td>/presences/scan</td><td>Admin, RH</td></tr>
+  <tr><td>Congés, Paie, Formations, Messagerie</td><td>/conges &nbsp;/paie &nbsp;/formations &nbsp;/messages</td><td>Selon rôle</td></tr>
+  <tr><td>Annonces, Notifications, Journal, Rapports</td><td>/messages/annonces &nbsp;/notifications &nbsp;/journal &nbsp;/rapports</td><td>Selon rôle</td></tr>
+</table>
+
+<h3>9.2 Application mobile (PWA)</h3>
+<p>Adresse : <span class="mono">/mobile.php</span>. Sections : Accueil (indicateurs), <b>QR personnel</b>, Congés, Notifications, Messages, Profil. Le bouton « Afficher mon QR d'arrivée » est toujours visible. Charte graphique : fond <span class="mono">#0A0826</span>, accents <span class="mono">#2563EB</span> et <span class="mono">#38BDF8</span>, police Inter. Service Worker versionné <span class="mono">globit-v8</span> : la page QR et le jeton ne sont jamais mis en cache.</p>
+
+<h3>9.3 Poste de réception</h3>
+<ul>
+  <li>Ordinateur fixe avec navigateur récent, écran visible pour les employés.</li>
+  <li>Webcam pour le scan (recommandé) ou lecteur de codes-barres USB en secours, saisie manuelle possible.</li>
+  <li><b>Contrainte navigateur :</b> la webcam n'est autorisée que sur <span class="mono">http://localhost</span> ou en <b>HTTPS</b>. Sur une adresse réseau (par exemple <span class="mono">http://10.174.83.2/SIRH</span>), le scan direct par caméra n'est pas disponible : utiliser le lecteur ou la saisie manuelle, ou configurer un certificat HTTPS.</li>
+  <li>Le téléphone de l'employé affiche le QR via le réseau local (Wi-Fi), sans connexion internet nécessaire.</li>
+</ul>
+
+<h2>10. Sécurité</h2>
+
+<h3>10.1 Mesures générales</h3>
+<ul>
+  <li>Mots de passe hachés avec bcrypt (<span class="mono">password_hash</span>).</li>
+  <li>Protection CSRF : jeton obligatoire sur tous les formulaires et sur le scan.</li>
+  <li>Authentification par session pour le web, par jeton Bearer pour l'API.</li>
+  <li>Contrôle d'accès par rôle : les actions RH / admin renvoient une erreur 403 aux employés ; le scan exige le rôle admin ou rh.</li>
+  <li>Requêtes préparées PDO partout (prévention des injections SQL).</li>
+  <li>Échappement de toutes les sorties HTML ; <span class="mono">display_errors</span> désactivé en production.</li>
+  <li>En-têtes CORS limités à l'origine du site ; jeton mobile stocké dans le navigateur (périmètre du navigateur).</li>
+</ul>
+
+<h3>10.2 Sécurité du pointage QR</h3>
+<ul>
+  <li><b>Aucun secret en clair</b> : le secret de l'employé ne quitte jamais la base ; seule une signature HMAC-SHA256 circule.</li>
+  <li><b>Aucun stockage de code</b> : l'image QR est dessinée côté client à partir d'un jeton de 30 secondes ; ni la base, ni le cache, ni le service worker ne conservent de code valide.</li>
+  <li><b>Anti-rejeu :</b> un jeton expiré est refusé ; une photographie de l'écran est inutile.</li>
+  <li><b>Anti-fraude :</b> impossible de pointer depuis l'extérieur, aucun formulaire ni action API ne permet de déclarer une arrivée.</li>
+  <li><b>Cloisonnement :</b> un employé ne peut demander que son propre jeton (session liée à l'employé) ; la réception voit le nom et le matriculeAssociated au scan.</li>
+  <li><b>Rotation des secrets :</b> <span class="mono">scripts/init_qr_secrets.php</span> permet de régénérer un secret (employé supprimé, Employé, départ de l'employé, compromission suspectée).</li>
+  <li><b>Recommandation production :</b>+HTTPS obligatoire (obligatoire pour la webcam) et clé <span class="mono">QR_SECRET_APP</span> personnalisée.</li>
+</ul>
+
+<h2>11. Comptes par défaut</h2>
+<table>
+  <tr><th>Rôle</th><th>Email</th><th>Mot de passe</th></tr>
+  <tr><td>Administrateur</td><td>admin@sirh.local</td><td>Admin1234</td></tr>
+  <tr><td>Employé (compte de démonstration)</td><td>perle.tshibuabua@globit.com</td><td>Test1234</td></tr>
+</table>
+<div class="box green">
+  <b>Important :</b> ces mots de passe servent à la démonstration et doivent être changés. L'administrateur connecté peut modifier son mot de passe depuis son profil. Le jeu de données livré contient <b>un seul employé</b> (PERLE, <span class="mono">EMP-2026-0001</span>, avec son secret QR) ; le compte admin est un compte technique sans fiche employé, donc non pointable.
+</div>
+<p>Lors de la création d'un employé, un compte est créé automatiquement avec l'email auto-généré <span class="mono">prenom.nom@globit.com</span> et un mot de passe par défaut <span class="mono">Globit@Année</span> (ex. Globit@2026), affiché une seule fois après la création.</p>
+
+<h2>12. Guide d'installation</h2>
+
+<h3>12.1 Prérequis</h3>
+<table>
+  <tr><th style="width:44mm">Composant</th><th>Exigence</th></tr>
+  <tr><td>XAMPP</td><td>Apache + PHP 7.4 ou plus (testé sur PHP 8.1)</td></tr>
+  <tr><td>Base de données</td><td>MySQL 8 ou MariaDB 10.4 et plus</td></tr>
+  <tr><td>Navigateur web</td><td>Chrome / Firefox / Edge à jour (webcam : localhost ou HTTPS)</td></tr>
+  <tr><td>Téléphone (option)</td><td>Android / iOS, navigateur moderne, même réseau Wi-Fi</td></tr>
+</table>
+
+<h3>12.2 Installation pas à pas</h3>
+<ol>
+  <li>Copier le dossier du projet dans <span class="mono">C:\xampp\htdocs\SIRH</span>.</li>
+  <li>Démarrer Apache et MySQL dans le panneau XAMPP Control.</li>
+  <li>Ouvrir phpMyAdmin (<span class="mono">http://localhost/phpmyadmin</span>).</li>
+  <li>Importer le fichier <span class="mono">sql/sirh.sql</span> : il crée la base <span class="mono">sirh</span>, ses 15 tables et les jeu de données (y compris les secrets QR des employés).</li>
+  <li>Vérifier la configuration <span class="mono">config/database.php</span> (hôte, base, utilisateur, mot de passe) et <span class="mono">config/config.php</span> (fuseau, <span class="mono">LIMITE_DECLARATION</span>, <span class="mono">QR_PERIODE = 30</span>).</li>
+  <li>En cas d'import sans données : générer les secrets avec <span class="mono">php scripts/init_qr_secrets.php --all</span>.</li>
+  <li>Ouvrir <span class="mono">http://localhost/SIRH</span> et se connecter avec un compte de la table <span class="mono">11. Comptes par défaut</span>.</li>
+  <li>Vérifier le pointage : se connecter en employé, ouvrir <span class="mono">/presences/qr</span> (le code change au bout de 30 s), puis en admin ouvrir <span class="mono">/presences/scan</span> et scanner le code.</li>
+  <li>Pour le mobile : <span class="mono">http://&lt;ip-du-pc&gt;/SIRH/mobile.php</span> puis « Ajouter à l'écran d'accueil ».</li>
+</ol>
+
+<h3>12.3 Contrôles rapides</h3>
+<ul>
+  <li><span class="mono">php -l</span> sur chaque fichier PHP modifié (aucune erreur de syntaxe).</li>
+  <li>Appel de <span class="mono">GET /presences/qr-code</span> : le champ <span class="mono">code</span> doit changer après 30 secondes.</li>
+  <li><span class="mono">POST /presences/scan</span> : 1<sup>er</sup> scan = arrivée, 2<sup>e</sup> = départ, 3<sup>e</sup> = refusé.</li>
+  <li><span class="mono">POST /presences/declarer</span> et <span class="mono">?action=presence_declarer</span> doivent renvoyer une erreur (route supprimée).</li>
+  <li>La table <span class="mono">presences</span> doit rester <b>vide</b> tant qu'aucun scan n'a été réalisé (aucun marquage automatique).</li>
+  <li>Script de test : <span class="mono">php scripts/test_qr.php</span> (génération, signature, validation, expiration).</li>
+</ul>
+
+<h2>13. Maintenance et évolution</h2>
+
+<h3>13.1 Opérations de maintenance</h3>
+<ul>
+  <li>Sauvegarder régulièrement la base (<span class="mono">mysqldump</span> ou phpMyAdmin → Exporter).</li>
+  <li>Consulter le journal d'activité pour la traçabilité.</li>
+  <li>Marquer manuellement les absents, si la politique GLOBIT l'exige (<span class="mono">php scripts/marquer_absents.php</span>) — action volontaire, jamais automatique.</li>
+  <li>Régénérer un secret QR en cas de compromission (<span class="mono">php scripts/init_qr_secrets.php &lt;id_employe&gt;</span>).</li>
+  <li>Si l'interface semble périmée, purger le cache du navigateur / du service worker (la version du cache est incrémentée à chaque livraison).</li>
+  <li>Ne jamais rendre public le code QR affiché à l'écran (le secret est dans l'image).</li>
+</ul>
+
+<h3>13.2 Évolutions envisagées</h3>
+<ul>
+  <li>Déploiement HTTPS interne pour activer la webcam sur le réseau et sécuriser le pointage.</li>
+  <li>Lecture de carte d employing pour combiner badge et QR.</li>
+  <li>Notifications par email (SMTP) et push web pour les validations en attente.</li>
+  <li>Module de recrutement / candidatures.</li>
+  <li>Bulletins de paie au format PDF nominatif.</li>
+  <li>Mode hors ligne complet pour la PWA mobile (à exclure pour le pointage).</li>
+  <li>Multi-sociétés / multi-sites.</li>
+</ul>
+
+<p class="small" style="margin-top:6mm"><b>Document rédigé par</b> Ezechiel Itewe Nzukumayi — GLOBIT, République Démocratique du Congo. Version 1.1 du 1<sup>er</sup> octobre 2026. Le module Présences de la version 1.1 remplace la déclaration manuelle de la version 1.0.</p>
+
+</body>
+</html>

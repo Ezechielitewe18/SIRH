@@ -27,70 +27,15 @@ class PresenceController {
         $canScan = in_array($role, ['admin', 'rh']);
         $enAttente = $isManager ? $this->presenceModel->trouverEnAttente() : [];
         $absents = $isManager ? $this->presenceModel->findAbsentsDuJour($date) : [];
+        $scans = $canScan ? $this->presenceModel->findScansDuJour(date('Y-m-d')) : [];
 
         $maPresence = null;
         if (!empty($_SESSION['employee_id'])) {
             $aujourdhui = $this->presenceModel->findTodayByEmployee($_SESSION['employee_id']);
             $maPresence = $aujourdhui[0] ?? null;
         }
-require __DIR__ . '/../views/presences/index.php';
-    }
 
-    public function declarer() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $employeeId = $_SESSION['employee_id'] ?? null;
-            if (!$employeeId) {
-                $_SESSION['error'] = 'Aucun employé associé à ce compte';
-            } else {
-                $result = $this->presenceModel->declarer($employeeId);
-                if (isset($result['success']) && $result['success']) {
-                    
-                    $employeeModel = new EmployeeModel();
-                    $employee = $employeeModel->findById($employeeId);
-                    $nom = $employee ? ($employee['prenom'] . ' ' . $employee['nom']) : 'Un employé';
-                    $notificationModel = new NotificationModel();
-                    $notificationModel->notifyAllByRole(
-                        ['admin', 'rh', 'directeur'],
-                        'Déclaration de présence à valider',
-                        "$nom a déclaré son arrivée. Une validation est requise.",
-                        'presence',
-                        APP_URL . '/presences'
-                    );
-                }
-                $_SESSION[$result['success'] ? 'success' : 'error'] = $result['message'];
-            }
-        }
-        header('Location: ' . APP_URL . '/presences');
-        exit;
-    }
-
-    
-    public function checkin() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $employeeId = $_SESSION['employee_id'] ?? null;
-            if (!$employeeId) {
-                $_SESSION['error'] = 'Aucun employé associé à ce compte';
-            } else {
-                $result = $this->presenceModel->declarer($employeeId);
-                $_SESSION[$result['success'] ? 'success' : 'error'] = $result['message'];
-            }
-        }
-        header('Location: ' . APP_URL . '/presences');
-        exit;
-    }
-
-    public function checkout() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $employeeId = $_SESSION['employee_id'] ?? null;
-            if (!$employeeId) {
-                $_SESSION['error'] = 'Aucun employé associé à ce compte';
-            } else {
-                $result = $this->presenceModel->checkOut($employeeId);
-                $_SESSION[$result['success'] ? 'success' : 'error'] = $result['message'];
-            }
-        }
-        header('Location: ' . APP_URL . '/presences');
-        exit;
+        require __DIR__ . '/../views/presences/index.php';
     }
 
     public function valider($id) {

@@ -140,7 +140,7 @@ CREATE TABLE `employes` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `employes` WRITE;
-INSERT INTO `employes` VALUES (2,'EMP-2026-0001','TSHIBUABUA','TSHIBUABUA','PERLE','F','2006-05-20','Kinshasa','05 LULUA BANDALUGWA','0850867191','perle.tshibuabua@globit.com','ADMINISTRATION','2026-09-13',1200.00,'actif',6,0,3,NULL,NULL,'2026-09-13 09:59:27','2026-09-13 09:59:27');
+INSERT INTO `employes` VALUES (2,'EMP-2026-0001','TSHIBUABUA','TSHIBUABUA','PERLE','F','2006-05-20','Kinshasa','05 LULUA BANDALUGWA','0850867191','perle.tshibuabua@globit.com','$2y$10$By5DROqczvMSctOSDbCTie9qBSQlHlzrR/VFIfMUhQ/ObUFTWPD66','2026-09-13',1200.00,'actif',6,0,3,NULL,'4f8280ab322d913b83213bb3524a8cf6f5962e5f7ce2dbe75d3ffd8528fdcbbc','2026-09-13 09:59:27','2026-09-13 09:59:27');
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `formations`;
 CREATE TABLE `formations` (
@@ -193,7 +193,6 @@ CREATE TABLE `journal_activite` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `journal_activite` WRITE;
-INSERT INTO `journal_activite` VALUES (1,1,'Réinitialisation mot de passe','Mot de passe réinitialisé pour l\'utilisateur #3','utilisateurs','::1','2026-09-13 10:02:58');
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `messages`;
 CREATE TABLE `messages` (
@@ -268,7 +267,6 @@ CREATE TABLE `presences` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `presences` WRITE;
-INSERT INTO `presences` VALUES (2,2,'declaration','2026-09-13','12:05:45',NULL,245,'retard','validee',1,'2026-09-13 12:07:26',NULL,NULL,'2026-09-13 10:05:45','2026-09-13 10:07:26');
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `services`;
 CREATE TABLE `services` (
@@ -300,7 +298,7 @@ CREATE TABLE `utilisateurs` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `utilisateurs` WRITE;
-INSERT INTO `utilisateurs` VALUES (1,'Administrateur','admin@sirh.local','$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi','admin',NULL,'actif','2026-09-17 13:06:43','2026-09-11 10:59:05','2026-09-17 11:06:43'),(3,'PERLE TSHIBUABUA','perle.tshibuabua@globit.com','$2y$10$/1mU9jzUfhxgreNuUE3hoepMPVk10zjdwaS.BaeqLtHv7qNyyIl6m','employe',NULL,'actif','2026-09-13 12:03:34','2026-09-13 09:59:27','2026-09-13 10:03:34');
+INSERT INTO `utilisateurs` VALUES (1,'Administrateur','admin@sirh.local','$2y$10$rWvTPsRXzpNG7VCz98LOA.f4A2RvPKh5/vRYu9NUhUi5eWck6q2gK','admin',NULL,'actif','2026-09-17 13:06:43','2026-09-11 10:59:05','2026-09-17 11:06:43'),(3,'PERLE TSHIBUABUA','perle.tshibuabua@globit.com','$2y$10$By5DROqczvMSctOSDbCTie9qBSQlHlzrR/VFIfMUhQ/ObUFTWPD66','employe',NULL,'actif','2026-09-13 12:03:34','2026-09-13 09:59:27','2026-09-13 10:03:34');
 UNLOCK TABLES;
 
 SET UNIQUE_CHECKS = 1;

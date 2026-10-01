@@ -237,7 +237,7 @@
         <div>
             <div class="brand">GLOBIT</div>
             <h1>Scan de présence — Réception</h1>
-            <div class="meta">Présentez le QR de l'employé dans le cadre. 1<sup>er</sup> scan = arrivée, 2<sup>e</sup> = départ.</div>
+            <div class="meta">Présentez le QR de l'employé dans le cadre. 1<sup>er</sup> scan = <strong>ARRIVÉE</strong> — 2<sup>e</sup> scan = <strong>DÉPART</strong>.</div>
         </div>
         <div class="pill">Session <?= htmlspecialchars($_SESSION['user_name'] ?? '') ?> · <a href="<?= APP_URL ?>/presences">Présences</a></div>
     </div>

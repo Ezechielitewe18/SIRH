@@ -40,7 +40,7 @@ class PresenceModel extends Model {
         return $this->findByEmployee($id_employe, date('Y-m-d'));
     }
 
-    public function checkIn($id_employe, $source = 'declaration', $autoValidate = false, $allowLate = false) {
+    public function checkIn($id_employe, $source = 'qr', $autoValidate = false, $allowLate = false) {
         $today = date('Y-m-d');
         $heure = date('H:i:s');
         $limite = LIMITE_DECLARATION . ':00';
@@ -59,7 +59,7 @@ class PresenceModel extends Model {
             }
         } elseif ($heure > $limite) {
             if (!$allowLate) {
-                return ['success' => false, 'message' => 'Délai de déclaration dépassé (10h00). Vous êtes marqué absent. Contactez le service RH pour justifier votre absence.'];
+                return ['success' => false, 'message' => 'Délai de déclaration dépassé (' . LIMITE_DECLARATION . '). Vous êtes marqué absent. Contactez le service RH pour justifier votre absence.'];
             }
             $debut = new DateTime($heureDebut);
             $maintenant = new DateTime($heure);
@@ -73,7 +73,7 @@ class PresenceModel extends Model {
             $ex = $existing[0];
 
             if ($ex['statut'] === 'absent' && $ex['validation'] === 'auto') {
-                return ['success' => false, 'message' => 'Délai de déclaration dépassé (10h00). Vous êtes marqué absent. Contactez le service RH pour justifier votre absence.', 'presence' => $ex];
+                return ['success' => false, 'message' => 'Délai de déclaration dépassé (' . LIMITE_DECLARATION . '). Vous êtes marqué absent. Contactez le service RH pour justifier votre absence.', 'presence' => $ex];
             }
 
             if ($ex['validation'] === 'rejetee') {
@@ -111,10 +111,6 @@ class PresenceModel extends Model {
         ];
     }
 
-
-    public function declarer($id_employe) {
-        return $this->checkIn($id_employe, 'declaration', false);
-    }
 
     /**
      * Pointage par scan QR a la reception.
@@ -301,7 +297,13 @@ class PresenceModel extends Model {
         ]);
     }
 
-    public function marquerAbsentsAvantLimite() {
+    public function marquerAbsentsAvantLimite($force = false) {
+        // Par defaut aucune ligne "absent" n'est creee : un employe qui n'a pas
+        // encore scanne n'existe tout simplement pas dans la journee. La creation
+        // automatique est desactivee (MARQUER_ABSENTS_AUTO = false).
+        if (!$force && !MARQUER_ABSENTS_AUTO) {
+            return 0;
+        }
         $today = date('Y-m-d');
         $now = date('H:i:s');
         if ($now < LIMITE_DECLARATION . ':00') {

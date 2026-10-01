@@ -1,96 +1,161 @@
 <?php $pageTitle = 'Gestion des présences'; ?>
+<?php
+/* Regroupement des compteurs pour un affichage compact */
+$scansJour = isset($scans) && is_array($scans) ? $scans : [];
+$nbArrivees = count(array_filter($scansJour, fn($s) => !empty($s['heure_arrivee'])));
+$nbDeparts = count(array_filter($scansJour, fn($s) => !empty($s['heure_depart'])));
+?>
 <?php ob_start(); ?>
+
+<style>
+    /* --- Cartes presences compactes --- */
+    .carte-qr {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background: #f8f9fc;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+    }
+    .carte-qr .titre {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        color: #6c757d;
+        margin-bottom: 8px;
+    }
+    .pointage { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .pointage .lien-qr { flex: 1; font-size: 13px; color: #495057; margin: 0; }
+    .mini-stat {
+        display: inline-flex;
+        flex-direction: column;
+        line-height: 1.1;
+        padding: 6px 12px;
+        border-radius: 6px;
+        background: #fff;
+        border: 1px solid #e9ecef;
+        margin: 0 6px 6px 0;
+    }
+    .mini-stat b { font-size: 16px; }
+    .mini-stat span { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: #868e96; }
+    .mini-stat.ok b { color: #28a745; }
+    .mini-stat.dep b { color: #007bff; }
+    .h-horaire { font-size: 20px; font-weight: 700; }
+    .h-horaire.retard { color: #fd7e14; }
+    .legende { font-size: 11px; color: #868e96; }
+</style>
 
 <section class="content-header">
     <h1>Présences</h1>
-    <?php if ($canScan): ?>
-    <div class="float-right">
-        <a href="<?= APP_URL ?>/presences/scan" class="btn btn-primary btn-lg">
-            <i class="fas fa-qrcode"></i> Scanner un QR (réception)
-        </a>
-    </div>
-    <?php endif; ?>
 </section>
 
 <section class="content">
     <?php if (isset($_SESSION['employee_id'])): ?>
-    <div class="row mb-3">
-        <div class="col-md-8">
+    <div class="row">
+        <div class="col-12 col-lg-8">
             <div class="card card-primary">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-user-clock"></i> Ma présence aujourd'hui</h3>
+                <div class="card-header py-2">
+                    <h3 class="card-title" style="font-size:15px"><i class="fas fa-user-clock"></i> Ma présence aujourd'hui</h3>
                 </div>
-                <div class="card-body">
-                    <?php
-                    /* Libelle du bouton QR selon l'etat du jour */
-                    $qrDepart = $maPresence && !empty($maPresence['heure_arrivee']) && empty($maPresence['heure_depart']);
-                    $qrTermine = $maPresence && !empty($maPresence['heure_depart']);
-                    $qrLibelle = $qrDepart ? 'Mon QR de départ' : ($qrTermine ? 'Mon QR du jour' : 'Afficher mon QR');
-                    ?>
-                    <div class="alert alert-info mb-3" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-                        <div style="font-size:13px">
-                            <i class="fas fa-qrcode"></i>
-                            Votre pointage se fait par <strong>scan de votre QR</strong> à la réception.
-                        </div>
-                        <a href="<?= APP_URL ?>/presences/qr" class="btn btn-primary" id="btnMonQr">
-                            <i class="fas fa-qrcode"></i> <?= $qrLibelle ?>
-                        </a>
-                    </div>
-                    <?php if (!$maPresence || $maPresence['statut'] === 'absent'): ?>
-                    <div id="compteARebours" class="mb-3"></div>
-                    <?php endif; ?>
+                <div class="card-body p-3">
+
                     <?php if ($maPresence): ?>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <small class="text-muted">Arrivée</small>
-                                <div class="font-weight-bold"><?= $maPresence['heure_arrivee'] ? date('H:i', strtotime($maPresence['heure_arrivee'])) : '-' ?></div>
-                            </div>
-                            <div class="col-md-3">
-                                <small class="text-muted">Départ</small>
-                                <div class="font-weight-bold"><?= $maPresence['heure_depart'] ? date('H:i', strtotime($maPresence['heure_depart'])) : '-' ?></div>
-                            </div>
-                            <div class="col-md-3">
-                                <small class="text-muted">Statut</small>
-                                <div>
-                                    <span class="badge badge-<?= $maPresence['statut'] === 'present' ? 'success' : ($maPresence['statut'] === 'retard' ? 'warning' : ($maPresence['statut'] === 'justifie' ? 'info' : 'danger')) ?>">
-                                        <?= ucfirst($maPresence['statut']) ?><?= $maPresence['retard'] > 0 ? ' (+' . $maPresence['retard'] . ' min)' : '' ?>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <small class="text-muted">Validation</small>
-                                <div>
-                                    <?php
-                                    $vclass = ['auto' => 'success', 'validee' => 'success', 'en_attente' => 'warning', 'rejetee' => 'danger'];
-                                    $vlabel = ['auto' => 'Automatique', 'validee' => 'Validée', 'en_attente' => 'En attente', 'rejetee' => 'Rejetée'];
-                                    $v = $maPresence['validation'];
-                                    ?>
-                                    <span class="badge badge-<?= $vclass[$v] ?? 'secondary' ?>"><?= $vlabel[$v] ?? $v ?></span>
-                                    <?php if ($v === 'rejetee' && !empty($maPresence['justification'])): ?>
-                                        <div class="text-danger mt-1"><i class="fas fa-times-circle"></i> <?= htmlspecialchars($maPresence['justification']) ?></div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
+                    <div class="pointage mb-2">
+                        <div class="mini-stat">
+                            <b><?= $maPresence['heure_arrivee'] ? date('H:i', strtotime($maPresence['heure_arrivee'])) : '—' ?></b>
+                            <span>Arrivée</span>
                         </div>
-                        <?php if ($maPresence['statut'] === 'absent'): ?>
-                        <hr>
-                        <div class="alert alert-danger mb-2">
-                            Vous êtes marqué <strong>absent</strong> aujourd'hui (aucun pointage avant 10h00).
-                            Présentez quand même votre QR à la réception : elle enregistrera votre <strong>arrivée tardive</strong>.
-                            Si vous avez une justification valable, <a href="<?= APP_URL ?>/messages">contactez le service RH en privé</a>.
+                        <div class="mini-stat">
+                            <b><?= $maPresence['heure_depart'] ? date('H:i', strtotime($maPresence['heure_depart'])) : '—' ?></b>
+                            <span>Départ</span>
                         </div>
-                        <?php endif; ?>
-                        <?php if ($maPresence['statut'] === 'justifie'): ?>
-                        <hr>
-                        <div class="alert alert-info mb-2">
-                            <i class="fas fa-clipboard-check"></i> Votre absence a été <strong>régularisée</strong> par le service RH.
-                            Présentez votre QR de départ à la réception avant de quitter.
+                        <div class="mini-stat <?= $maPresence['retard'] > 0 ? 'dep' : 'ok' ?>">
+                            <b><?= $maPresence['retard'] > 0 ? '+' . (int)$maPresence['retard'] . '′' : '0′' ?></b>
+                            <span>Retard</span>
                         </div>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <p class="text-muted">Aucune présence enregistrée aujourd'hui. Présentez votre QR à l'accueil : il change toutes les 30 secondes. Avant 08h00 = présent, entre 08h00 et 10h00 = retard, passé 10h00 = absent (la réception peut alors enregistrer une arrivée tardive).</p>
+                        <div class="mini-stat">
+                            <b style="font-size:13px">
+                                <?php
+                                $vclass = ['auto' => 'success', 'validee' => 'success', 'en_attente' => 'warning', 'rejetee' => 'danger'];
+                                $vlabel = ['auto' => 'Auto', 'validee' => 'Validée', 'en_attente' => 'En attente', 'rejetee' => 'Rejetée'];
+                                $v = $maPresence['validation'];
+                                ?>
+                                <span class="badge badge-<?= $vclass[$v] ?? 'secondary' ?>"><?= $vlabel[$v] ?? $v ?></span>
+                            </b>
+                            <span>Statut</span>
+                        </div>
+                    </div>
                     <?php endif; ?>
-                    <div id="currentTime" class="text-muted mt-2"><small></small></div>
+
+                    <div class="carte-qr">
+                        <div class="titre"><i class="fas fa-qrcode"></i> Mon pointage</div>
+                        <div class="pointage">
+                            <p class="lien-qr">
+                                Présentez ce QR à la réception.
+                                <?php if ($maPresence && empty($maPresence['heure_arrivee'])): ?>
+                                    Un scan enregistrera votre <strong>arrivée</strong>.
+                                <?php elseif ($maPresence && empty($maPresence['heure_depart'])): ?>
+                                    Votre arrivée est faite : ce QR pointera votre <strong>départ</strong>.
+                                <?php else: ?>
+                                    Il change toutes les <?= (int) QR_PERIODE ?> s.
+                                <?php endif; ?>
+                            </p>
+                            <a href="<?= APP_URL ?>/presences/qr" class="btn btn-primary btn-sm" id="btnMonQr">
+                                <i class="fas fa-qrcode"></i>
+                                <?php
+                                $qrLibelle = ($maPresence && !empty($maPresence['heure_arrivee']))
+                                    ? (empty($maPresence['heure_depart']) ? 'Mon QR de départ' : 'Mon QR du jour')
+                                    : 'Afficher mon QR';
+                                echo $qrLibelle;
+                                ?>
+                            </a>
+                        </div>
+                    </div>
+
+                    <?php if (!$maPresence || $maPresence['statut'] === 'absent'): ?>
+                    <div id="compteARebours"></div>
+                    <?php endif; ?>
+
+                    <?php if ($maPresence && $maPresence['statut'] === 'absent'): ?>
+                    <div class="alert alert-danger py-2 px-3 mb-2" style="font-size:12px">
+                        <i class="fas fa-exclamation-triangle"></i> Marqué <strong>absent</strong> (aucun pointage avant <?= LIMITE_DECLARATION ?>).
+                        Présentez quand même votre QR : la réception enregistrera votre <strong>arrivée tardive</strong>.
+                        <?php if (!empty($maPresence['justification'])): ?>
+                            <br>Justificatif : <?= htmlspecialchars($maPresence['justification']) ?>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if ($maPresence && $maPresence['statut'] === 'justifie'): ?>
+                    <div class="alert alert-info py-2 px-3 mb-0" style="font-size:12px">
+                        <i class="fas fa-clipboard-check"></i> Absence <strong>régularisée</strong> par le RH : présentez votre QR de départ avant de quitter.
+                    </div>
+                    <?php endif; ?>
+
+                    <div id="currentTime" class="legende mt-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if ($canScan): ?>
+    <div class="row">
+        <div class="col-12">
+            <div class="carte-qr" style="background:#eef4ff;border-color:#c7dbff">
+                <div class="titre" style="color:#4263eb"><i class="fas fa-qrcode"></i> Poste de réception</div>
+                <div class="pointage">
+                    <p class="lien-qr">Réceptionniste : presented QR de l'employé.
+                        <strong>1<sup>er</sup> scan = ARRIVÉE</strong> · <strong>2<sup>e</sup> scan = DÉPART</strong>.
+                        Scan après <?= LIMITE_DECLARATION ?> accepté comme retard.</p>
+                    <a href="<?= APP_URL ?>/presences/scan" class="btn btn-primary btn-sm">
+                        <i class="fas fa-camera"></i> Ouvrir le scanner
+                    </a>
+                </div>
+                <div class="mt-2">
+                    <span class="mini-stat ok"><b><?= $nbArrivees ?></b><span>Arrivées</span></span>
+                    <span class="mini-stat dep"><b><?= $nbDeparts ?></b><span>Départs</span></span>
+                    <span class="legende ml-1">pointages QR du jour</span>
                 </div>
             </div>
         </div>
@@ -182,7 +247,7 @@
         <div class="col-12">
             <div class="card card-danger">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-user-times"></i> Absents (non déclarés avant 10h00) — <?= count($absents) ?></h3>
+                    <h3 class="card-title"><i class="fas fa-user-times"></i> Absents (non pointés avant <?= LIMITE_DECLARATION ?>) — <?= count($absents) ?></h3>
                 </div>
                 <div class="card-body table-responsive p-0">
                     <table class="table table-hover text-nowrap">
@@ -315,15 +380,15 @@ function updateCompteARebours() {
     if (!el) return;
     const diff = LIMITE_DECLARATION_MS - maintenantMs();
     if (diff <= 0) {
-        el.innerHTML = "<div class=\"alert alert-danger mb-2\" style=\"font-size:13px;padding:10px 12px\"><i class=\"fas fa-hourglass-end\"></i> Délai dépassé : vous êtes marqué <strong>absent</strong> aujourd\'hui. La réception peut toutefois enregistrer votre arrivée tardive au scan de votre QR.</div>";
+        el.innerHTML = "<div class=\"alert alert-warning mb-2\" style=\"font-size:13px;padding:10px 12px\"><i class=\"fas fa-hourglass-end\"></i> Heure limite atteinte (<?= LIMITE_DECLARATION ?>). Votre pointage reste possible : il sera enregistré comme <strong>arrivée tardive</strong> au scan de votre QR.</div>";
         el.className = "mb-3";
         return;
     }
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
-    const txt = "Délai avant marquage <strong>absent</strong> : <strong>" + h + "h " + m + "min " + s + "s</strong>";
-    el.innerHTML = "<div class=\"alert alert-warning mb-2\" style=\"font-size:13px;padding:10px 12px\"><i class=\"fas fa-hourglass-half\"></i> " + txt + "<br><small style=\"font-size:11px\">Présentez votre QR à l\'accueil : avant 08h00 = présent · Entre 08h00 et 10h00 = retard · Passé 10h00 = absent</small></div>";
+    const txt = "Il vous reste <strong>" + h + "h " + m + "min " + s + "s</strong> pour pointer sans retard";
+    el.innerHTML = "<div class=\"alert alert-warning mb-2\" style=\"font-size:13px;padding:10px 12px\"><i class=\"fas fa-hourglass-half\"></i> " + txt + "<br><small style=\"font-size:11px\">Présentez votre QR à l\'accueil : avant <?= HEURE_DEBUT ?> = présent · à partir de <?= HEURE_DEBUT ?> = retard · le code change toutes les <?= QR_PERIODE ?> s</small></div>";
     el.className = "mb-3";
 }
 setInterval(updateCompteARebours, 1000);

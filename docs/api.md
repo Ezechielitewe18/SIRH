@@ -38,8 +38,6 @@ POST /api.php?action=logout
 | `logout` | POST | connecté | Révoque tous les tokens de l'utilisateur |
 | `profil` | GET | connecté | Profil + infos employé (si lié) |
 | `presence_aujourdhui` | GET | connecté | Présence du jour de l'employé |
-| `presence_declarer` | POST | connecté | Déclarer son arrivée (validation RH) |
-| `presence_depart` | POST | connecté | Pointer sa sortie |
 | `presences` | GET | connecté | Historique (filtre ?mois=&annee=) |
 | `presences_validation` | GET | admin, rh | File d'attente des présences non validées |
 | `presence_valider` | POST | admin, rh | Valider une présence `{ "id_presence": N }` |
