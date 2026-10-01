@@ -1,4 +1,8 @@
-<?php require_once __DIR__ . '/config/config.php'; ?>
+<?php
+require_once __DIR__ . '/config/config.php';
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -228,9 +232,22 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
       <h3>Ma présence aujourd'hui</h3>
       <div class="sub" id="countdownHome"></div>
       <div class="sub" id="todayDetail">Aucun pointage</div>
-      <div style="margin-top:12px;display:flex;gap:8px">
-        <button class="btn" id="btnCheckIn" onclick="declarerPresence()" style="flex:2">✅ Déclarer mon arrivée</button>
-        <button class="btn outline" id="btnCheckOut" onclick="pointerSortie()" style="flex:2;display:none">⏱ Pointer sortie</button>
+      <div style="margin-top:12px">
+        <button class="btn" id="btnCheckIn" onclick="ouvrirQr()" style="width:100%">📱 Afficher mon QR d'arrivée</button>
+      </div>
+    </div>
+    <div class="card" id="qrCard" style="border:1px solid var(--accent);background:rgba(59,130,246,.10)">
+      <h3>📱 Mon QR de pointage</h3>
+      <div class="sub">Présentez ce code à l'accueil pour pointer votre <b>arrivée</b>, puis votre <b>départ</b>.</div>
+      <div style="margin-top:12px">
+        <a class="btn" href="<?= APP_URL ?>/presences/qr" style="width:100%;display:block;text-align:center;text-decoration:none">📷 Afficher mon QR</a>
+      </div>
+    </div>
+    <div class="card" id="scanCard" style="display:none">
+      <h3>Réception — scan d'arrivée</h3>
+      <div class="sub">Présentez le QR de l'employé : 1<sup>er</sup> scan = arrivée, 2<sup>e</sup> = départ.</div>
+      <div style="margin-top:12px">
+        <a class="btn" href="<?= APP_URL ?>/presences/scan" style="width:100%;display:block;text-align:center;text-decoration:none">📷 Ouvrir le scanner</a>
       </div>
     </div>
   </div>
@@ -243,10 +260,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
       <div id="presTodayBox">
         <div class="sub">Chargement...</div>
         <div style="margin-top:12px">
-          <button class="btn" onclick="declarerPresence()">✅ Déclarer arrivée</button>
+          <button class="btn" onclick="ouvrirQr()" style="width:100%">📱 Afficher mon QR</button>
         </div>
         <div style="margin-top:8px">
-          <button class="btn outline" onclick="pointerSortie()">⏱ Pointer sortie</button>
+          <button class="btn outline" onclick="ouvrirQr()">📷 Aller à la réception</button>
         </div>
       </div>
     </div>
@@ -492,7 +509,7 @@ function majCompteARebours() {
     } else {
       var h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
       el.style.display = 'block';
-      el.innerHTML = '⏳ Il reste <b>'+h+'h '+m+'m '+s+'s</b> pour déclarer votre arrivée.<br><small>Avant 08h00 = présent · 08h00→10h00 = retard · après = absent</small>';
+      el.innerHTML = '⏳ Pointage à la réception dans <b>'+h+'h '+m+'m '+s+'s</b>.<br><small>Présentez votre QR · avant 08h00 = présent · 08h00→10h00 = retard · après = absent</small>';
     }
   });
 }
@@ -503,7 +520,7 @@ function masquerCompteARebours() {
 function renderMobilePresence(p, box, btn, btnDepart, mode) {
   if (!p) {
     demarrerCompteARebours();
-    if (btn) { btn.style.display = 'block'; btn.textContent = '✅ Déclarer mon arrivée'; }
+    if (btn) { btn.style.display = 'block'; btn.textContent = '📱 Afficher mon QR d\'arrivée'; }
     if (btnDepart) btnDepart.style.display = 'none';
     box.innerHTML = '<div class="sub">Aucun pointage aujourd\'hui</div>';
     return;
@@ -515,17 +532,17 @@ function renderMobilePresence(p, box, btn, btnDepart, mode) {
 
   if (p.statut === 'absent') {
     masquerCompteARebours();
-    if (btn) btn.style.display = 'none';
+    if (btn) { btn.style.display = 'block'; btn.textContent = '📱 Afficher mon QR'; }
     if (btnDepart) btnDepart.style.display = 'none';
     box.innerHTML = '<div class="tt" style="color:#e74c3c;font-weight:700">Absent</div>'
-      + '<div class="dd">Aucune déclaration avant 10h00. '
+      + '<div class="dd">Aucun pointage avant 10h00. Si vous arrivez, présentez votre QR à l\'accueil : la réception enregistrera votre arrivée tardive. '
       + '<a href="#" onclick="go(\'msg\')" style="text-decoration:underline">Justifier auprès du RH</a>.</div>';
     return;
   }
 
   masquerCompteARebours();
   if (btn) {
-    if (st === 'rejetee') { btn.style.display = 'block'; btn.textContent = '↻ Redéclarer mon arrivée'; }
+    if (!done) { btn.style.display = 'block'; btn.textContent = '📱 Mon QR de départ'; }
     else btn.style.display = 'none';
   }
   if (btnDepart) {
@@ -560,6 +577,10 @@ function loadHome() {
     congeStat.textContent = '—';
     paieStat.textContent = '—';
     btn.style.display = 'none';
+    document.getElementById('qrCard').style.display = 'none';
+    if (user && (user.role === 'admin' || user.role === 'rh')) {
+      document.getElementById('scanCard').style.display = 'block';
+    }
     box.textContent = 'Compte de gestion : validez les présences depuis l\'app.';
 
     api('presences_validation','GET').then(function(j){
@@ -613,14 +634,14 @@ function loadPresence() {
     var p = (j.data||{}).presence;
     var box = document.getElementById('presTodayBox');
     renderMobilePresence(p, box, null, null, 'pres');
-    if (p && p.statut !== 'absent' && !p.heure_depart && p.validation !== 'rejetee') {
-      box.innerHTML += '<div style="margin-top:10px;display:flex;gap:8px"><button class="btn outline" style="flex:2" onclick="pointerSortie()">⏱ Pointer sortie</button></div>';
-    } else if (p && p.validation === 'rejetee') {
-      box.innerHTML += '<div style="margin-top:10px"><button class="btn" style="width:100%" onclick="declarerPresence(true)">↻ Redéclarer mon arrivée</button></div>';
+    if (p && p.validation === 'rejetee') {
+      box.innerHTML += '<div style="margin-top:10px"><button class="btn" style="width:100%" onclick="ouvrirQr()">📱 Afficher mon QR</button></div>';
     } else if (p && p.statut === 'absent') {
-      box.innerHTML += '<div style="margin-top:10px"><button class="btn" style="width:100%" onclick="go(\'msg\')">💬 Justifier auprès du RH</button></div>';
+      box.innerHTML += '<div style="margin-top:10px"><button class="btn" style="width:100%" onclick="ouvrirQr()">📱 Afficher mon QR</button></div>';
     } else if (!p) {
-      box.innerHTML += '<div style="margin-top:10px;display:flex;gap:8px"><button class="btn" style="flex:2" onclick="declarerPresence(true)">✅ Déclarer arrivée</button></div>';
+      box.innerHTML += '<div style="margin-top:10px"><button class="btn" style="width:100%" onclick="ouvrirQr()">📱 Afficher mon QR d\'arrivée</button></div>';
+    } else if (!p.heure_depart) {
+      box.innerHTML += '<div style="margin-top:10px"><button class="btn" style="width:100%" onclick="ouvrirQr()">📱 Mon QR de départ</button></div>';
     }
     loadPresHistory();
   }).catch(function(){ document.getElementById('presTodayBox').innerHTML='<div class="sub">Erreur de chargement</div>'; });
@@ -641,17 +662,12 @@ function loadPresHistory() {
   }).catch(function(){});
 }
 
-function declarerPresence(reload) {
-  api('presence_declarer','POST',{}).then(function(){
-    toast('Arrivée déclarée, en attente de validation');
-    loadPresence(); if(reload!==true) loadHome();
-  }).catch(function(e){ toast(e.msg||'Erreur'); });
+function ouvrirQr() {
+  window.location.href = <?= json_encode(APP_URL . '/presences/qr') ?>;
 }
-function pointerSortie() {
-  api('presence_depart','POST',{}).then(function(){
-    toast('Sortie enregistrée');
-    loadPresence();
-  }).catch(function(e){ toast(e.msg||'Erreur'); });
+
+function ouvrirScan() {
+  window.location.href = <?= json_encode(APP_URL . '/presences/scan') ?>;
 }
 
 function loadConges() {
@@ -815,7 +831,7 @@ function toast(msg){
 
 function registerSW(){
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').then(function(reg){
+    navigator.serviceWorker.register('sw.js?v=8').then(function(reg){
       if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
       reg.addEventListener('updatefound', function(){
         var w = reg.installing;

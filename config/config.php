@@ -23,6 +23,12 @@ define('LIMITE_DECLARATION', '10:00');
 
 define('JOURS_CONGE_ANNUEL', 30);
 
+// QR dynamique de presence : duree de validite d'un jeton (secondes)
+// TEST : 3600 = code quasi statique pendant l'essai. Remettre a 30 apres le test.
+define('QR_PERIODE', 3600);
+// Fenetre de tolerance (en periodes) acceptee a la validation du scan
+define('QR_FENETRE', 1);
+
 define('AUTHOR_NAME', 'Ezechiel Itewe Nzukumayi');
 define('COPYRIGHT', '© ' . date('Y') . ' GLOBIT - Tous droits réservés. Développé par ' . AUTHOR_NAME);
 

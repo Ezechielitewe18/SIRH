@@ -1,4 +1,4 @@
-const CACHE_NAME = 'globit-v7';
+const CACHE_NAME = 'globit-v8';
 const APP_SHELL = [
   './',
   './manifest.webmanifest',
@@ -36,6 +36,15 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   if (url.origin !== location.origin) return;
+
+  /* Le QR est un code dynamique : jamais de cache, jamais de version hors ligne. */
+  if (url.pathname.includes('/presences/qr')) {
+    event.respondWith(fetch(event.request).catch(() => new Response(
+      '<h1 style="font-family:sans-serif;padding:30px">Hors ligne</h1><p style="font-family:sans-serif;padding:0 30px">Impossible de joindre le serveur SIRH. Verifiez que le telephone est sur le meme Wi-Fi que le PC.</p>',
+      { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+    )));
+    return;
+  }
 
   if (url.pathname.includes('/api.php')) {
     event.respondWith(fetch(event.request).catch(() =>

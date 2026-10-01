@@ -153,6 +153,30 @@ $router->post('/presences/declarer', function() use ($auth) {
     $controller->declarer();
 });
 
+$router->get('/presences/qr', function() use ($auth) {
+    $auth->checkAuth();
+    $controller = new PresenceController();
+    $controller->qr();
+});
+
+$router->get('/presences/qr-code', function() use ($auth) {
+    $auth->checkAuth();
+    $controller = new PresenceController();
+    $controller->jetonQr();
+});
+
+$router->get('/presences/scan', function() use ($auth) {
+    $auth->requireRole(['admin', 'rh']);
+    $controller = new PresenceController();
+    $controller->scan();
+});
+
+$router->post('/presences/scan', function() use ($auth) {
+    $auth->requireRole(['admin', 'rh']);
+    $controller = new PresenceController();
+    $controller->scanValider();
+});
+
 $router->post('/presences/checkin', function() use ($auth) {
     $auth->checkAuth();
     $controller = new PresenceController();

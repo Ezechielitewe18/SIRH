@@ -128,6 +128,7 @@ CREATE TABLE `employes` (
   `est_direction` tinyint(1) NOT NULL DEFAULT 0,
   `id_utilisateur` int(11) DEFAULT NULL,
   `photo` varchar(255) DEFAULT NULL,
+  `qr_secret` varchar(64) DEFAULT NULL COMMENT 'Secret HMAC du QR dynamique de presence',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id_employe`),
@@ -139,7 +140,7 @@ CREATE TABLE `employes` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `employes` WRITE;
-INSERT INTO `employes` VALUES (2,'EMP-2026-0001','TSHIBUABUA','TSHIBUABUA','PERLE','F','2006-05-20','Kinshasa','05 LULUA BANDALUGWA','0850867191','perle.tshibuabua@globit.com','ADMINISTRATION','2026-09-13',1200.00,'actif',6,0,3,NULL,'2026-09-13 09:59:27','2026-09-13 09:59:27');
+INSERT INTO `employes` VALUES (2,'EMP-2026-0001','TSHIBUABUA','TSHIBUABUA','PERLE','F','2006-05-20','Kinshasa','05 LULUA BANDALUGWA','0850867191','perle.tshibuabua@globit.com','ADMINISTRATION','2026-09-13',1200.00,'actif',6,0,3,NULL,NULL,'2026-09-13 09:59:27','2026-09-13 09:59:27');
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `formations`;
 CREATE TABLE `formations` (
@@ -248,7 +249,7 @@ DROP TABLE IF EXISTS `presences`;
 CREATE TABLE `presences` (
   `id_presence` int(11) NOT NULL AUTO_INCREMENT,
   `id_employe` int(11) NOT NULL,
-  `source` enum('declaration','manuel') NOT NULL DEFAULT 'manuel',
+  `source` enum('declaration','manuel','qr') NOT NULL DEFAULT 'manuel',
   `date_presence` date NOT NULL,
   `heure_arrivee` time DEFAULT NULL,
   `heure_depart` time DEFAULT NULL,

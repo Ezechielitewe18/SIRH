@@ -40,7 +40,7 @@ class PresenceModel extends Model {
         return $this->findByEmployee($id_employe, date('Y-m-d'));
     }
 
-    public function checkIn($id_employe, $source = 'declaration', $autoValidate = false) {
+    public function checkIn($id_employe, $source = 'declaration', $autoValidate = false, $allowLate = false) {
         $today = date('Y-m-d');
         $heure = date('H:i:s');
         $limite = LIMITE_DECLARATION . ':00';
@@ -58,7 +58,14 @@ class PresenceModel extends Model {
                 $statut = 'retard';
             }
         } elseif ($heure > $limite) {
-            return ['success' => false, 'message' => 'Délai de déclaration dépassé (10h00). Vous êtes marqué absent. Contactez le service RH pour justifier votre absence.'];
+            if (!$allowLate) {
+                return ['success' => false, 'message' => 'Délai de déclaration dépassé (10h00). Vous êtes marqué absent. Contactez le service RH pour justifier votre absence.'];
+            }
+            $debut = new DateTime($heureDebut);
+            $maintenant = new DateTime($heure);
+            $diff = $debut->diff($maintenant);
+            $retard = $diff->h * 60 + $diff->i;
+            $statut = 'retard';
         }
 
         $existing = $this->findByEmployee($id_employe, $today);
@@ -107,6 +114,84 @@ class PresenceModel extends Model {
 
     public function declarer($id_employe) {
         return $this->checkIn($id_employe, 'declaration', false);
+    }
+
+    /**
+     * Pointage par scan QR a la reception.
+     * 1er scan du jour  -> arrivee (source 'qr', validee automatiquement, tardif accepte)
+     * 2e scan du jour   -> depart
+     * Journee complete -> refus
+     */
+    public function scanPointage($id_employe, $valide_par = null) {
+        $today = date('Y-m-d');
+        $heure = date('H:i:s');
+        $existing = $this->findByEmployee($id_employe, $today);
+
+        if (!empty($existing)) {
+            $p = $existing[0];
+
+            if (!empty($p['heure_depart'])) {
+                return ['success' => false, 'action' => null, 'message' => 'Arrivée et départ sont déjà pointés aujourd\'hui.'];
+            }
+
+            if ($p['statut'] === 'absent' && $p['validation'] === 'auto') {
+                $debut = new DateTime(HEURE_DEBUT);
+                $diff = $debut->diff(new DateTime($heure));
+                $retard = $diff->h * 60 + $diff->i;
+                $this->update($p['id_presence'], [
+                    'source' => 'qr',
+                    'heure_arrivee' => $heure,
+                    'statut' => 'retard',
+                    'retard' => $retard,
+                    'validation' => 'validee',
+                    'valide_par' => $valide_par,
+                    'valide_le' => date('Y-m-d H:i:s'),
+                    'justification' => null,
+                ]);
+                return [
+                    'success' => true,
+                    'action' => 'arrivee',
+                    'message' => 'Arrivée tardive enregistrée à ' . substr($heure, 0, 5) . ' (retard ' . $retard . ' min).',
+                    'presence' => $this->findById($p['id_presence']),
+                ];
+            }
+
+            $resultat = $this->checkOut($id_employe);
+            return [
+                'success' => $resultat['success'],
+                'action' => 'depart',
+                'message' => $resultat['success']
+                    ? 'Départ pointé à ' . substr($heure, 0, 5) . '.'
+                    : $resultat['message'],
+                'presence' => $this->findById($p['id_presence']),
+            ];
+        }
+
+        $resultat = $this->checkIn($id_employe, 'qr', true, true);
+        if (!$resultat['success']) {
+            return ['success' => false, 'action' => null, 'message' => $resultat['message']];
+        }
+
+        $id = $resultat['presence_id'];
+        if ($valide_par) {
+            $this->update($id, [
+                'validation' => 'validee',
+                'valide_par' => $valide_par,
+                'valide_le' => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        $p = $this->findById($id);
+        $statut = $p['statut'] === 'retard'
+            ? 'Retard ' . $p['retard'] . ' min'
+            : 'À l\'heure';
+
+        return [
+            'success' => true,
+            'action' => 'arrivee',
+            'message' => 'Arrivée enregistrée à ' . substr($p['heure_arrivee'], 0, 5) . ' — ' . $statut . '.',
+            'presence' => $this->findById($id),
+        ];
     }
 
     public function valider($id_presence, $valide_par) {
@@ -257,6 +342,21 @@ class PresenceModel extends Model {
         ]);
     }
 
+    /** Pointages realises par scan QR (journal de la reception). */
+    public function findScansDuJour($date = null) {
+        $date = $date ?: date('Y-m-d');
+        $sql = "SELECT p.*, e.nom, e.prenom, e.matricule, s.nom_service
+                FROM {$this->table} p
+                INNER JOIN employes e ON p.id_employe = e.id_employe
+                LEFT JOIN services s ON e.id_service = s.id_service
+                WHERE p.date_presence = :date AND p.source = 'qr'
+                ORDER BY p.heure_arrivee ASC, p.heure_depart ASC, p.id_presence DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['date' => $date]);
+        return $stmt->fetchAll();
+    }
+
+    /** Employes absents du jour (a regulariser par le RH). */
     public function findAbsentsDuJour($date = null) {
         $date = $date ?: date('Y-m-d');
         $sql = "SELECT p.*, e.nom, e.prenom, e.matricule, s.nom_service

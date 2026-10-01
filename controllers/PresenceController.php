@@ -2,14 +2,18 @@
 require_once __DIR__ . '/../models/PresenceModel.php';
 require_once __DIR__ . '/../models/EmployeeModel.php';
 require_once __DIR__ . '/../models/NotificationModel.php';
+require_once __DIR__ . '/../models/QrcodeModel.php';
+require_once __DIR__ . '/../models/LogModel.php';
 
 class PresenceController {
     private $presenceModel;
     private $employeeModel;
+    private $qrcodeModel;
 
     public function __construct() {
         $this->presenceModel = new PresenceModel();
         $this->employeeModel = new EmployeeModel();
+        $this->qrcodeModel = new QrcodeModel();
     }
 
     public function index() {
@@ -20,6 +24,7 @@ class PresenceController {
 
         $role = $_SESSION['user_role'] ?? '';
         $isManager = in_array($role, ['admin', 'rh', 'directeur']);
+        $canScan = in_array($role, ['admin', 'rh']);
         $enAttente = $isManager ? $this->presenceModel->trouverEnAttente() : [];
         $absents = $isManager ? $this->presenceModel->findAbsentsDuJour($date) : [];
 
@@ -28,12 +33,8 @@ class PresenceController {
             $aujourdhui = $this->presenceModel->findTodayByEmployee($_SESSION['employee_id']);
             $maPresence = $aujourdhui[0] ?? null;
         }
-
-        require __DIR__ . '/../views/presences/index.php';
+require __DIR__ . '/../views/presences/index.php';
     }
-
-    
-
 
     public function declarer() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -153,7 +154,101 @@ class PresenceController {
         ]);
     }
 
-    private function requireManager() {
+    /**
+     * Page "Mon QR de presence" : le QR tourne toutes les QR_PERIODE secondes.
+     * L'arrivee ne peut etre pointee que par scan a la reception.
+     */
+    public function qr() {
+        $employeeId = $_SESSION['employee_id'] ?? null;
+        if (!$employeeId) {
+            $_SESSION['error'] = 'Aucun employé associé à ce compte : impossible d\'afficher un QR de présence.';
+            header('Location: ' . APP_URL . '/presences');
+            exit;
+        }
+
+        $employe = $this->employeeModel->findById($employeeId);
+        if (!$employe) {
+            $_SESSION['error'] = 'Employé introuvable.';
+            header('Location: ' . APP_URL . '/presences');
+            exit;
+        }
+
+        $this->presenceModel->marquerAbsentsAvantLimite();
+
+        $today = $this->presenceModel->findTodayByEmployee($employeeId);
+        $maPresence = $today[0] ?? null;
+
+        require __DIR__ . '/../views/presences/qr.php';
+    }
+
+    /** Jeton QR dynamique au format JSON (rafraichi par l'ecran employe). */
+    public function jetonQr() {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $employeeId = $_SESSION['employee_id'] ?? null;
+        if (!$employeeId) {
+            echo json_encode(['success' => false, 'message' => 'Aucun employé associé à ce compte.']);
+            return;
+        }
+
+        $jeton = $this->qrcodeModel->genererJeton($employeeId);
+        $jeton['success'] = true;
+        $jeton['periode_duree'] = QR_PERIODE;
+        echo json_encode($jeton);
+    }
+
+    /** Ecran reception : scan des QR a la webcam ou au lecteur. */
+public function scan() {
+    $this->presenceModel->marquerAbsentsAvantLimite();
+    $date = $_GET['date'] ?? date('Y-m-d');
+    $scans = $this->presenceModel->findScansDuJour($date);
+
+    require __DIR__ . '/../views/presences/scan.php';
+}
+
+/** Traitement d'un QR scanne (POST JSON ou formulaire). */
+public function scanValider() {
+    header('Content-Type: application/json; charset=utf-8');
+
+    if (!csrf_verify()) {
+        echo json_encode(['success' => false, 'message' => 'Session expirée, rechargez la page.']);
+        return;
+    }
+
+    $code = $_POST['code'] ?? '';
+    if (trim($code) === '') {
+        echo json_encode(['success' => false, 'message' => 'Aucun code reçu.']);
+        return;
+    }
+
+    $validation = $this->qrcodeModel->validerJeton($code);
+    if (!$validation['success']) {
+        echo json_encode($validation);
+        return;
+    }
+
+    $employe = $validation['employe'];
+    $resultat = $this->presenceModel->scanPointage($employe['id_employe'], $_SESSION['user_id']);
+
+    if ($resultat['success']) {
+        $log = new LogModel();
+        $log->log(
+            $resultat['action'] === 'depart' ? 'Scan QR depart' : 'Scan QR arrivee',
+            $employe['prenom'] . ' ' . $employe['nom'] . ' (' . $employe['matricule'] . ')',
+            'presences'
+        );
+    }
+
+    $resultat['employe'] = [
+        'id_employe' => $employe['id_employe'],
+        'nom' => $employe['nom'],
+        'prenom' => $employe['prenom'],
+        'matricule' => $employe['matricule'],
+    ];
+    echo json_encode($resultat);
+}
+
+private function requireManager() {
         if (!in_array($_SESSION['user_role'] ?? '', ['admin', 'rh', 'directeur'])) {
             $_SESSION['error'] = 'Action réservée aux gestionnaires (RH / Direction)';
             header('Location: ' . APP_URL . '/dashboard');

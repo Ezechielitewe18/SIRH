@@ -107,6 +107,19 @@ if ($action === 'login') {
 
     $tokenData = createToken($user['id_utilisateur']);
 
+    /* Session PHP également ouverte : l'app mobile et les pages web
+       (ex. /presences/qr) partagent ainsi la même authentification. */
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_regenerate_id(true);
+        $_SESSION['user_id'] = $user['id_utilisateur'];
+        $_SESSION['user_name'] = $user['nom_complet'];
+        $_SESSION['user_email'] = $user['email'];
+        $_SESSION['user_role'] = $user['role'];
+        if ($employee) {
+            $_SESSION['employee_id'] = $employee['id_employe'];
+        }
+    }
+
     api_json([
         'success' => true,
         'token' => $tokenData['token'],
