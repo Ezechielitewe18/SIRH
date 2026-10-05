@@ -206,7 +206,7 @@
         </div>
         <strong>&copy; <?= date('Y') ?> <span style="color: #007bff; font-weight: 700;"><?= APP_NAME ?></span></strong> - Système d'Information des Ressources Humaines
         <div class="text-muted text-center" style="font-size: 12px; margin-top: 5px;">
-            Tous droits réservés. Développé par <?= AUTHOR_NAME ?>
+            Startup <?= COMPANY_NAME ?> - Tous droits réservés.
         </div>
     </footer>
 </div>

@@ -1,8 +1,8 @@
-# GLOBIT - Système d'Information des Ressources Humaines
+# GLOBIT SAAS - SIRH (Système d'Information des Ressources Humaines)
 
 Système de gestion du personnel développé en PHP (MVC) avec MySQL, Bootstrap et AdminLTE.
 
-**Développé par Ezechiel Itewe Nzukumayi** — © GLOBIT, tous droits réservés.
+**Startup GLOBIT SAAS** — © GLOBIT SAAS, tous droits réservés. Aucun nom de personne physique n'est associé au logiciel.
 
 ## Prérequis
 

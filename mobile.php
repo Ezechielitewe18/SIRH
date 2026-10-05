@@ -8,7 +8,7 @@ header('Pragma: no-cache');
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>GLOBIT - SIRH</title>
+<title>GLOBIT SAAS - SIRH</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#3b82f6">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -192,7 +192,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
     <div class="login-logo">G</div>
-    <h1>GLOBIT</h1>
+    <h1>GLOBIT SAAS</h1>
     <div class="tag">Connexion à votre espace RH</div>
     <div id="loginForm">
       <label>Email</label>
@@ -214,7 +214,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 
   <div class="topbar">
     <div class="logo" id="navAvatar">G</div>
-    <div class="t" id="navName">Chargement...<small>GLOBIT SIRH</small></div>    <div class="spacer"></div>
+    <div class="t" id="navName">Chargement...<small>GLOBIT SAAS SIRH</small></div>    <div class="spacer"></div>
     <div class="bell" onclick="go('notifs')"><span id="bellCnt">🔔</span><span class="badge" id="bellBadge">0</span></div>
   </div>
 
@@ -325,8 +325,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 </div>
 
 <div class="install-banner" id="installBanner">
-  <img src="public/img/icon-192.png" alt="GLOBIT">
-  <div class="txt"><b>Installer GLOBIT</b>Ajoutez l'app à votre écran d'accueil.</div>
+  <img src="public/img/icon-192.png" alt="GLOBIT SAAS">
+  <div class="txt"><b>Installer GLOBIT SAAS</b>Ajoutez l'app à votre écran d'accueil.</div>
   <div class="cl" onclick="installApp()">Installer</div>
 </div>
 
@@ -476,7 +476,7 @@ function enterApp() {
   document.getElementById('app').style.display = 'block';
   document.getElementById('bottomNav').style.display = 'flex';
   document.getElementById('navName').childNodes[0].textContent = (user.nom_complet || '').split(' ')[0];
-  document.getElementById('navName').innerHTML = (user.nom_complet || '').split(' ')[0] + '<small>GLOBIT SIRH · v6</small>';
+  document.getElementById('navName').innerHTML = (user.nom_complet || '').split(' ')[0] + '<small>GLOBIT SAAS SIRH · v6</small>';
   document.getElementById('navAvatar').textContent = (user.nom_complet || 'G')[0].toUpperCase();
   registerSW();
   go('home');

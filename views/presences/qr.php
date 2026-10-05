@@ -181,7 +181,7 @@
 <body>
 
     <div class="head">
-        <div class="brand">GLOBIT</div>
+        <div class="brand">GLOBIT SAAS</div>
         <h1>Mon QR de présence</h1>
         <div class="sub">Présentez ce code à la réception</div>
     </div>

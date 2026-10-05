@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Présentation GLOBIT - SIRH</title>
+<title>Présentation GLOBIT SAAS - SIRH</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -319,7 +319,7 @@ body.auto .timer-btn .pause{display:inline}
   <div class="brand">
     <div class="logo"><span>G</span></div>
     <div>
-      GLOBIT<span class="dot">.</span>
+      GLOBIT SAAS<span class="dot">.</span>
       <small>SIRH &middot; SYSTEME D&rsquo;INFORMATION</small>
     </div>
   </div>
@@ -332,7 +332,7 @@ body.auto .timer-btn .pause{display:inline}
 
   <section class="slide hero active" data-kicker="Bienvenue">
     <div class="big-logo"><span>G</span></div>
-    <h1>GLOBIT</h1>
+    <h1>GLOBIT SAAS</h1>
     <div class="tagline">La solution moderne de gestion des ressources humaines</div>
     <div class="chips">
       <div class="chip"><i class="fa-solid fa-users"></i>Employés</div>
@@ -350,7 +350,7 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Connexion</span></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Connexion</span></div>
         <div class="shot-body"><img src="assets/demo/login.png?v=2" alt="Connexion"></div>
       </div>
       <div class="features">
@@ -370,7 +370,7 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Tableau de bord</span></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Tableau de bord</span></div>
         <div class="shot-body"><img src="assets/demo/dashboard.png" alt="Tableau de bord"></div>
       </div>
       <div class="features">
@@ -390,7 +390,7 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Employés</span></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Employés</span></div>
         <div class="shot-body"><img src="assets/demo/employees.png" alt="Employés"></div>
       </div>
       <div class="features">
@@ -410,7 +410,7 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Présences</span></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Présences</span></div>
         <div class="shot-body"><img src="assets/demo/presences.png" alt="Présences"></div>
       </div>
       <div class="features">
@@ -430,7 +430,7 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Congés</span></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Congés</span></div>
         <div class="shot-body"><img src="assets/demo/conges.png" alt="Congés"></div>
       </div>
       <div class="features">
@@ -450,7 +450,7 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Paie</span></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Paie</span></div>
         <div class="shot-body"><img src="assets/demo/paie.png" alt="Paie"></div>
       </div>
       <div class="features">
@@ -470,7 +470,7 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Présences</span></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Présences</span></div>
         <div class="shot-body"><img src="assets/demo/presences.png" alt="Présences"></div>
       </div>
       <div class="features">
@@ -490,7 +490,7 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Rapports</span></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Rapports</span></div>
         <div class="shot-body"><img src="assets/demo/journal.png" alt="Rapports"></div>
       </div>
       <div class="features">
@@ -505,12 +505,12 @@ body.auto .timer-btn .pause{display:inline}
   <section class="slide" data-kicker="Applications">
     <div class="slide-head">
       <div class="slide-kicker"><span class="line"></span>Applications<span class="line r"></span></div>
-      <h2 class="slide-title">L'écosystème GLOBIT</h2>
+      <h2 class="slide-title">L'écosystème GLOBIT SAAS</h2>
       <p class="slide-desc">Une plateforme web complète avec une application mobile intégrée.</p>
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT - Mobile</span></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Mobile</span></div>
         <div class="shot-body"><img src="assets/demo/dashboard.png" alt="Applications"></div>
       </div>
       <div class="features">
@@ -525,7 +525,7 @@ body.auto .timer-btn .pause{display:inline}
   <section class="slide merci" data-kicker="Conclusion">
     <div class="big-check"><i class="fa-solid fa-check"></i></div>
     <h2>Merci !</h2>
-    <div class="sub">GLOBIT — le référentiel RH de votre entreprise.</div>
+    <div class="sub">GLOBIT SAAS — le référentiel RH de votre entreprise.</div>
     <div class="modules">
       <div class="module"><i class="fa-solid fa-users"></i>Employés</div>
       <div class="module"><i class="fa-solid fa-clipboard-check"></i>Présences</div>

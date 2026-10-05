@@ -1,5 +1,5 @@
 -- ============================================================================
---  GLOBIT SIRH - Base de donnees complete
+--  GLOBIT SAAS - SIRH - Base de donnees complete
 --  Systeme d'Information des Ressources Humaines
 --  Contenu : base + 15 tables + donnees de demonstration
 --  Fichier unique : importer tel quel dans phpMyAdmin (onglet Importer)
@@ -305,5 +305,5 @@ SET UNIQUE_CHECKS = 1;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================================
---  Fin de l'export - GLOBIT SIRH v1.0
+--  Fin de l'export - GLOBIT SAAS - SIRH v1.0
 -- ============================================================================

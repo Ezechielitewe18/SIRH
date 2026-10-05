@@ -1,4 +1,4 @@
-const CACHE_NAME = 'globit-v8';
+const CACHE_NAME = 'globitsaas-v9';
 const APP_SHELL = [
   './',
   './manifest.webmanifest',
@@ -107,13 +107,13 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
   const options = {
-    body: data.message || 'Nouvelle notification GLOBIT',
+    body: data.message || 'Nouvelle notification GLOBIT SAAS',
     icon: './public/img/icon-192.png',
     badge: './public/img/icon-192.png',
     vibrate: [100, 50, 100]
   };
   event.waitUntil(
-    self.registration.showNotification(data.title || 'GLOBIT', options)
+    self.registration.showNotification(data.title || 'GLOBIT SAAS', options)
   );
 });
 

@@ -1,7 +1,7 @@
 {
-  "name": "GLOBIT - SIRH",
-  "short_name": "GLOBIT",
-  "description": "Système d'Information des Ressources Humaines - Employés, présences, congés, paie et notifications.",
+  "name": "GLOBIT SAAS - SIRH",
+  "short_name": "GLOBIT SAAS",
+  "description": "SIRH GLOBIT SAAS - Employés, présences, congés, paie et notifications.",
   "start_url": "./mobile.php",
   "scope": "./",
   "display": "standalone",

@@ -165,15 +165,15 @@ class ExportController {
             .header h1{color:#007bff;margin:0;}
             .header p{color:#666;margin:2px 0;}
         </style></head><body>";
-        $html .= "<div class='header'><h1>GLOBIT - " . $title . "</h1>";
-        $html .= "<p>© " . date('Y') . " GLOBIT - Système d'Information des Ressources Humaines</p>";
+        $html .= "<div class='header'><h1>" . COMPANY_NAME . " - " . $title . "</h1>";
+        $html .= "<p>© " . date('Y') . " " . COMPANY_NAME . " - Système d'Information des Ressources Humaines</p>";
         $html .= "<p>Généré le " . date('d/m/Y H:i') . "</p></div>";
         return $html;
     }
 
     private function pdfFooter() {
         return "<div style='margin-top:30px;border-top:1px solid #ccc;padding-top:10px;color:#888;font-size:10px;'>
-            Tous droits réservés. Développé par " . (defined('AUTHOR_NAME') ? AUTHOR_NAME : 'Ezechiel Itewe Nzukumayi') . "</div></body></html>";
+            Startup GLOBIT SAAS - Tous droits réservés.</div></body></html>";
     }
 
     private function renderPdf($filename, $html) {

@@ -79,7 +79,7 @@ class NotificationModel extends Model {
     public function sendEmail($to, $subject, $body) {
         $headers = "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $headers .= "From: GLOBIT <no-reply@" . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'globit.local') . ">\r\n";
+        $headers .= "From: GLOBIT SAAS <no-reply@" . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'globit.local') . ">\r\n";
 
         return @mail($to, $subject, $body, $headers);
     }
@@ -97,7 +97,7 @@ class NotificationModel extends Model {
             $html .= "</div>";
         }
         $html .= "<div style='padding:15px 20px;background:#f8f9fa;color:#888;font-size:12px;'>";
-        $html .= "© " . date('Y') . " GLOBIT - Système d'Information des Ressources Humaines. Développé par " . (defined('AUTHOR_NAME') ? AUTHOR_NAME : 'Ezechiel Itewe Nzukumayi');
+        $html .= "&copy; " . date('Y') . " GLOBIT SAAS - Système d'Information des Ressources Humaines. Startup GLOBIT SAAS, tous droits réservés.";
         $html .= "</div></div></body></html>";
         return $html;
     }
