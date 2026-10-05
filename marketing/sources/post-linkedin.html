@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>GLOBIT SAAS - Post LinkedIn 1200x628</title>
+<link rel="stylesheet" href="identite.css">
+<style>
+  body { width: 1200px; height: 628px; }
+  .page { position: relative; width: 1200px; height: 628px; padding: 54px 58px; display: flex; align-items: center; gap: 42px; overflow: hidden; }
+  .halo1 { width: 460px; height: 460px; background: #2563EB; top: -190px; right: -140px; }
+  .colonne { flex: 1 1 58%; position: relative; z-index: 2; }
+  .visuels { flex: 1 1 42%; display: flex; gap: 14px; align-items: center; position: relative; z-index: 2; }
+  .visuels img { border-radius: 12px; border: 1px solid rgba(122,160,255,.32); display: block; }
+  .visuels .grand { width: 400px; }
+  .visuels .petit { width: 176px; }
+
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo .bloc { width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg, #38BDF8, #2563EB); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #04122B; font-size: 23px; }
+  .logo .nom { font-size: 22px; font-weight: 800; }
+  .logo .nom span { display: block; font-size: 11px; letter-spacing: 2.2px; color: var(--gris); text-transform: uppercase; font-weight: 600; }
+
+  h1 { font-size: 47px; line-height: 1.1; font-weight: 800; letter-spacing: -1.4px; margin: 26px 0 0; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, #38BDF8, #A5B4FC); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .accroche { font-size: 20px; line-height: 1.5; color: #CBD5F5; margin-top: 16px; }
+  .puce { font-size: 18px; margin-top: 12px; }
+  .puce .ok { flex: 0 0 26px; height: 26px; border-radius: 8px; font-size: 15px; }
+  footer { display: flex; align-items: center; gap: 16px; margin-top: 26px; }
+  .offre { padding: 13px 24px; border-radius: 11px; background: linear-gradient(90deg, #38BDF8, #2563EB); color: #04122B; font-weight: 800; font-size: 18px; }
+  .contact { font-size: 15px; color: var(--gris); line-height: 1.5; }
+  .contact b { color: var(--clair); }
+</style>
+</head>
+<body>
+<div class="page grille">
+  <div class="halo halo1"></div>
+
+  <div class="colonne">
+    <div class="logo">
+      <div class="bloc">G</div>
+      <div class="nom">GLOBIT SAAS<span>SIRH</span></div>
+    </div>
+    <h1>Vos feuilles de présence,<br><em>enfin sans papier.</em></h1>
+    <p class="accroche">Un SIRH conçu pour les entreprises congolaises : présences par QR, congés, paie et rapports — dans le cloud, en français.</p>
+    <div class="puce"><span class="ok">✓</span><span>Essai gratuit · Tarifs sur devis · Formation incluse</span></div>
+    <footer>
+      <span class="offre">Demander une démo</span>
+      <div class="contact"><b>Startup GLOBIT SAAS</b> · RDC<br>📞 +243 00 000 0000 · ✉️ contact@globit.com</div>
+    </footer>
+  </div>
+
+  <div class="visuels">
+    <img class="grand" src="../captures/presences.png" alt="Présences">
+    <img class="petit" src="../captures/qr_employe.png" alt="QR téléphone">
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>GLOBIT SAAS - Flyer A4</title>
+<link rel="stylesheet" href="identite.css">
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  body { width: 210mm; height: 297mm; }
+  .page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    overflow: hidden;
+    padding: 16mm 14mm 10mm 14mm;
+    display: flex;
+    flex-direction: column;
+  }
+  .halo1 { width: 260px; height: 260px; background: #2563EB; top: -110px; right: -90px; }
+  .halo2 { width: 220px; height: 220px; background: #38BDF8; bottom: -120px; left: -100px; opacity: .4; }
+
+  header { display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo .bloc {
+    width: 42px; height: 42px; border-radius: 11px;
+    background: linear-gradient(135deg, #38BDF8, #2563EB);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; color: #04122B; font-size: 20px;
+  }
+  .logo .nom { font-size: 21px; font-weight: 800; letter-spacing: -.4px; }
+  .logo .nom span { font-weight: 500; color: var(--gris); font-size: 12px; display: block; letter-spacing: 1.4px; text-transform: uppercase; }
+  .badge { font-size: 11px; color: var(--cyan); border: 1px solid rgba(56,189,248,.45); padding: 6px 12px; border-radius: 999px; letter-spacing: .6px; }
+
+  h1 { font-size: 40px; line-height: 1.12; font-weight: 800; margin: 13mm 0 0; letter-spacing: -1px; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, #38BDF8, #A5B4FC); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .accroche { font-size: 15px; color: var(--gris); margin-top: 6mm; max-width: 165mm; line-height: 1.55; }
+
+  .visuels { display: flex; gap: 6mm; margin-top: 9mm; align-items: stretch; }
+  .bloc-principal { flex: 1 1 auto; }
+  .colonne { width: 52mm; display: flex; flex-direction: column; gap: 4mm; }
+  .etiquette { font-size: 10px; color: var(--cyan); letter-spacing: 1.3px; text-transform: uppercase; font-weight: 700; margin-bottom: 2mm; }
+
+  .grille2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm 4mm; margin-top: 10mm; }
+  .puce { font-size: 14px; }
+  .puce .ok { flex: 0 0 24px; height: 24px; border-radius: 7px; font-size: 13px; }
+  .puce b { color: #fff; }
+
+  .offre { margin-top: 10mm; padding: 6mm; display: flex; align-items: center; justify-content: space-between; }
+  .offre .txt b { font-size: 17px; display: block; }
+  .offre .txt span { font-size: 13px; color: var(--gris); }
+
+  footer { margin-top: auto; padding-top: 6mm; border-top: 1px solid rgba(122,160,255,.2); display: flex; justify-content: space-between; align-items: flex-end; }
+  footer .contact { font-size: 12.5px; color: #E6EBFF; line-height: 1.7; }
+  footer .contact b { color: var(--cyan); }
+  footer .droits { font-size: 10px; color: #6E77A8; text-align: right; }
+</style>
+</head>
+<body>
+<div class="page grille">
+  <div class="halo halo1"></div>
+  <div class="halo halo2"></div>
+
+  <header>
+    <div class="logo">
+      <div class="bloc">G</div>
+      <div class="nom">GLOBIT SAAS<span>SIRH</span></div>
+    </div>
+    <div class="badge">Solution congolaise</div>
+  </header>
+
+  <h1>Votre SIRH complet,<br>en <em>un clic</em>. Pas d'installation.</h1>
+  <p class="accroche">Présences par QR code, congés, paie, bulletins et rapports — dans le cloud, en français, et pour une PME comme pour une grande entreprise. Vos employés pointent depuis leur téléphone, vous gardez la main sur les chiffres.</p>
+
+  <div class="visuels">
+    <div class="bloc-principal">
+      <div class="etiquette">Tableau de bord RH</div>
+      <img class="capture" src="../captures/dashboard.png" alt="Tableau de bord GLOBIT SAAS">
+    </div>
+    <div class="colonne">
+      <div>
+        <div class="etiquette">Présences</div>
+        <img class="capture" src="../captures/presences.png" alt="Suivi des présences">
+      </div>
+      <div>
+        <div class="etiquette">QR téléphone</div>
+        <img class="capture" src="../captures/qr_employe.png" alt="QR de présence sur téléphone">
+      </div>
+    </div>
+  </div>
+
+  <div class="grille2">
+    <div class="puce"><span class="ok">✓</span><span><b>Présences par QR</b> — un code renouvelé toutes les 30 s, impossible à falsifier.</span></div>
+    <div class="puce"><span class="ok">✓</span><span><b>Congés et absences</b> — demandes en ligne, validation par le RH.</span></div>
+    <div class="puce"><span class="ok">✓</span><span><b>Paie et bulletins</b> — calcul, primes, retenues, export PDF.</span></div>
+    <div class="puce"><span class="ok">✓</span><span><b>Rapports et historique</b> — ponctualité, absentisme, export Excel.</span></div>
+    <div class="puce"><span class="ok">✓</span><span><b>Messagerie interne</b> — annonces et échanges RH / employés.</span></div>
+    <div class="puce"><span class="ok">✓</span><span><b>Sur téléphone</b> — app web installable, même hors connexion Wi-Fi.</span></div>
+  </div>
+
+  <div class="carte offre">
+    <div class="txt">
+      <b>Essai gratuit sur demande</b>
+      <span>Tarifs selon la taille de votre entreprise · Installation et formation incluses</span>
+    </div>
+    <span class="bouton">Démo offerte</span>
+  </div>
+
+  <footer>
+    <div class="contact">
+      <b>Startup GLOBIT SAAS</b> — République Démocratique du Congo<br>
+      📞 +243 00 000 0000 &nbsp;·&nbsp; ✉️ contact@globit.com<br>
+      🌐 www.globit.com
+    </div>
+    <div class="droits">
+      © GLOBIT SAAS — Tous droits réservés<br>
+      Illustrations : captures réelles du logiciel,<br>données de démonstration fictives
+    </div>
+  </footer>
+</div>
+</body>
+</html>
