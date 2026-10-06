@@ -78,7 +78,7 @@ class CongeController {
                 foreach ($this->notificationModel->getEmailRecipients(['admin', 'rh']) as $rec) {
                     $this->notificationModel->sendEmail(
                         $rec['email'],
-                        'GLOBIT SAAS - Nouvelle demande de congé',
+                        'GLOBIT SAS - Nouvelle demande de congé',
                         $this->notificationModel->emailTemplate('Nouvelle demande de congé', "$nomEmploye a soumis une demande de congé.", $lien)
                     );
                 }

@@ -173,7 +173,7 @@ class ExportController {
 
     private function pdfFooter() {
         return "<div style='margin-top:30px;border-top:1px solid #ccc;padding-top:10px;color:#888;font-size:10px;'>
-            Startup GLOBIT SAAS - Tous droits réservés.</div></body></html>";
+            Startup <?= COMPANY_NAME ?> - Tous droits réservés. Aucun nom de personne physique n'est associé à ce logiciel.</div></body></html>";
     }
 
     private function renderPdf($filename, $html) {

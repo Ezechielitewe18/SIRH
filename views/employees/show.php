@@ -68,6 +68,40 @@
             </div>
         </div>
     </div>
+
+    <!-- Primes fixes de l'employe : facultatives -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-star text-warning"></i> Primes fixes mensuelles</h3>
+        </div>
+        <div class="card-body">
+<?php if (empty($primes)): ?>
+            <p class="text-muted mb-0">Aucune prime fixe. Seul le logement et le transport (selon les paramètres RH) s'appliquent à cet employé.</p>
+<?php else: ?>
+            <table class="table table-bordered mb-0">
+                <tr>
+                    <th>Prime</th>
+                    <th class="text-right">Montant mensuel</th>
+                    <th class="text-center">Actif</th>
+                </tr>
+<?php foreach ($primes as $p): ?>
+                <tr>
+                    <td><?= htmlspecialchars($p['libelle']) ?></td>
+                    <td class="text-right"><?= number_format($p['montant'], 2, ',', ' ') ?> FC</td>
+                    <td class="text-center">
+                        <?= (int)$p['actif'] === 1 ? '<span class="badge badge-success">Oui</span>' : '<span class="badge badge-secondary">Non</span>' ?>
+                    </td>
+                </tr>
+<?php endforeach; ?>
+                <tr class="bg-light">
+                    <th>Total</th>
+                    <th class="text-right"><?= number_format(array_sum(array_column($primes, 'montant')), 2, ',', ' ') ?> FC</th>
+                    <th></th>
+                </tr>
+            </table>
+<?php endif; ?>
+        </div>
+    </div>
 </section>
 
 <?php

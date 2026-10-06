@@ -1,4 +1,4 @@
-# Marketing GLOBIT SAAS — dossier visuel
+# Marketing GLOBIT SAS — dossier visuel
 
 Tout est **prêt à publier**, mais rien n'est publié automatiquement : c'est toi qui cliques.
 
@@ -23,7 +23,7 @@ Oui. Elles sont prises automatiquement dans le logiciel avec la base **fictive**
 `sirh_demo` (9 employés inventés : MUKENDI, KANKU, ILUNGA…) — ta vraie base `sirh`
 n'est jamais utilisée pour les visuels.
 
-Régénérer les captures : voir `README.md` à la racine du dossier.
+Régénérer les captures : voir « Régénérer les captures » plus bas.
 
 ## Personnaliser les visuels
 
@@ -45,3 +45,24 @@ $base = "file:///C:/xampp/htdocs/SIRH/marketing/sources/"
 & $edge --headless=new --disable-gpu --no-pdf-header-footer --virtual-time-budget=9000 `
     --print-to-pdf="visuels\flyer-a4.pdf" ($base + 'flyer-a4.html')
 ```
+
+## Régénérer les captures (11 images + 7 vignettes de `demo.php`)
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File C:\xampp\htdocs\SIRH\scripts\capture_marketing.ps1
+```
+
+Ce que fait le script :
+
+1. lance un PHP local (`php -S`) branché sur la base **`sirh_demo`** (jeu fictif —
+   la base réelle `sirh` n'est jamais touchée, `config/database.php` n'est pas modifié) ;
+2. ouvre une session de départ via `scripts/capture_router.php`
+   (auto-connexion conditionnée aux variables `SIRH_DB` / `CAPTURE_LOGIN`,
+   sans effet hors de ce `php -S`) ;
+3. photographie chaque écran avec Edge, aux dimensions d'origine
+   (`marketing/captures` : 1440×900, 1440×1000, 1440×860 ; 430×880 pour
+   `mobile` et `qr_employe` — `assets/demo` : 1920×1080) ;
+4. arrête le serveur.
+
+Les captures du rôle `employe` (`qr_employe`) sont prises avec un compte employé
+pour que la page du QR s'affiche réellement.

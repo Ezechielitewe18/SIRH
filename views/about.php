@@ -46,9 +46,12 @@
                         <i class="fas fa-user-circle fa-5x text-primary"></i>
                     </div>
                     <h4 class="text-center"><?= AUTHOR_NAME ?></h4>
-                    <p class="text-center text-muted">Concepteur & Développeur</p>
+                    <p class="text-center text-muted">Startup éditrice & titulaire des droits</p>
                     <hr>
                     <p><?= COPYRIGHT ?></p>
+                    <p class="text-muted">
+                        Aucun nom de personne physique n'est associé à ce logiciel.
+                    </p>
                     <p class="text-muted">
                         Ce logiciel est protégé par les lois relatives à la propriété intellectuelle.
                         Toute reproduction, distribution ou utilisation non autorisée

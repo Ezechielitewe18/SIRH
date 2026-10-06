@@ -237,6 +237,20 @@ $router->post('/paie/generer/{id}', function($id) use ($auth) {
     $controller->genererUnEmploye($id);
 });
 
+// Espace salarie : ses propres bulletins (aucun acces aux autres)
+// Place avant /paie/detail pour ne jamais interferer avec les routes RH.
+$router->get('/paie/mes-bulletins', function() use ($auth) {
+    $auth->checkAuth();
+    $controller = new PaieController();
+    $controller->mesBulletins();
+});
+
+$router->get('/paie/ma-fiche/{id}', function($id) use ($auth) {
+    $auth->checkAuth();
+    $controller = new PaieController();
+    $controller->monBulletin($id);
+});
+
 $router->get('/paie/detail/{id}', function($id) use ($auth) {
     $auth->requireRole(['admin', 'rh']);
     $controller = new PaieController();

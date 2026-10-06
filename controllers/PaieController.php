@@ -52,6 +52,7 @@ class PaieController {
 
     public function valider($id) {
         $this->paieModel->validerBulletin($id);
+        $this->informerEmploye($id, 'valide');
         $_SESSION['success'] = 'Bulletin validé';
         header('Location: ' . APP_URL . '/paie');
         exit;
@@ -59,9 +60,96 @@ class PaieController {
 
     public function payer($id) {
         $this->paieModel->payerBulletin($id);
+        $this->informerEmploye($id, 'paye');
         $_SESSION['success'] = 'Bulletin marqué comme payé';
         header('Location: ' . APP_URL . '/paie');
         exit;
+    }
+
+    /**
+     * Previent le salarie que son bulletin est disponible ou paye.
+     * Notification dans l'application (visible sur son telephone) + e-mail.
+     */
+    private function informerEmploye($idBulletin, $statut) {
+        $bulletin = $this->paieModel->findById($idBulletin);
+        if (!$bulletin) {
+            return;
+        }
+        $employe = $this->employeeModel->findById($bulletin['id_employe']);
+        if (!$employe || empty($employe['id_utilisateur'])) {
+            return;
+        }
+
+        $periode = str_pad((string)$bulletin['mois'], 2, '0', STR_PAD_LEFT) . '/' . $bulletin['annee'];
+        $net = number_format((float)$bulletin['total_net'], 2, ',', ' ') . ' FC';
+
+        if ($statut === 'paye') {
+            $titre = 'Votre salaire de ' . $periode . ' a été payé';
+            $message = "Votre bulletin de paie de $periode est marque comme paye.\n"
+                . "Net a payer : $net\n"
+                . "Vous pouvez consulter le detail de votre bulletin depuis votre espace.";
+        } else {
+            $titre = 'Votre bulletin de paie ' . $periode . ' est disponible';
+            $message = "Votre bulletin de paie de $periode a ete valide par le service RH.\n"
+                . "Net a payer : $net\n"
+                . "Vous pouvez consulter le detail depuis votre espace.";
+        }
+
+        $notif = new NotificationModel();
+        $notif->add(
+            $employe['id_utilisateur'],
+            $titre,
+            $message,
+            'paie',
+            APP_URL . '/paie/mes-bulletins'
+        );
+
+        if (!empty($employe['email'])) {
+            $notif->sendEmail(
+                $employe['email'],
+                $titre . ' - GLOBIT SAS',
+                $notif->emailTemplate($titre, $message, APP_URL . '/paie/mes-bulletins')
+            );
+        }
+    }
+
+    /** Bulletins du salarie connecte (jamais ceux des autres). */
+    public function mesBulletins() {
+        $employe = $this->employeDuCompte();
+        if (!$employe) {
+            return;
+        }
+        $mesBulletins = $this->paieModel->findByEmployee($employe['id_employe']);
+        require __DIR__ . '/../views/paie/mes_bulletins.php';
+    }
+
+    public function monBulletin($id) {
+        $employe = $this->employeDuCompte();
+        if (!$employe) {
+            return;
+        }
+        $bulletin = $this->paieModel->findById($id);
+        if (!$bulletin || (int)$bulletin['id_employe'] !== (int)$employe['id_employe']) {
+            $_SESSION['error'] = 'Bulletin introuvable';
+            header('Location: ' . APP_URL . '/paie/mes-bulletins');
+            exit;
+        }
+        $employeFiche = $this->employeeModel->findByIdWithService($bulletin['id_employe']);
+        require __DIR__ . '/../views/paie/ma_fiche.php';
+    }
+
+    private function employeDuCompte() {
+        if (empty($_SESSION['user_id'])) {
+            header('Location: ' . APP_URL . '/login');
+            exit;
+        }
+        $employe = $this->employeeModel->findByUserId($_SESSION['user_id']);
+        if (!$employe) {
+            $_SESSION['error'] = "Aucun profil employe n'est associe a ce compte.";
+            header('Location: ' . APP_URL . '/dashboard');
+            exit;
+        }
+        return $employe;
     }
 
     public function archives() {

@@ -79,7 +79,7 @@ class NotificationModel extends Model {
     public function sendEmail($to, $subject, $body) {
         $headers = "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $headers .= "From: GLOBIT SAAS <no-reply@" . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'globit.local') . ">\r\n";
+        $headers .= "From: GLOBIT SAS <no-reply@" . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'globit.local') . ">\r\n";
 
         return @mail($to, $subject, $body, $headers);
     }
@@ -97,7 +97,7 @@ class NotificationModel extends Model {
             $html .= "</div>";
         }
         $html .= "<div style='padding:15px 20px;background:#f8f9fa;color:#888;font-size:12px;'>";
-        $html .= "&copy; " . date('Y') . " GLOBIT SAAS - Système d'Information des Ressources Humaines. Startup GLOBIT SAAS, tous droits réservés.";
+        $html .= "&copy; " . date('Y') . " GLOBIT SAS - SIRH. Logiciel édité par la startup GLOBIT SAS. Tous droits réservés.";
         $html .= "</div></div></body></html>";
         return $html;
     }

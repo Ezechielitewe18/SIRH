@@ -1,5 +1,5 @@
 -- ============================================================================
---  GLOBIT SAAS - SIRH - Jeu de donnees MARKETING (fictif)
+--  GLOBIT SAS - SIRH - Jeu de donnees MARKETING (fictif)
 --  Aucune donnee reelle : uniquement des personnes inventees, pour les
 --  captures d'ecran, flyers et publications de la startup.
 --  Usage : creer la base sirh_demo puis importer ce fichier.
@@ -13,7 +13,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS `annonces`, `api_tokens`, `bulletins`, `conges`, `conversations`,
   `employes`, `formations`, `formations_employes`, `journal_activite`, `messages`,
-  `notifications`, `parametres_paie`, `presences`, `services`, `utilisateurs`;
+  `notifications`, `parametres_paie`, `primes`, `presences`, `services`, `utilisateurs`;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ CREATE TABLE `utilisateurs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `utilisateurs` (`id_utilisateur`,`nom_complet`,`email`,`mot_de_passe`,`role`,`statut`,`derniere_connexion`,`created_at`,`updated_at`) VALUES
-(1,'Administrateur GLOBIT SAAS','admin@sirh.local','__HASH_ADMIN__','admin','actif',NOW(),NOW(),NOW()),
+(1,'Administrateur GLOBIT SAS','admin@sirh.local','__HASH_ADMIN__','admin','actif',NOW(),NOW(),NOW()),
 (2,'Ruth Kalonji','ruth.kalonji@globit.com','__HASH_EMPLOYE__','rh','actif',NOW(),NOW(),NOW()),
 (3,'Jean-Pierre Mukendi','jeanpierre.mukendi@globit.com','__HASH_EMPLOYE__','employe','actif',NOW(),NOW(),NOW()),
 (4,'Marie Kanku','marie.kanku@globit.com','__HASH_EMPLOYE__','employe','actif',NOW(),NOW(),NOW()),
@@ -199,6 +199,7 @@ CREATE TABLE `bulletins` (
   `annee` int(11) NOT NULL,
   `salaire_base` decimal(12,2) NOT NULL DEFAULT 0.00,
   `primes` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `detail_primes` text DEFAULT NULL,
   `heures_supplementaires` int(11) NOT NULL DEFAULT 0,
   `montant_heures_sup` decimal(12,2) NOT NULL DEFAULT 0.00,
   `total_brut` decimal(12,2) NOT NULL DEFAULT 0.00,
@@ -219,6 +220,28 @@ INSERT INTO `bulletins` (`id_employe`,`mois`,`annee`,`salaire_base`,`primes`,`he
 (7,9,2026,2100.00,0.00,0,0.00,2100.00,283.00,1817.00,'valide',CURDATE());
 
 -- ----------------------------------------------------------------------------
+-- Primes fixes par employe (fictives, alignees sur les bulletins ci-dessus)
+-- ----------------------------------------------------------------------------
+CREATE TABLE `primes` (
+  `id_prime` int(11) NOT NULL AUTO_INCREMENT,
+  `id_employe` int(11) NOT NULL,
+  `libelle` varchar(100) NOT NULL,
+  `montant` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `actif` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id_prime`),
+  KEY `idx_primes_employe` (`id_employe`),
+  CONSTRAINT `fk_primes_employe` FOREIGN KEY (`id_employe`) REFERENCES `employes` (`id_employe`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `primes` (`id_employe`,`libelle`,`montant`,`actif`) VALUES
+(1,'Prime de fonction',150.00,1),
+(1,'Indemnite de risque',100.00,1),
+(2,'Prime de rendement',100.00,1),
+(5,'Prime de transport',50.00,1);
+
+-- ----------------------------------------------------------------------------
 -- Notifications, annonces et messages (fictifs)
 -- ----------------------------------------------------------------------------
 CREATE TABLE `notifications` (
@@ -237,7 +260,7 @@ INSERT INTO `notifications` (`id_utilisateur`,`titre`,`message`,`type_notif`,`es
 (1,'Demande de conge a valider','Marie Kanku a soumis une demande de conge annuel de 15 jours.','conge',0),
 (1,'Pointage en attente de validation','Sarah Nsimba a pointe a 10h23 : 383 minutes de retard.','presence',0),
 (1,'Bulletins de paie generes','5 bulletins de paie du mois sont pretos a etre valides.','paie',1),
-(3,'Bienvenue sur GLOBIT SAAS','Votre compte employe est actif. Votre QR de presence est disponible.','info',0),
+(3,'Bienvenue sur GLOBIT SAS','Votre compte employe est actif. Votre QR de presence est disponible.','info',0),
 (4,'Votre QR de presence est actif','Scannez-le a l\'accueil pour pointer. Il change toutes les 30 secondes.','info',0);
 
 CREATE TABLE `annonces` (

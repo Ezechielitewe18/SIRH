@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Présentation GLOBIT SAAS - SIRH</title>
+<title>Présentation GLOBIT SAS - SIRH</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -319,7 +319,7 @@ body.auto .timer-btn .pause{display:inline}
   <div class="brand">
     <div class="logo"><span>G</span></div>
     <div>
-      GLOBIT SAAS<span class="dot">.</span>
+      GLOBIT SAS<span class="dot">.</span>
       <small>SIRH &middot; SYSTEME D&rsquo;INFORMATION</small>
     </div>
   </div>
@@ -332,7 +332,7 @@ body.auto .timer-btn .pause{display:inline}
 
   <section class="slide hero active" data-kicker="Bienvenue">
     <div class="big-logo"><span>G</span></div>
-    <h1>GLOBIT SAAS</h1>
+    <h1>GLOBIT SAS</h1>
     <div class="tagline">La solution moderne de gestion des ressources humaines</div>
     <div class="chips">
       <div class="chip"><i class="fa-solid fa-users"></i>Employés</div>
@@ -350,8 +350,8 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Connexion</span></div>
-        <div class="shot-body"><img src="assets/demo/login.png?v=2" alt="Connexion"></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAS - Connexion</span></div>
+        <div class="shot-body"><img src="assets/demo/login.png?v=3" alt="Connexion"></div>
       </div>
       <div class="features">
         <div class="feature"><div class="icon"><i class="fa-solid fa-lock"></i></div><div><h4>Authentification sécurisée</h4><p>Connexion protégée par sessions PHP et anti-CSRF.</p></div></div>
@@ -370,8 +370,8 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Tableau de bord</span></div>
-        <div class="shot-body"><img src="assets/demo/dashboard.png" alt="Tableau de bord"></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAS - Tableau de bord</span></div>
+        <div class="shot-body"><img src="assets/demo/dashboard.png?v=3" alt="Tableau de bord"></div>
       </div>
       <div class="features">
         <div class="feature"><div class="icon"><i class="fa-solid fa-users"></i></div><div><h4>Effectifs</h4><p>Nombre total d'employés actifs et répartition par service.</p></div></div>
@@ -390,8 +390,8 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Employés</span></div>
-        <div class="shot-body"><img src="assets/demo/employees.png" alt="Employés"></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAS - Employés</span></div>
+        <div class="shot-body"><img src="assets/demo/employees.png?v=3" alt="Employés"></div>
       </div>
       <div class="features">
         <div class="feature"><div class="icon"><i class="fa-solid fa-address-card"></i></div><div><h4>Création rapide</h4><p>Ajoutez un collaborateur avec son matricule, service et fonction.</p></div></div>
@@ -410,8 +410,8 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Présences</span></div>
-        <div class="shot-body"><img src="assets/demo/presences.png" alt="Présences"></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAS - Présences</span></div>
+        <div class="shot-body"><img src="assets/demo/presences.png?v=3" alt="Présences"></div>
       </div>
       <div class="features">
         <div class="feature"><div class="icon"><i class="fa-solid fa-circle-check"></i></div><div><h4>Déclaration</h4><p>L'employé déclare son arrivée et son départ en un clic.</p></div></div>
@@ -430,8 +430,8 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Congés</span></div>
-        <div class="shot-body"><img src="assets/demo/conges.png" alt="Congés"></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAS - Congés</span></div>
+        <div class="shot-body"><img src="assets/demo/conges.png?v=3" alt="Congés"></div>
       </div>
       <div class="features">
         <div class="feature"><div class="icon"><i class="fa-solid fa-calendar-days"></i></div><div><h4>Demande en ligne</h4><p>L'employé soumet sa demande avec dates et motif.</p></div></div>
@@ -450,8 +450,8 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Paie</span></div>
-        <div class="shot-body"><img src="assets/demo/paie.png" alt="Paie"></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAS - Paie</span></div>
+        <div class="shot-body"><img src="assets/demo/paie.png?v=3" alt="Paie"></div>
       </div>
       <div class="features">
         <div class="feature"><div class="icon"><i class="fa-solid fa-briefcase"></i></div><div><h4>Calcul auto</h4><p>Salaire de base, heures sup' et primes calculés automatiquement.</p></div></div>
@@ -470,8 +470,8 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Présences</span></div>
-        <div class="shot-body"><img src="assets/demo/presences.png" alt="Présences"></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAS - Présences</span></div>
+        <div class="shot-body"><img src="assets/demo/presences.png?v=3" alt="Présences"></div>
       </div>
       <div class="features">
         <div class="feature"><div class="icon"><i class="fa-solid fa-clock"></i></div><div><h4>Compte à rebours</h4><p>Chaque employé voit le temps restant pour déclarer son arrivée avant 10h00.</p></div></div>
@@ -490,8 +490,8 @@ body.auto .timer-btn .pause{display:inline}
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Rapports</span></div>
-        <div class="shot-body"><img src="assets/demo/journal.png" alt="Rapports"></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAS - Rapports</span></div>
+        <div class="shot-body"><img src="assets/demo/journal.png?v=3" alt="Rapports"></div>
       </div>
       <div class="features">
         <div class="feature"><div class="icon"><i class="fa-solid fa-chart-line"></i></div><div><h4>Absentéisme</h4><p>Taux d'absence par employé et par mois.</p></div></div>
@@ -505,13 +505,13 @@ body.auto .timer-btn .pause{display:inline}
   <section class="slide" data-kicker="Applications">
     <div class="slide-head">
       <div class="slide-kicker"><span class="line"></span>Applications<span class="line r"></span></div>
-      <h2 class="slide-title">L'écosystème GLOBIT SAAS</h2>
+      <h2 class="slide-title">L'écosystème GLOBIT SAS</h2>
       <p class="slide-desc">Une plateforme web complète avec une application mobile intégrée.</p>
     </div>
     <div class="slide-body">
       <div class="shot">
-        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAAS - Mobile</span></div>
-        <div class="shot-body"><img src="assets/demo/dashboard.png" alt="Applications"></div>
+        <div class="frame-top"><i class="r1"></i><i class="r2"></i><i class="r3"></i><span>GLOBIT SAS - Mobile</span></div>
+        <div class="shot-body"><img src="assets/demo/dashboard.png?v=3" alt="Applications"></div>
       </div>
       <div class="features">
         <div class="feature"><div class="icon"><i class="fa-solid fa-globe"></i></div><div><h4>Plateforme web</h4><p>Administration complète avec interface AdminLTE et Bootstrap.</p></div></div>
@@ -525,7 +525,7 @@ body.auto .timer-btn .pause{display:inline}
   <section class="slide merci" data-kicker="Conclusion">
     <div class="big-check"><i class="fa-solid fa-check"></i></div>
     <h2>Merci !</h2>
-    <div class="sub">GLOBIT SAAS — le référentiel RH de votre entreprise.</div>
+    <div class="sub">GLOBIT SAS — le référentiel RH de votre entreprise.</div>
     <div class="modules">
       <div class="module"><i class="fa-solid fa-users"></i>Employés</div>
       <div class="module"><i class="fa-solid fa-clipboard-check"></i>Présences</div>

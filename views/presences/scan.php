@@ -235,7 +235,7 @@
 
     <div class="top">
         <div>
-            <div class="brand">GLOBIT SAAS</div>
+            <div class="brand">GLOBIT SAS</div>
             <h1>Scan de présence — Réception</h1>
             <div class="meta">Présentez le QR de l'employé dans le cadre. 1<sup>er</sup> scan = <strong>ARRIVÉE</strong> — 2<sup>e</sup> scan = <strong>DÉPART</strong>.</div>
         </div>

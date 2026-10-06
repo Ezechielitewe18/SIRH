@@ -112,7 +112,7 @@
                         <p>Paie nette (<?= $mois ?>/<?= $annee ?>)</p>
                     </div>
                     <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
-                    <a href="<?= APP_URL ?>/paie" class="small-box-footer">Plus d'info <i class="fas fa-arrow-circle-right"></i></a>
+                    <a href="<?= APP_URL . ($_SESSION['user_role'] === 'employe' ? '/paie/mes-bulletins' : '/paie') ?>" class="small-box-footer">Plus d'info <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
         </div>

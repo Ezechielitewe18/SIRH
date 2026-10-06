@@ -1,7 +1,7 @@
 -- ============================================================================
---  GLOBIT SAAS - SIRH - Base de donnees complete
+--  GLOBIT SAS - SIRH - Base de donnees complete
 --  Systeme d'Information des Ressources Humaines
---  Contenu : base + 15 tables + donnees de demonstration
+--  Contenu : base + 16 tables + donnees de demonstration
 --  Fichier unique : importer tel quel dans phpMyAdmin (onglet Importer)
 --  Encodage : UTF-8 (utf8mb4)
 -- ============================================================================
@@ -52,6 +52,7 @@ CREATE TABLE `bulletins` (
   `annee` int(11) NOT NULL,
   `salaire_base` decimal(10,2) NOT NULL DEFAULT 0.00,
   `primes` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `detail_primes` text DEFAULT NULL,
   `heures_supplementaires` decimal(10,2) NOT NULL DEFAULT 0.00,
   `montant_heures_sup` decimal(10,2) NOT NULL DEFAULT 0.00,
   `total_brut` decimal(10,2) NOT NULL DEFAULT 0.00,
@@ -244,6 +245,22 @@ CREATE TABLE `parametres_paie` (
 LOCK TABLES `parametres_paie` WRITE;
 INSERT INTO `parametres_paie` VALUES (1,'Taxe professionnelle',1.00,'pourcentage','Pourcentage de l\'impôt professionnel sur le brut','2026-09-11 10:59:13','2026-09-17 11:06:04'),(2,'Prestation sociale',3.50,'pourcentage','Cotisation sociale (fond social) sur le brut','2026-09-11 10:59:13','2026-09-11 10:59:13'),(3,'Pension retraite',5.00,'pourcentage','Cotisation retraite sur le brut','2026-09-11 10:59:13','2026-09-11 10:59:13'),(4,'Indemnité logement',20.00,'pourcentage','Prime logement en pourcentage du salaire de base','2026-09-11 10:59:13','2026-09-17 11:06:04'),(5,'Prime transport',10.00,'pourcentage','Prime transport en pourcentage du salaire de base','2026-09-11 10:59:13','2026-09-11 10:59:13'),(6,'Taux heure supplémentaire',150.00,'pourcentage','Majoration heures supplémentaires en % du taux horaire','2026-09-11 10:59:13','2026-09-17 11:06:05'),(7,'Heures travail / mois',176.00,'heure','Nombre d\'heures mensuelles de travail','2026-09-11 10:59:13','2026-09-11 10:59:13');
 UNLOCK TABLES;
+DROP TABLE IF EXISTS `primes`;
+CREATE TABLE `primes` (
+  `id_prime` int(11) NOT NULL AUTO_INCREMENT,
+  `id_employe` int(11) NOT NULL,
+  `libelle` varchar(100) NOT NULL,
+  `montant` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `actif` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id_prime`),
+  KEY `idx_primes_employe` (`id_employe`),
+  CONSTRAINT `fk_primes_employe` FOREIGN KEY (`id_employe`) REFERENCES `employes` (`id_employe`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+LOCK TABLES `primes` WRITE;
+UNLOCK TABLES;
 DROP TABLE IF EXISTS `presences`;
 CREATE TABLE `presences` (
   `id_presence` int(11) NOT NULL AUTO_INCREMENT,
@@ -305,5 +322,5 @@ SET UNIQUE_CHECKS = 1;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================================
---  Fin de l'export - GLOBIT SAAS - SIRH v1.0
+--  Fin de l'export - GLOBIT SAS - SIRH v1.0
 -- ============================================================================

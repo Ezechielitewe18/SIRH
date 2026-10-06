@@ -1,7 +1,7 @@
 <?php
 date_default_timezone_set('Africa/Kinshasa');
 
-define('APP_NAME', 'GLOBIT SAAS');
+define('APP_NAME', 'GLOBIT SAS');
 
 $scheme = 'http';
 if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
@@ -34,8 +34,8 @@ define('QR_PERIODE', 30);
 // Fenetre de tolerance (en periodes) acceptee a la validation du scan
 define('QR_FENETRE', 1);
 
-// Titulaire des droits d'auteur : la startup GLOBIT SAAS (aucun nom de personne physique).
-define('COMPANY_NAME', 'GLOBIT SAAS');
+// Titulaire des droits d'auteur : la startup GLOBIT SAS (aucun nom de personne physique).
+define('COMPANY_NAME', 'GLOBIT SAS');
 define('AUTHOR_NAME', COMPANY_NAME);
 define('COPYRIGHT', '© ' . date('Y') . ' ' . COMPANY_NAME . ' - Tous droits réservés.');
 

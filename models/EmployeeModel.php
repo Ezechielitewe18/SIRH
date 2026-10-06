@@ -91,4 +91,51 @@ class EmployeeModel extends Model {
     public function getActiveCount() {
         return $this->count(['statut' => 'actif']);
     }
+
+    /**
+     * Primes fixes d'un employe. Elles sont facultatives : un employe
+     * sans prime renvoie simplement une liste vide.
+     */
+    public function getPrimes($idEmploye, $seulementActives = true) {
+        $sql = "SELECT * FROM primes WHERE id_employe = :id";
+        if ($seulementActives) {
+            $sql .= " AND actif = 1";
+        }
+        $sql .= " ORDER BY id_prime ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $idEmploye]);
+        return $stmt->fetchAll();
+    }
+
+    public function totalPrimes($idEmploye) {
+        $stmt = $this->db->prepare(
+            "SELECT COALESCE(SUM(montant), 0) AS total FROM primes WHERE id_employe = :id AND actif = 1"
+        );
+        $stmt->execute(['id' => $idEmploye]);
+        return (float)$stmt->fetch()['total'];
+    }
+
+    /**
+     * Enregistre la liste des primes fixes remplacee integralement
+     * (tableau : [['libelle' => ..., 'montant' => ...], ...]).
+     * Une liste vide supprime toutes les primes : le champ reste facultatif.
+     */
+    public function syncPrimes($idEmploye, array $primes) {
+        $this->db->prepare("DELETE FROM primes WHERE id_employe = :id")->execute(['id' => $idEmploye]);
+
+        $total = 0;
+        foreach ($primes as $prime) {
+            $libelle = trim($prime['libelle'] ?? '');
+            $montant = (float)($prime['montant'] ?? 0);
+            if ($libelle === '' || $montant <= 0) {
+                continue;
+            }
+            $stmt = $this->db->prepare(
+                "INSERT INTO primes (id_employe, libelle, montant, actif) VALUES (:id, :libelle, :montant, 1)"
+            );
+            $stmt->execute(['id' => $idEmploye, 'libelle' => $libelle, 'montant' => $montant]);
+            $total += $montant;
+        }
+        return $total;
+    }
 }

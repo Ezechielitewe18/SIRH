@@ -1,4 +1,4 @@
-# API JSON GLOBIT SAAS
+# API JSON GLOBIT SAS
 
 Base : `http://<hote>/SIRH/api.php`
 

@@ -70,6 +70,8 @@ class EmployeeController {
                     $this->employeeModel->update($employeeId, ['id_utilisateur' => $userId]);
                 }
 
+                $this->employeeModel->syncPrimes($employeeId, $this->collectPrimesFromPost());
+
                 $_SESSION['success'] = 'Employé ajouté avec succès. Matricule: ' . $matricule . ' | Email: ' . $email . ' | Mot de passe: ' . $defaultPassword;
                 header('Location: ' . APP_URL . '/employees');
                 exit;
@@ -85,6 +87,7 @@ class EmployeeController {
             header('Location: ' . APP_URL . '/employees');
             exit;
         }
+        $primes = $this->employeeModel->getPrimes($id, false);
 
         require __DIR__ . '/../views/employees/show.php';
     }
@@ -97,6 +100,7 @@ class EmployeeController {
         }
 
         $services = $this->serviceModel->findAllOrdered();
+        $primes = $this->employeeModel->getPrimes($id, false);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors = $this->validateEmployee($_POST, $id);
@@ -120,6 +124,7 @@ class EmployeeController {
                 ];
 
                 $this->employeeModel->update($id, $data);
+                $this->employeeModel->syncPrimes($id, $this->collectPrimesFromPost());
                 $_SESSION['success'] = 'Employé modifié avec succès';
                 header('Location: ' . APP_URL . '/employees');
                 exit;
@@ -138,6 +143,30 @@ class EmployeeController {
         }
         header('Location: ' . APP_URL . '/employees');
         exit;
+    }
+
+    /**
+     * Lit les lignes de primes saisies dans le formulaire (facultatif).
+     * Les lignes vides ou sans montant sont ignorees : un employe
+     * sans prime se retrouve simplement avec aucune prime enregistree.
+     */
+    private function collectPrimesFromPost() {
+        $libelles = $_POST['prime_libelle'] ?? [];
+        $montants = $_POST['prime_montant'] ?? [];
+
+        if (!is_array($libelles)) {
+            return [];
+        }
+
+        $primes = [];
+        foreach ($libelles as $i => $libelle) {
+            $libelle = trim((string)$libelle);
+            $montant = (float)($montants[$i] ?? 0);
+            if ($libelle !== '' && $montant > 0) {
+                $primes[] = ['libelle' => $libelle, 'montant' => $montant];
+            }
+        }
+        return $primes;
     }
 
     private function generateWorkEmail($prenom, $nom) {

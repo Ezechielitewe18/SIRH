@@ -88,7 +88,16 @@
                         </a>
                     </li>
 
-                    <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                    <?php if ($_SESSION['user_role'] === 'employe'): ?>
+                    <li class="nav-item">
+                        <a href="<?= APP_URL ?>/paie/mes-bulletins" class="nav-link <?= in_array($currentPage, ['mes-bulletins', 'ma-fiche']) ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-file-invoice-dollar text-success"></i>
+                            <p>Mes bulletins</p>
+                        </a>
+                    </li>
+                    <?php endif; ?>
+
+                    <?php if (in_array($_SESSION['user_role'], ['admin', 'rh'])): ?>
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>/paie" class="nav-link <?= strpos($currentPage, 'paie') !== false ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-money-bill-wave text-warning"></i>
@@ -204,9 +213,9 @@
         <div class="float-right d-none d-sm-block">
             v<?= APP_VERSION ?>
         </div>
-        <strong>&copy; <?= date('Y') ?> <span style="color: #007bff; font-weight: 700;"><?= APP_NAME ?></span></strong> - Système d'Information des Ressources Humaines
+        <strong>&copy; <?= date('Y') ?> <span style="color: #007bff; font-weight: 700;"><?= COMPANY_NAME ?></span></strong> - Système d'Information des Ressources Humaines (SIRH)
         <div class="text-muted text-center" style="font-size: 12px; margin-top: 5px;">
-            Startup <?= COMPANY_NAME ?> - Tous droits réservés.
+            Logiciel édité par la startup <?= COMPANY_NAME ?> - Tous droits réservés.
         </div>
     </footer>
 </div>

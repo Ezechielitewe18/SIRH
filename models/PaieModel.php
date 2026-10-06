@@ -35,7 +35,15 @@ class PaieModel extends Model {
 
         $primeLogement = $salaireBase * $primeLogementPct / 100;
         $primeTransport = $salaireBase * $primeTransportPct / 100;
-        $primes = $primeLogement + $primeTransport;
+
+        // Primes fixes propres a l'employe (facultatives, definies sur sa fiche)
+        $primesFiches = $em->getPrimes($idEmploye);
+        $primesFixeTotal = 0;
+        foreach ($primesFiches as $p) {
+            $primesFixeTotal += (float)$p['montant'];
+        }
+
+        $primes = $primeLogement + $primeTransport + $primesFixeTotal;
 
 
         $heuresSup = $this->calculerHeuresSupplementaires($idEmploye, $mois, $annee);
@@ -57,6 +65,15 @@ class PaieModel extends Model {
         $totalRetenues = $retenueTaxe + $retenueSocial + $retenueRetraite;
         $totalNet = $totalBrut - $totalRetenues;
 
+        // Detail des primes conserve sur le bulletin (pour l'affichage du net detaille)
+        $detailPrimes = [
+            ['libelle' => 'Indemnite logement (' . $primeLogementPct . ' %)', 'montant' => round($primeLogement, 2)],
+            ['libelle' => 'Prime transport (' . $primeTransportPct . ' %)', 'montant' => round($primeTransport, 2)],
+        ];
+        foreach ($primesFiches as $p) {
+            $detailPrimes[] = ['libelle' => $p['libelle'], 'montant' => round((float)$p['montant'], 2)];
+        }
+
         return [
             'success' => true,
             'data' => [
@@ -64,6 +81,8 @@ class PaieModel extends Model {
                 'primes' => round($primes, 2),
                 'prime_logement' => round($primeLogement, 2),
                 'prime_transport' => round($primeTransport, 2),
+                'primes_fixes' => round($primesFixeTotal, 2),
+                'detail_primes' => json_encode($detailPrimes, JSON_UNESCAPED_UNICODE),
                 'heures_supplementaires' => round($heuresSup, 2),
                 'montant_heures_sup' => round($montantHeuresSup, 2),
                 'total_brut' => round($totalBrut, 2),
@@ -127,6 +146,7 @@ class PaieModel extends Model {
             $this->update($id, [
                 'salaire_base' => $d['salaire_base'],
                 'primes' => $d['primes'],
+                'detail_primes' => $d['detail_primes'],
                 'heures_supplementaires' => $d['heures_supplementaires'],
                 'montant_heures_sup' => $d['montant_heures_sup'],
                 'total_brut' => $d['total_brut'],
@@ -144,6 +164,7 @@ class PaieModel extends Model {
             'annee' => $annee,
             'salaire_base' => $d['salaire_base'],
             'primes' => $d['primes'],
+            'detail_primes' => $d['detail_primes'],
             'heures_supplementaires' => $d['heures_supplementaires'],
             'montant_heures_sup' => $d['montant_heures_sup'],
             'total_brut' => $d['total_brut'],

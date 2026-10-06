@@ -1,4 +1,4 @@
-﻿# GLOBIT SAAS — Textes prêts à publier et à envoyer
+# GLOBIT SAS — Textes prêts à publier et à envoyer
 
 > Ces textes sontadaptés les visuels de `marketing/visuels/`. Rien n'est publié automatiquement :
 > tu copies-colles. Les captures des visuels sont de **vraies captures du logiciel**
@@ -26,13 +26,13 @@ Cherche-remplace ces valeurs dans `marketing/sources/*.html` puis régénère le
 > **📋 Tenir un registre du personnel, c'est encore fait à la main ?**
 >
 > Une feuille de présence qui disparaît, un salaire calculé de travers, un congé oublié…
-> GLOBIT SAAS est un SIRH conçu pour les entreprises congolaises : présences par QR code,
+> GLOBIT SAS est un SIRH conçu pour les entreprises congolaises : présences par QR code,
 > congés, paie et rapports — tout dans le cloud, en français.
 >
 > ✅ Essai gratuit sur demande
 > 📞 +243 00 000 0000 · ✉️ contact@globit.com
 >
-> #SIRH #RHCongo #GLOBITSAAS #GestionDesRessourcesHumaines #PME
+> #SIRH #RHCongo #GLOBITSAS #GestionDesRessourcesHumaines #PME
 
 *Visuel : `post-linkedin.png` ou `post-instagram.png`*
 
@@ -42,14 +42,14 @@ Cherche-remplace ces valeurs dans `marketing/sources/*.html` puis régénère le
 > L'employé ouvre son téléphone, son QR s'affiche (il change toutes les 30 secondes),
 > l'accueil scanne, l'arrivée est enregistrée. Le dossier RH se met à jour tout seul.
 >
-> C'est exactement ce que fait GLOBIT SAAS — sans papier, sans tableur, sans installation.
+> C'est exactement ce que fait GLOBIT SAS — sans papier, sans tableur, sans installation.
 >
 > 📞 +243 00 000 0000
 
 *Visuel : `story-whatsapp.png` (bannière verticale)*
 
 ### FB3 — L'offre
-> **🎁 Essai gratuit GLOBIT SAAS**
+> **🎁 Essai gratuit GLOBIT SAS**
 >
 > Nous installons et formons votre équipe. Vous gardez :
 > — le suivi des présences et du retard,
@@ -74,7 +74,7 @@ Cherche-remplace ces valeurs dans `marketing/sources/*.html` puis régénère le
 > Ça marche… jusqu'au jour où l'on cherche la ponctualité de mars, le salaire net de juin
 > ou qui a pris quels congés.
 >
-> Nous avons construit **GLOBIT SAAS**, un SIRH en français qui tourne dans le navigateur :
+> Nous avons construit **GLOBIT SAS**, un SIRH en français qui tourne dans le navigateur :
 > pas d'installation, pas de serveur, un QR par employé.
 >
 > Pas d'installation ne veut pas dire pas de valeur — ça veut dire que vous êtes
@@ -121,10 +121,10 @@ Cherche-remplace ces valeurs dans `marketing/sources/*.html` puis régénère le
 > 4. Congés — demande en ligne, validation RH
 > 5. Paie — bulletins calculés et exportables
 >
-> GLOBIT SAAS · SIRH pour entreprises congolaises
+> GLOBIT SAS · SIRH pour entreprises congolaises
 > Essai gratuit — lien en bio
 >
-> #SIRH #RHCongo #Entrepreneuriat #PME #Kinshasa #GLOBITSAAS #RH #Logiciel
+> #SIRH #RHCongo #Entrepreneuriat #PME #Kinshasa #GLOBITSAS #RH #Logiciel
 
 *Visuels : `captures/dashboard.png`, `captures/presences.png`, `captures/qr_employe.png`,
 `captures/conges.png`, `captures/paie.png`*
@@ -134,7 +134,7 @@ Cherche-remplace ces valeurs dans `marketing/sources/*.html` puis régénère le
 > Parce qu'ils griffonnent, et qu'on ne les croit jamais.
 > Le QR règle le problème : 30 secondes, un scan, c'est enregistré.
 >
-> GLOBIT SAAS · Démo gratuite
+> GLOBIT SAS · Démo gratuite
 
 *Visuel : `story-whatsapp.png`*
 
@@ -148,13 +148,13 @@ Cherche-remplace ces valeurs dans `marketing/sources/*.html` puis régénère le
 
 ### TT1 — « Le jour où j'ai arrêté de tenir un registre »
 > Plan 1 : une pile de cahiers sur un bureau.
-> Texte : « Avant GLOBIT SAAS, voilà comment je gérais 40 employés. »
+> Texte : « Avant GLOBIT SAS, voilà comment je gérais 40 employés. »
 > Plan 2 : écran de connexion sur téléphone.
 > Texte : « Maintenant : le QR. L'employé le montre, c'est enregistré. »
 > Plan 3 : tableau de bord RH.
 > Texte : « Le soir, le chiffre est là. Pas de débat possible. »
-> Plan 4 : écran de connexion GLOBIT SAAS.
-> Texte : « GLOBIT SAAS. SIRH en français, dans le cloud. Démo gratuite. »
+> Plan 4 : écran de connexion GLOBIT SAS.
+> Texte : « GLOBIT SAS. SIRH en français, dans le cloud. Démo gratuite. »
 
 *Sources : `captures/mobile.png`, `captures/dashboard.png`, `captures/qr_employe.png`, `captures/login.png`*
 
@@ -163,7 +163,7 @@ Cherche-remplace ces valeurs dans `marketing/sources/*.html` puis régénère le
 > 5 s : écran QR téléphone
 > 10 s : scan
 > 15 s : tableau de bord mis à jour
-> 25 s : « 30 secondes. C'est tout. GLOBIT SAAS. »
+> 25 s : « 30 secondes. C'est tout. GLOBIT SAS. »
 
 *Source : `captures/qr_employe.png` + `captures/presences.png`*
 
@@ -171,7 +171,7 @@ Cherche-remplace ces valeurs dans `marketing/sources/*.html` puis régénère le
 > Plan 1 : texte « Vous nerez pas quand votre RAM a disparu. »
 > Plan 2 : texte « Vous ne saurez pas si l'agent est arrivé à 7h58 ou à 9h12. »
 > Plan 3 : écrans congés + paie.
-> Plan 4 : « GLOBIT SAAS garde la trace. Tout est horodaté. »
+> Plan 4 : « GLOBIT SAS garde la trace. Tout est horodaté. »
 
 *Sources : `captures/conges.png`, `captures/paie.png`*
 
@@ -179,9 +179,9 @@ Cherche-remplace ces valeurs dans `marketing/sources/*.html` puis régénère le
 
 ## 5. X / Twitter — 3 posts courts
 
-> **1.** Vos feuilles de présence papier, c'est fini. GLOBIT SAAS : SIRH en français, QR par employé, cloud. Démo gratuite. #RHCongo #SIRH
+> **1.** Vos feuilles de présence papier, c'est fini. GLOBIT SAS : SIRH en français, QR par employé, cloud. Démo gratuite. #RHCongo #SIRH
 >
-> **2.** Le pointage prend 30 secondes chez GLOBIT SAAS. Le QR change toutes les 30 s — donc personne ne peut le copier.
+> **2.** Le pointage prend 30 secondes chez GLOBIT SAS. Le QR change toutes les 30 s — donc personne ne peut le copier.
 >
 > **3.** Entreprises de RDC : présences, congés, paie et rapports dans un seul SIRH. Écrites-nous pour une démo sur vos données. ✉️ contact@globit.com
 
@@ -194,7 +194,7 @@ Cherche-remplace ces valeurs dans `marketing/sources/*.html` puis régénère le
 >
 > Bonjour [Prénom],
 >
-> Je m'appelle [ton prénom], de la startup GLOBIT SAAS. Nous développons un SIRH
+> Je m'appelle [ton prénom], de la startup GLOBIT SAS. Nous développons un SIRH
 > (gestion des ressources humaines) qui fonctionne directement dans le navigateur,
 > en français, sans installation ni serveur.
 >
@@ -209,23 +209,23 @@ Cherche-remplace ces valeurs dans `marketing/sources/*.html` puis régénère le
 >
 > Bien cordialement,
 > [Prénom]
-> Startup GLOBIT SAAS — +243 00 000 0000 — contact@globit.com
+> Startup GLOBIT SAS — +243 00 000 0000 — contact@globit.com
 
 ### WhatsApp (message court, sans pièce jointe d'abord)
-> Bonjour [Prénom], je suis [ton prénom] de GLOBIT SAAS. Nous faisons un SIRH
+> Bonjour [Prénom], je suis [ton prénom] de GLOBIT SAS. Nous faisons un SIRH
 > (présences par QR, congés, paie) qui tourne dans le navigateur, en français,
 > sans installation. Je peux vous montrer une démo de 15 min ? Si oui, je vous
 > envoie deux créneaux.
 
 ### LinkedIn (demande de connexion)
-> Bonjour [Prénom], je gère GLOBIT SAAS, un SIRH que nous développons pour les
+> Bonjour [Prénom], je gère GLOBIT SAS, un SIRH que nous développons pour les
 > entreprises de la RDC. J'aimerais vous présenter en 15 minutes ce que ça change
 > concrètement sur le terrain (présences, congés, paie). Est-ce possible ?
 
 ### Argumentaire téléphonique (30 secondes)
 > « Je vous pose une question : aujourd'hui, quand un employé est en retard,
 > comment vous le savez ? » → le manager répond « on regarde la feuille ».
-> → « GLOBIT SAAS enregistre l'arrivée au scan d'un QR qui change toutes les 30 secondes.
+> → « GLOBIT SAS enregistre l'arrivée au scan d'un QR qui change toutes les 30 secondes.
 > Fini la feuille. Je vous montre en 15 minutes ? »
 
 ---
@@ -234,7 +234,7 @@ Cherche-remplace ces valeurs dans `marketing/sources/*.html` puis régénère le
 
 | L'objection | La réponse |
 |---|---|
-| « On a déjà Excel, ça suffit. » | Excel ne sait pas dire qui est arrivé à 7h58, il ne gère pas les congés ni les bulletins. GLOBIT SAAS, c'est Excel **plus** le reste, en français. |
+| « On a déjà Excel, ça suffit. » | Excel ne sait pas dire qui est arrivé à 7h58, il ne gère pas les congés ni les bulletins. GLOBIT SAS, c'est Excel **plus** le reste, en français. |
 | « C'est trop cher. » | Le coût d'une heure de manager par jour passé à compter des retards dépasse l'abonnement. Et l'essai est gratuit, sans engagement. |
 | « Nos données sont sensibles. » | Chaque compte a son mot de passe, les rôles limitent les droits (un employé ne voit pas la paie de son voisin), les QR sont signés et renouvelés. Hébergement à discuter selon votre politique. |
 | « Internet n'est pas toujours stable chez nous. » | Le SIRH fonctionne dans le navigateur ; seule l'horodatage exige le réseau, et l'accueil garde la main en cas de coupure (pointage manuel possible). |

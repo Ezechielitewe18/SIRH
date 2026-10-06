@@ -1,15 +1,10 @@
-<?php $pageTitle = 'Détail du bulletin'; ?>
+<?php $pageTitle = 'Mon bulletin de paie'; ?>
 <?php ob_start(); ?>
 
 <section class="content-header">
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Bulletin de paie</h1>
-        <div>
-            <a href="<?= APP_URL ?>/paie/generer/<?= $employe['id_employe'] ?>?mois=<?= date('m') ?>&annee=<?= date('Y') ?>" class="btn btn-success">
-                <i class="fas fa-sync-alt"></i> Régénérer
-            </a>
-            <a href="<?= APP_URL ?>/paie" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Retour</a>
-        </div>
+        <h1>Bulletin de paie <?= str_pad((string)$bulletin['mois'], 2, '0', STR_PAD_LEFT) ?>/<?= htmlspecialchars($bulletin['annee']) ?></h1>
+        <a href="<?= APP_URL ?>/paie/mes-bulletins" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Mes bulletins</a>
     </div>
 </section>
 
@@ -18,21 +13,21 @@
         <div class="col-md-4">
             <div class="card card-success card-outline">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-user-tie"></i> Employé</h3>
+                    <h3 class="card-title"><i class="fas fa-user-tie"></i> Mes informations</h3>
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-3">
                         <i class="fas fa-user-circle fa-4x text-muted"></i>
                     </div>
-                    <h4 class="text-center"><?= htmlspecialchars($employe['prenom'] . ' ' . $employe['nom']) ?></h4>
+                    <h4 class="text-center"><?= htmlspecialchars($employeFiche['prenom'] . ' ' . $employeFiche['nom']) ?></h4>
                     <p class="text-center text-muted">
-                        <span class="badge badge-info"><?= htmlspecialchars($employe['matricule']) ?></span>
+                        <span class="badge badge-info"><?= htmlspecialchars($employeFiche['matricule']) ?></span>
                     </p>
                     <table class="table table-sm">
-                        <tr><th>Service</th><td><?= htmlspecialchars($employe['nom_service'] ?? 'N/A') ?></td></tr>
-                        <tr><th>Poste</th><td><?= htmlspecialchars($employe['poste'] ?? 'N/A') ?></td></tr>
-                        <tr><th>Période</th><td><?= str_pad($bulletin['mois'], 2, '0', STR_PAD_LEFT) ?>/<?= $bulletin['annee'] ?></td></tr>
-                        <tr><th>Statut</th><td><span class="badge badge-<?= $bulletin['statut'] === 'paye' ? 'success' : 'warning' ?>"><?= ucfirst($bulletin['statut']) ?></span></td></tr>
+                        <tr><th>Service</th><td><?= htmlspecialchars($employeFiche['nom_service'] ?? 'N/A') ?></td></tr>
+                        <tr><th>Poste</th><td><?= htmlspecialchars($employeFiche['poste'] ?? 'N/A') ?></td></tr>
+                        <tr><th>Période</th><td><?= str_pad((string)$bulletin['mois'], 2, '0', STR_PAD_LEFT) ?>/<?= htmlspecialchars($bulletin['annee']) ?></td></tr>
+                        <tr><th>Statut</th><td><span class="badge badge-<?= $bulletin['statut'] === 'paye' ? 'success' : 'warning' ?>"><?= ucfirst(htmlspecialchars($bulletin['statut'])) ?></span></td></tr>
                     </table>
                 </div>
             </div>
@@ -41,7 +36,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-file-invoice-dollar"></i> Bulletin de paie</h3>
+                    <h3 class="card-title"><i class="fas fa-file-invoice-dollar"></i> Détail de mon salaire</h3>
                 </div>
                 <div class="card-body">
                     <h5 class="text-primary mb-3">Gains</h5>
@@ -82,9 +77,15 @@ foreach ($detailPrimes as $ligne):
                         <tr><th>Total des retenues</th><td class="text-right text-danger">- <?= number_format($bulletin['total_retenues'], 2, ',', ' ') ?> FC</td></tr>
                     </table>
 
-                    <div class="alert alert-success text-center" style="font-size: 20px; font-weight: bold;">
+                    <div class="alert alert-success text-center" style="font-size:20px;font-weight:bold;">
                         Net à payer : <?= number_format($bulletin['total_net'], 2, ',', ' ') ?> FC
                     </div>
+
+<?php if ($bulletin['statut'] === 'paye'): ?>
+                    <p class="text-center text-success mb-0">
+                        <i class="fas fa-check-circle"></i> Votre salaire de cette période a été payé.
+                    </p>
+<?php endif; ?>
                 </div>
             </div>
         </div>

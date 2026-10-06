@@ -108,6 +108,34 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Primes : facultatives, propres a chaque employe -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-star text-warning"></i> Primes fixes mensuelles (facultatif)</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted" style="font-size:13px">
+                        Laissez cette partie vide si l'employé ne touche pas de prime.
+                        Sinon, indiquez le nom de chaque prime et son montant : elles seront
+                        ajoutées automatiquement à son bulletin de paie.
+                    </p>
+                    <table class="table table-sm mb-2" id="primesTable" style="margin-bottom:0">
+                        <thead>
+                            <tr>
+                                <th style="width:60%">Nom de la prime</th>
+                                <th style="width:30%">Montant (FC)</th>
+                                <th style="width:10%"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="primesBody"></tbody>
+                    </table>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="btnAjouterPrime">
+                        <i class="fas fa-plus"></i> Ajouter une prime
+                    </button>
+                    <span class="text-muted" id="totalPrimes" style="margin-left:10px;font-size:13px"></span>
+                </div>
+            </div>
             <div class="card-footer">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
                 <a href="<?= APP_URL ?>/employees" class="btn btn-secondary">Annuler</a>
@@ -130,6 +158,66 @@ document.addEventListener('input', function() {
         email.value = '';
     }
 });
+
+// --- Primes fixes (facultatives) ---
+var primesBody = document.getElementById('primesBody');
+
+function ajouterPrimeLigne(libelle, montant) {
+    var tr = document.createElement('tr');
+
+    var inLibelle = document.createElement('input');
+    inLibelle.type = 'text';
+    inLibelle.className = 'form-control form-control-sm prime-libelle';
+    inLibelle.name = 'prime_libelle[]';
+    inLibelle.placeholder = 'Ex: Prime de fonction';
+    inLibelle.value = libelle || '';
+
+    var inMontant = document.createElement('input');
+    inMontant.type = 'number';
+    inMontant.className = 'form-control form-control-sm prime-montant';
+    inMontant.name = 'prime_montant[]';
+    inMontant.step = '0.01';
+    inMontant.min = '0';
+    inMontant.placeholder = '0.00';
+    inMontant.value = (montant === '' || montant === null || montant === undefined) ? '' : montant;
+
+    var tdLibelle = document.createElement('td');
+    tdLibelle.appendChild(inLibelle);
+    var tdMontant = document.createElement('td');
+    tdMontant.appendChild(inMontant);
+
+    var btnRetirer = document.createElement('button');
+    btnRetirer.type = 'button';
+    btnRetirer.className = 'btn btn-sm btn-outline-danger btn-retirer-prime';
+    btnRetirer.title = 'Retirer';
+    btnRetirer.innerHTML = '<i class="fas fa-times"></i>';
+    var tdAction = document.createElement('td');
+    tdAction.className = 'text-center';
+    tdAction.appendChild(btnRetirer);
+
+    tr.appendChild(tdLibelle);
+    tr.appendChild(tdMontant);
+    tr.appendChild(tdAction);
+    primesBody.appendChild(tr);
+    majTotalPrimes();
+}
+
+function majTotalPrimes() {
+    var total = 0;
+    document.querySelectorAll('.prime-montant').forEach(function(i) { total += parseFloat(i.value) || 0; });
+    document.getElementById('totalPrimes').innerHTML = total > 0
+        ? 'Total des primes : <strong>' + total.toLocaleString('fr-FR') + ' FC</strong>'
+        : '';
+}
+
+document.getElementById('btnAjouterPrime').addEventListener('click', function() { ajouterPrimeLigne('', ''); });
+primesBody.addEventListener('click', function(e) {
+    if (e.target.closest('.btn-retirer-prime')) {
+        e.target.closest('tr').remove();
+        majTotalPrimes();
+    }
+});
+primesBody.addEventListener('input', majTotalPrimes);
 </script>
 
 <?php

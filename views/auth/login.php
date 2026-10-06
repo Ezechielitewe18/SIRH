@@ -232,7 +232,7 @@
     <div class="card">
 
         <div class="head">
-            <span class="brand-name">GLOBIT SAAS</span>
+            <span class="brand-name">GLOBIT SAS</span>
             <div class="welcome">Welcome Back</div>
         </div>
 

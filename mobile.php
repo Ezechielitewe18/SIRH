@@ -8,7 +8,7 @@ header('Pragma: no-cache');
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>GLOBIT SAAS - SIRH</title>
+<title>GLOBIT SAS - SIRH</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#3b82f6">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -192,7 +192,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
     <div class="login-logo">G</div>
-    <h1>GLOBIT SAAS</h1>
+    <h1>GLOBIT SAS</h1>
     <div class="tag">Connexion à votre espace RH</div>
     <div id="loginForm">
       <label>Email</label>
@@ -214,7 +214,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 
   <div class="topbar">
     <div class="logo" id="navAvatar">G</div>
-    <div class="t" id="navName">Chargement...<small>GLOBIT SAAS SIRH</small></div>    <div class="spacer"></div>
+    <div class="t" id="navName">Chargement...<small>GLOBIT SAS SIRH</small></div>    <div class="spacer"></div>
     <div class="bell" onclick="go('notifs')"><span id="bellCnt">🔔</span><span class="badge" id="bellBadge">0</span></div>
   </div>
 
@@ -226,7 +226,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
     <div class="stat-row">
       <div class="stat"><div class="n cyan" id="statPres">-</div><div class="l">Présences (mois)</div></div>
       <div class="stat"><div class="n gold" id="statConge">-</div><div class="l">Congés</div></div>
-      <div class="stat"><div class="n green" id="statPaie">-</div><div class="l">Dernier net</div></div>
+      <div class='stat' id='statPaieWrap' onclick="loadMesBulletins()"><div class='n green' id='statPaie'>-</div><div class='l'>Dernier net</div></div>
     </div>
     <div class="card" id="todayCard">
       <h3>Ma présence aujourd'hui</h3>
@@ -285,6 +285,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
     <div id="notifList"><div class="empty"><i>🔔</i>Aucune notification</div></div>
   </div>
 
+  <div class="section" id="sec-bulletins">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <span onclick="go('home')" style="cursor:pointer;font-size:20px">←</span>
+      <h2 style="font-size:22px;font-weight:800;flex:1">Mes bulletins de paie</h2>
+    </div>
+    <div id="bulletinsList"><div class="empty">Chargement...</div></div>
+  </div>
+
   <div class="section" id="sec-msg">
     <h2 style="font-size:22px;font-weight:800;margin-bottom:14px">Messages</h2>
     <button class="btn" onclick="openModal('msgModal')">＋ Nouveau message</button>
@@ -325,8 +333,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 </div>
 
 <div class="install-banner" id="installBanner">
-  <img src="public/img/icon-192.png" alt="GLOBIT SAAS">
-  <div class="txt"><b>Installer GLOBIT SAAS</b>Ajoutez l'app à votre écran d'accueil.</div>
+  <img src="public/img/icon-192.png" alt="GLOBIT SAS">
+  <div class="txt"><b>Installer GLOBIT SAS</b>Ajoutez l'app à votre écran d'accueil.</div>
   <div class="cl" onclick="installApp()">Installer</div>
 </div>
 
@@ -476,7 +484,7 @@ function enterApp() {
   document.getElementById('app').style.display = 'block';
   document.getElementById('bottomNav').style.display = 'flex';
   document.getElementById('navName').childNodes[0].textContent = (user.nom_complet || '').split(' ')[0];
-  document.getElementById('navName').innerHTML = (user.nom_complet || '').split(' ')[0] + '<small>GLOBIT SAAS SIRH · v6</small>';
+  document.getElementById('navName').innerHTML = (user.nom_complet || '').split(' ')[0] + '<small>GLOBIT SAS SIRH · v6</small>';
   document.getElementById('navAvatar').textContent = (user.nom_complet || 'G')[0].toUpperCase();
   registerSW();
   go('home');
@@ -611,6 +619,79 @@ function loadHome() {
   });
 
   document.getElementById('homeSub').textContent = 'Aujourd\'hui, ' + formatDate(new Date()) + ' · Voici vos indicateurs.';
+}
+
+function escHtml(s) {
+  return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+function periodeBulletin(b) {
+  return (Number(b.mois) < 10 ? '0' : '') + b.mois + '/' + b.annee;
+}
+
+function ligneBulletin(libelle, montant, fort) {
+  return '<div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0' + (fort ? ';font-weight:700' : '') + '">'
+    + '<span>' + escHtml(libelle) + '</span><span>' + formatMoney(montant) + '</span></div>';
+}
+
+function bulletinDetailHtml(b) {
+  var h = '<h3>Bulletin ' + periodeBulletin(b) + '</h3>'
+        + '<div class="sub">Statut : ' + escHtml(cap(b.statut)) + '</div>'
+        + '<div style="margin-top:10px;font-size:13px">';
+  h += ligneBulletin('Salaire de base', b.salaire_base);
+
+  var details = [];
+  try { details = JSON.parse(b.detail_primes || '[]'); } catch (e) { details = []; }
+  if (details.length) {
+    details.forEach(function(d) { h += ligneBulletin(d.libelle, d.montant); });
+  } else if (Number(b.primes) > 0) {
+    h += ligneBulletin('Primes', b.primes);
+  }
+  if (Number(b.montant_heures_sup) > 0) {
+    h += ligneBulletin('Heures supplémentaires (' + Number(b.heures_supplementaires) + ' h)', b.montant_heures_sup);
+  }
+  h += ligneBulletin('Total brut', b.total_brut, true);
+  h += ligneBulletin('Retenues', -Number(b.total_retenues), true);
+  h += '</div>';
+  h += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;font-weight:700">'
+     + '<span>Net à payer</span><span style="color:var(--green)">' + formatMoney(b.total_net) + '</span></div>';
+  if (b.statut === 'paye') {
+    h += '<div class="sub" style="margin-top:8px">Salaire de cette période payé.</div>';
+  }
+  return h;
+}
+
+function toggleBulletin(i) {
+  var el = document.getElementById('bulletinDetail' + i);
+  if (el) el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+}
+
+function loadMesBulletins() {
+  go('bulletins');
+  var box = document.getElementById('bulletinsList');
+  box.innerHTML = '<div class="empty">Chargement...</div>';
+  api('bulletins', 'GET').then(function(j) {
+    var list = j.data || [];
+    if (!list.length) {
+      box.innerHTML = '<div class="empty"><i>📄</i>Aucun bulletin de paie pour le moment</div>';
+      return;
+    }
+    var html = '';
+    list.forEach(function(b, i) {
+      var badge = b.statut === 'paye' ? '<span class="st validee">Payé</span>'
+        : b.statut === 'valide' ? '<span class="st auto">Validé</span>'
+        : '<span class="st en_attente">Brouillon</span>';
+      html += '<div class="list-item" onclick="toggleBulletin(' + i + ')" style="cursor:pointer">'
+        + '<div class="ic">📄</div><div class="ct"><div class="tt">' + periodeBulletin(b) + '</div>'
+        + '<div class="dd">Net : ' + formatMoney(b.total_net) + '</div></div>' + badge + '</div>'
+        + '<div class="card" id="bulletinDetail' + i + '" style="display:none">' + bulletinDetailHtml(b) + '</div>';
+    });
+    box.innerHTML = html;
+  }).catch(function(e) {
+    box.innerHTML = '<div class="empty">Chargement impossible' + (e && e.msg ? ' : ' + escHtml(e.msg) : '') + '</div>';
+  });
 }
 
 function loadPresence() {
