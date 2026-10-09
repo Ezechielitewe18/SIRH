@@ -25,7 +25,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Mot de passe * (min 6 caractères)</label>
+                            <label>Mot de passe * (min 8 caractères)</label>
                             <input type="password" class="form-control" name="password" minlength="6" required>
                         </div>
                     </div>

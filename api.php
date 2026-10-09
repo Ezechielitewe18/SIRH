@@ -16,6 +16,7 @@ require_once ROOT_PATH . '/models/CongeModel.php';
 require_once ROOT_PATH . '/models/NotificationModel.php';
 require_once ROOT_PATH . '/models/PaieModel.php';
 require_once ROOT_PATH . '/models/MessageModel.php';
+require_once ROOT_PATH . '/models/TentativeModel.php';
 
 function api_json($data, $code = 200) {
     http_response_code($code);
@@ -99,8 +100,16 @@ if ($action === 'login') {
     if (!$email || !$password) api_error('Email et mot de passe requis.');
 
     $userModel = new UserModel();
+    $tentativeModel = new TentativeModel();
+    if ($tentativeModel->estBloque($email)) {
+        api_error('Trop de tentatives. Réessayez dans ' . LOGIN_FENETRE_MINUTES . ' minutes.', 429);
+    }
     $user = $userModel->authenticate($email, $password);
-    if (!$user) api_error('Email ou mot de passe incorrect.', 401);
+    if (!$user) {
+        $tentativeModel->enregistrer($email);
+        api_error('Email ou mot de passe incorrect.', 401);
+    }
+    $tentativeModel->reussite($email);
 
     $employeeModel = new EmployeeModel();
     $employee = $employeeModel->findByUserId($user['id_utilisateur']);

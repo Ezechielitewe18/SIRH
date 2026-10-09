@@ -1,6 +1,18 @@
 RewriteEngine On
 RewriteBase /SIRH/
 
+# ============================================================
+# GLOBIT SAS - SIRH : protection des fichiers sensibles
+# ============================================================
+# Dossiers internes : jamais d'acces web direct
+RewriteRule ^(?:config|sql|scripts|docs|marketing)(?:/|$) - [F,L]
+
+# Extensions sensibles (dumps, sauvegardes, fichiers de config)
+RewriteRule \.(?:sql|bak|bak-[\w-]+|log|ini|env|md)$ - [F,L]
+
+# Fichiers et dossiers cache (ex. .git)
+RewriteRule ^\. - [F,L]
+
 # Types MIME pour la PWA
 AddType application/manifest+json .webmanifest
 AddType application/json .json

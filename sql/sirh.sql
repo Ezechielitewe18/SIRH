@@ -321,6 +321,19 @@ UNLOCK TABLES;
 SET UNIQUE_CHECKS = 1;
 SET FOREIGN_KEY_CHECKS = 1;
 
+-- Table de securite : tentatives de connexion (anti force brute)
+DROP TABLE IF EXISTS `tentatives_connexion`;
+CREATE TABLE `tentatives_connexion` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(100) NOT NULL,
+  `ip_adresse` varchar(45) NOT NULL,
+  `ajoutee_le` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_tent_email` (`email`),
+  KEY `idx_tent_ip` (`ip_adresse`),
+  KEY `idx_tent_date` (`ajoutee_le`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ============================================================================
 --  Fin de l'export - GLOBIT SAS - SIRH v1.0
 -- ============================================================================

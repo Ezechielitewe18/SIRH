@@ -27,6 +27,9 @@
                 <div class="dropdown-menu dropdown-menu-right">
                     <span class="dropdown-header"><?= ucfirst($_SESSION['user_role'] ?? '') ?></span>
                     <div class="dropdown-divider"></div>
+                    <a href="<?= APP_URL ?>/guide" class="dropdown-item">
+                        <i class="fas fa-book-open"></i> Guide d'utilisation
+                    </a>
                     <a href="<?= APP_URL ?>/about" class="dropdown-item">
                         <i class="fas fa-info-circle"></i> À propos / Droits d'auteur
                     </a>
@@ -173,6 +176,13 @@
                                 } catch (Exception $e) {}
                                 ?>
                             </p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item" style="border-top: 1px solid rgba(255,255,255,.1);">
+                        <a href="<?= APP_URL ?>/guide" class="nav-link <?= $currentPage === 'guide' ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-book-open text-warning"></i>
+                            <p>Guide d'utilisation</p>
                         </a>
                     </li>
                 </ul>

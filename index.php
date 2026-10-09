@@ -22,6 +22,7 @@ require_once ROOT_PATH . '/controllers/UtilisateurController.php';
 require_once ROOT_PATH . '/controllers/LogController.php';
 require_once ROOT_PATH . '/controllers/RapportController.php';
 require_once ROOT_PATH . '/controllers/MessageController.php';
+require_once ROOT_PATH . '/controllers/GuideController.php';
 
 require_once ROOT_PATH . '/models/NotificationModel.php';
 require_once ROOT_PATH . '/models/MessageModel.php';
@@ -61,6 +62,12 @@ $router->get('/about', function() use ($auth) {
     $auth->checkAuth();
     $pageTitle = 'À propos';
     require ROOT_PATH . '/views/about.php';
+});
+
+$router->get('/guide', function() use ($auth) {
+    $auth->checkAuth();
+    $controller = new GuideController();
+    $controller->index();
 });
 
 $router->get('/employees', function() use ($auth) {

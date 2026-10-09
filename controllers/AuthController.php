@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../models/UserModel.php';
 require_once __DIR__ . '/../models/EmployeeModel.php';
 require_once __DIR__ . '/../models/LogModel.php';
+require_once __DIR__ . '/../models/TentativeModel.php';
 
 class AuthController {
     private $userModel;
@@ -17,9 +18,18 @@ class AuthController {
             $email = trim($_POST['email'] ?? '');
             $password = $_POST['password'] ?? '';
 
+            $tentativeModel = new TentativeModel();
+            if ($tentativeModel->estBloque($email)) {
+                http_response_code(429);
+                $error = 'Trop de tentatives de connexion. Réessayez dans ' . LOGIN_FENETRE_MINUTES . ' minutes.';
+                require __DIR__ . '/../views/auth/login.php';
+                return;
+            }
+
             $user = $this->userModel->authenticate($email, $password);
 
             if ($user) {
+                $tentativeModel->reussite($email);
                 session_regenerate_id(true);
                 $_SESSION['user_id'] = $user['id_utilisateur'];
                 $_SESSION['user_name'] = $user['nom_complet'];
@@ -36,6 +46,7 @@ class AuthController {
                 header('Location: ' . APP_URL . '/dashboard');
                 exit;
             } else {
+                $tentativeModel->enregistrer($email);
                 $error = 'Email ou mot de passe incorrect';
                 require __DIR__ . '/../views/auth/login.php';
             }
@@ -58,7 +69,7 @@ class AuthController {
             if (empty($email)) $errors[] = 'L\'email est requis';
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Email invalide';
             if (empty($password)) $errors[] = 'Le mot de passe est requis';
-            if (strlen($password) < 6) $errors[] = 'Le mot de passe doit contenir au moins 6 caractères';
+            if (strlen($password) < 8) $errors[] = 'Le mot de passe doit contenir au moins 8 caractères';
             if ($password !== $password_confirm) $errors[] = 'Les mots de passe ne correspondent pas';
 
             

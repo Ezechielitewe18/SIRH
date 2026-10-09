@@ -33,7 +33,7 @@ class UtilisateurController {
             if (empty($nom)) $errors[] = 'Le nom complet est requis';
             if (empty($email)) $errors[] = 'L\'email est requis';
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Email invalide';
-            if (strlen($password) < 6) $errors[] = 'Le mot de passe doit contenir au moins 6 caractères';
+            if (strlen($password) < 8) $errors[] = 'Le mot de passe doit contenir au moins 8 caractères';
             if ($this->userModel->existsEmail($email)) $errors[] = 'Cet email est déjà utilisé';
 
             if (empty($errors)) {
@@ -86,8 +86,8 @@ class UtilisateurController {
 
             
             if (!empty($_POST['password'])) {
-                if (strlen($_POST['password']) < 6) {
-                    $_SESSION['errors'] = ['Le mot de passe doit contenir au moins 6 caractères'];
+                if (strlen($_POST['password']) < 8) {
+                    $_SESSION['errors'] = ['Le mot de passe doit contenir au moins 8 caractères'];
                     $employesSansCompte = $this->getEmployeesWithoutAccount();
                     require __DIR__ . '/../views/utilisateurs/edit.php';
                     return;
@@ -125,8 +125,8 @@ class UtilisateurController {
     public function resetPassword($id) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $newPassword = $_POST['new_password'] ?? '';
-            if (strlen($newPassword) < 6) {
-                $_SESSION['errors'] = ['Le mot de passe doit contenir au moins 6 caractères'];
+            if (strlen($newPassword) < 8) {
+                $_SESSION['errors'] = ['Le mot de passe doit contenir au moins 8 caractères'];
                 header('Location: ' . APP_URL . '/utilisateurs');
                 exit;
             }
