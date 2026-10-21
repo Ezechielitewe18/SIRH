@@ -51,7 +51,7 @@ class EmployeeController {
                     'email' => $email,
                     'poste' => trim($_POST['poste']),
                     'date_embauche' => $_POST['date_embauche'],
-                    'salaire' => $_POST['salaire'] ?: null,
+                    'salaire' => round((float)($_POST['salaire'] ?? 0), 2),
                     'id_service' => $_POST['id_service'] ?: null,
                     'statut' => 'actif'
                 ];
@@ -118,7 +118,7 @@ class EmployeeController {
                     'email' => trim($_POST['email']),
                     'poste' => trim($_POST['poste']),
                     'date_embauche' => $_POST['date_embauche'],
-                    'salaire' => $_POST['salaire'] ?: null,
+                    'salaire' => round((float)($_POST['salaire'] ?? 0), 2),
                     'id_service' => $_POST['id_service'] ?: null,
                     'statut' => $_POST['statut']
                 ];
@@ -199,6 +199,12 @@ class EmployeeController {
         if (empty(trim($data['prenom'] ?? ''))) $errors[] = 'Le prénom est requis';
         if (empty($_POST['sexe'])) $errors[] = 'Le sexe est requis';
         if (empty($_POST['date_embauche'])) $errors[] = 'La date d\'embauche est requise';
+        $salaire = trim($data['salaire'] ?? '');
+        if ($salaire === '') {
+            $errors[] = 'Le salaire est requis';
+        } elseif (!is_numeric($salaire) || (float)$salaire <= 0) {
+            $errors[] = 'Le salaire doit être strictement supérieur à 0';
+        }
         return $errors;
     }
 }

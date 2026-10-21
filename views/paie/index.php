@@ -52,7 +52,7 @@
 
     <div class="row">
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-info">
+            <div class="small-box sirh-mini bg-info">
                 <div class="inner">
                     <h3><?= count($bulletins) ?></h3>
                     <p>Bulletins</p>
@@ -61,7 +61,7 @@
             </div>
         </div>
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
+            <div class="small-box sirh-mini bg-success">
                 <div class="inner">
                     <h3><?= number_format($totalNet ?? 0, 0, ',', ' ') ?> FC</h3>
                     <p>Total net à payer</p>
@@ -70,7 +70,7 @@
             </div>
         </div>
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-warning">
+            <div class="small-box sirh-mini bg-warning">
                 <div class="inner">
                     <h3><?= number_format($totalBrut ?? 0, 0, ',', ' ') ?> FC</h3>
                     <p>Masse salariale brute</p>
@@ -79,7 +79,7 @@
             </div>
         </div>
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-danger">
+            <div class="small-box sirh-mini bg-danger">
                 <div class="inner">
                     <h3><?= number_format(($totalBrut ?? 0) - ($totalNet ?? 0), 0, ',', ' ') ?> FC</h3>
                     <p>Total retenues</p>

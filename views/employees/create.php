@@ -10,6 +10,15 @@
         <form method="POST" action="<?= APP_URL ?>/employees/create">
             <?= csrf_field() ?>
             <div class="card-body">
+                <?php if (!empty($errors)): ?>
+                <div class="alert alert-danger">
+                    <ul class="mb-0 pl-3">
+                        <?php foreach ($errors as $err): ?>
+                        <li><?= htmlspecialchars($err) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php endif; ?>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -102,8 +111,8 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Salaire</label>
-                            <input type="number" class="form-control" name="salaire" step="0.01" value="<?= $_POST['salaire'] ?? '' ?>">
+                            <label>Salaire *</label>
+                            <input type="number" class="form-control" name="salaire" step="0.01" min="0.01" required value="<?= $_POST['salaire'] ?? '' ?>">
                         </div>
                     </div>
                 </div>

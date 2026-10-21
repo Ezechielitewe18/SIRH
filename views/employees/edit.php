@@ -10,6 +10,15 @@
         <form method="POST" action="<?= APP_URL ?>/employees/edit/<?= $employee['id_employe'] ?>">
             <?= csrf_field() ?>
             <div class="card-body">
+                <?php if (!empty($errors)): ?>
+                <div class="alert alert-danger">
+                    <ul class="mb-0 pl-3">
+                        <?php foreach ($errors as $err): ?>
+                        <li><?= htmlspecialchars($err) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php endif; ?>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
