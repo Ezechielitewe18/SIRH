@@ -10,7 +10,7 @@ header('Pragma: no-cache');
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GLOBIT SAS - SIRH</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#3b82f6">
+<meta name="theme-color" content="#102a43">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="public/img/icon-192.png">
@@ -18,9 +18,9 @@ header('Pragma: no-cache');
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0b0f1a; --panel:#141c2e; --panel2:#0f1625;
-  --accent:#3b82f6; --accent2:#6366f1; --cyan:#22d3ee;
-  --text:#e2e8f0; --muted:#8aa0bd; --green:#22c55e; --red:#ef4444; --gold:#f59e0b;
+  --bg:#071b2f; --panel:#102a43; --panel2:#0b2238;
+  --accent:#1769aa; --accent2:#277f9f; --cyan:#a8dcff;
+  --text:#f4f8fc; --muted:#aec4d8; --green:#49b98d; --red:#f07b88; --gold:#f0bd58;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
@@ -31,10 +31,7 @@ body{
 }
 .bg{
   position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(600px circle at 20% 0%, rgba(99,102,241,.15), transparent 50%),
-    radial-gradient(500px circle at 90% 90%, rgba(34,211,238,.10), transparent 50%),
-    var(--bg);
+  background:var(--bg);
 }
 .app{position:relative;z-index:1}
 
@@ -183,6 +180,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
   border-top-color:#fff;border-radius:50%;display:inline-block;animation:spin .7s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>

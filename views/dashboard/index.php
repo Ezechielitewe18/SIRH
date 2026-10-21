@@ -30,7 +30,7 @@
 
         <div class="row">
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-info">
+                <div class="small-box sirh-dashboard-metric bg-info">
                     <div class="inner">
                         <h3><?= $totalEmployees ?? 0 ?></h3>
                         <p>Employés actifs</p>
@@ -41,7 +41,7 @@
             </div>
 
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-success">
+                <div class="small-box sirh-dashboard-metric bg-success">
                     <div class="inner">
                         <h3><?= $todayStats['presents'] ?? 0 ?></h3>
                         <p>Présents aujourd'hui</p>
@@ -52,7 +52,7 @@
             </div>
 
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-warning">
+                <div class="small-box sirh-dashboard-metric bg-warning">
                     <div class="inner">
                         <h3><?= $todayStats['en_retard'] ?? 0 ?></h3>
                         <p>En retard</p>
@@ -63,7 +63,7 @@
             </div>
 
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-primary">
+                <div class="small-box sirh-dashboard-metric bg-primary">
                     <div class="inner">
                         <h3><?= $tauxPresence ?? 0 ?>%</h3>
                         <p>Taux de présence</p>
@@ -76,7 +76,7 @@
 
         <div class="row">
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-danger">
+                <div class="small-box sirh-dashboard-metric bg-danger">
                     <div class="inner">
                         <h3><?= $pendingLeaves ?? 0 ?></h3>
                         <p>Congés en attente</p>
@@ -86,7 +86,7 @@
                 </div>
             </div>
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-maroon">
+                <div class="small-box sirh-dashboard-metric bg-maroon">
                     <div class="inner">
                         <h3><?= $approvedLeaves ?? 0 ?></h3>
                         <p>Congés approuvés</p>
@@ -96,7 +96,7 @@
                 </div>
             </div>
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-teal">
+                <div class="small-box sirh-dashboard-metric bg-teal">
                     <div class="inner">
                         <h3><?= count($congesEnCours ?? []) ?></h3>
                         <p>Congés en cours</p>
@@ -106,7 +106,7 @@
                 </div>
             </div>
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-secondary">
+                <div class="small-box sirh-dashboard-metric bg-secondary">
                     <div class="inner">
                         <h3><?= number_format($totalPaieNet ?? 0, 0, ',', ' ') ?> FC</h3>
                         <p>Paie nette (<?= $mois ?>/<?= $annee ?>)</p>
@@ -243,7 +243,7 @@ new Chart(document.getElementById("chartService"), {
         datasets: [{
             label: "Employés",
             data: serviceData.map(d => d.nombre),
-            backgroundColor: ["#007bff","#28a745","#ffc107","#dc3545","#17a2b8","#6f42c1"],
+            backgroundColor: ["#1769aa","#16805d","#d99a22","#bf3c4c","#277f9f","#6a5b9e"],
         }]
     },
     options: { responsive: true, scales: { y: { beginAtZero: true } } }
@@ -254,7 +254,7 @@ new Chart(document.getElementById("chartGender"), {
     type: "doughnut",
     data: {
         labels: genderData.map(d => d.sexe === "M" ? "Hommes" : "Femmes"),
-        datasets: [{ data: genderData.map(d => d.total), backgroundColor: ["#007bff", "#e83e8c"] }]
+        datasets: [{ data: genderData.map(d => d.total), backgroundColor: ["#1769aa", "#6a5b9e"] }]
     },
     options: { responsive: true }
 });
@@ -278,8 +278,8 @@ new Chart(document.getElementById("chartPaie"), {
     data: {
         labels: paieData.map(d => d.mois_label),
         datasets: [
-            { label: "Net", data: paieData.map(d => d.total_net), backgroundColor: "#28a745" },
-            { label: "Brut", data: paieData.map(d => d.total_brut), backgroundColor: "#ffc107" }
+            { label: "Net", data: paieData.map(d => d.total_net), backgroundColor: "#16805d" },
+            { label: "Brut", data: paieData.map(d => d.total_brut), backgroundColor: "#1769aa" }
         ]
     },
     options: { responsive: true, scales: { y: { beginAtZero: true } } }
@@ -290,7 +290,7 @@ new Chart(document.getElementById("chartCongeType"), {
     type: "doughnut",
     data: {
         labels: Object.keys(congeTypeData),
-        datasets: [{ data: Object.values(congeTypeData), backgroundColor: ["#007bff","#28a745","#ffc107","#dc3545","#17a2b8"] }]
+        datasets: [{ data: Object.values(congeTypeData), backgroundColor: ["#1769aa","#16805d","#d99a22","#bf3c4c","#277f9f"] }]
     },
     options: { responsive: true }
 });

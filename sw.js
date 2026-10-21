@@ -1,4 +1,4 @@
-const CACHE_NAME = 'globit-sirh-v10';
+const CACHE_NAME = 'globit-sirh-v11';
 const APP_SHELL = [
   './',
   './manifest.webmanifest',

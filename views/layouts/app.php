@@ -1,4 +1,16 @@
-<?php $currentPage = strtok(basename($_SERVER['REQUEST_URI']), '?'); ?>
+<?php
+$currentPage = strtok(basename($_SERVER['REQUEST_URI']), '?');
+$userName = $_SESSION['user_name'] ?? '';
+$userRole = $_SESSION['user_role'] ?? '';
+$unreadNotifications = 0;
+$unreadMessages = 0;
+try {
+    $unreadNotifications = (new NotificationModel())->getUnreadCount($_SESSION['user_id']);
+    $unreadMessages = (new MessageModel())->getUnreadCount($_SESSION['user_id']);
+} catch (Exception $e) {
+    // A navigation counter must never prevent the application from rendering.
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -13,19 +25,34 @@
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
-    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light" aria-label="Navigation principale">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="Ouvrir ou fermer le menu"><i class="fas fa-bars"></i></a>
+            </li>
+            <li class="nav-item d-none d-sm-flex align-items-center ml-2">
+                <span class="sirh-top-context"><strong><?= htmlspecialchars($pageTitle ?? 'Espace RH') ?></strong>GLOBIT SAS · Système RH</span>
             </li>
         </ul>
         <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link sirh-icon-button" href="<?= APP_URL ?>/messages" aria-label="Messages">
+                    <i class="far fa-comment-alt"></i>
+                    <?php if ($unreadMessages > 0): ?><span class="badge badge-danger navbar-badge"><?= $unreadMessages ?></span><?php endif; ?>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sirh-icon-button" href="<?= APP_URL ?>/notifications" aria-label="Notifications">
+                    <i class="far fa-bell"></i>
+                    <?php if ($unreadNotifications > 0): ?><span class="badge badge-danger navbar-badge"><?= $unreadNotifications ?></span><?php endif; ?>
+                </a>
+            </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fas fa-user-circle"></i> <?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>
+                    <i class="fas fa-user-circle fa-lg"></i><span class="sirh-user-name"><?= htmlspecialchars($userName) ?></span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
-                    <span class="dropdown-header"><?= ucfirst($_SESSION['user_role'] ?? '') ?></span>
+                    <span class="dropdown-header"><?= htmlspecialchars($userName) ?><br><small><?= ucfirst(htmlspecialchars($userRole)) ?></small></span>
                     <div class="dropdown-divider"></div>
                     <a href="<?= APP_URL ?>/guide" class="dropdown-item">
                         <i class="fas fa-book-open"></i> Guide d'utilisation
@@ -52,6 +79,7 @@
         <div class="sidebar">
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+                    <li class="nav-header">Vue d'ensemble</li>
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>/dashboard" class="nav-link <?= $currentPage === 'dashboard' ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -60,6 +88,7 @@
                     </li>
 
                     <?php if (in_array($_SESSION['user_role'], ['admin', 'rh'])): ?>
+                    <li class="nav-header">Gestion RH</li>
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>/employees" class="nav-link <?= strpos($currentPage, 'employee') !== false ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-user-tie"></i>
@@ -69,6 +98,7 @@
                     <?php endif; ?>
 
                     <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                    <li class="nav-header">Temps et activités</li>
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>/services" class="nav-link <?= $currentPage === 'services' ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-building"></i>
@@ -92,6 +122,7 @@
                     </li>
 
                     <?php if ($_SESSION['user_role'] === 'employe'): ?>
+                    <li class="nav-header">Mon espace</li>
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>/paie/mes-bulletins" class="nav-link <?= in_array($currentPage, ['mes-bulletins', 'ma-fiche']) ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-file-invoice-dollar text-success"></i>
@@ -101,6 +132,7 @@
                     <?php endif; ?>
 
                     <?php if (in_array($_SESSION['user_role'], ['admin', 'rh'])): ?>
+                    <li class="nav-header">Développement et pilotage</li>
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>/paie" class="nav-link <?= strpos($currentPage, 'paie') !== false ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-money-bill-wave text-warning"></i>
@@ -131,6 +163,7 @@
                     <?php endif; ?>
 
                     <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                    <li class="nav-header">Administration</li>
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>/utilisateurs" class="nav-link <?= strpos($currentPage, 'utilisateur') !== false ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-users-cog text-warning"></i>
@@ -146,40 +179,31 @@
                     <?php endif; ?>
                     <?php endif; ?>
 
-                    <li class="nav-item mt-2" style="border-top: 1px solid rgba(255,255,255,.1);">
+                    <li class="nav-header">Communication</li>
+                    <li class="nav-item">
                         <a href="<?= APP_URL ?>/messages" class="nav-link <?= strpos($currentPage, 'message') !== false ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-comments text-info"></i>
                             <p>Messages
                                 <?php
-                                try {
-                                    $msgModel = new MessageModel();
-                                    $msgunread = $msgModel->getUnreadCount($_SESSION['user_id']);
-                                    if ($msgunread > 0): ?>
-                                    <span class="badge badge-danger badge-pill float-right"><?= $msgunread ?></span>
-                                    <?php endif;
-                                } catch (Exception $e) {}
-                                ?>
+                                if ($unreadMessages > 0): ?>
+                                <span class="badge badge-danger badge-pill float-right"><?= $unreadMessages ?></span>
+                                <?php endif; ?>
                             </p>
                         </a>
                     </li>
-                    <li class="nav-item" style="border-top: 1px solid rgba(255,255,255,.1);">
+                    <li class="nav-item">
                         <a href="<?= APP_URL ?>/notifications" class="nav-link <?= $currentPage === 'notifications' ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-bell"></i>
                             <p>Notifications
                                 <?php
-                                try {
-                                    $notifModel = new NotificationModel();
-                                    $unread = $notifModel->getUnreadCount($_SESSION['user_id']);
-                                    if ($unread > 0): ?>
-                                    <span class="badge badge-danger badge-pill float-right"><?= $unread ?></span>
-                                    <?php endif;
-                                } catch (Exception $e) {}
-                                ?>
+                                if ($unreadNotifications > 0): ?>
+                                <span class="badge badge-danger badge-pill float-right"><?= $unreadNotifications ?></span>
+                                <?php endif; ?>
                             </p>
                         </a>
                     </li>
 
-                    <li class="nav-item" style="border-top: 1px solid rgba(255,255,255,.1);">
+                    <li class="nav-item">
                         <a href="<?= APP_URL ?>/guide" class="nav-link <?= $currentPage === 'guide' ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-book-open text-warning"></i>
                             <p>Guide d'utilisation</p>

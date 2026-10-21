@@ -144,6 +144,14 @@
             body { padding: 16px; }
             .card { padding: 32px 22px 26px; border-radius: 22px; }
         }
+        /* Page de récupération alignée sur l'identité de l'application. */
+        body { color: #172b4d; background: #f4f7fb; }
+        body::before { background: #f4f7fb; }.glow { display: none; }
+        .card { background: #fff; border: 1px solid #dce5ef; border-radius: 14px; box-shadow: 0 18px 42px rgba(16,42,67,.10); }
+        .head .title { color: #102a43; }.head .sub, .back { color: #64748b; }
+        .field label { color: #334e68; }.field input { color: #172b4d; background: #fff; border-color: #c8d5e1; border-radius: 8px; }.field input::placeholder { color: #94a3b8; }.field input:focus { border-color: #1769aa; background: #fff; box-shadow: 0 0 0 4px rgba(23,105,170,.13); }
+        .btn-login { background: #1769aa; border-color: #1769aa; border-radius: 8px; letter-spacing: .4px; }.btn-login:hover { background: #10598f; box-shadow: 0 8px 18px rgba(16,89,143,.22); filter: none; }
+        .back a { color: #1769aa; }.msg { background: #e7f6f0; border-color: #bfe7d6; color: #126347; }.err { background: #fff0f1; border-color: #f6c8cf; color: #9d2738; }
     </style>
 </head>
 <body>
