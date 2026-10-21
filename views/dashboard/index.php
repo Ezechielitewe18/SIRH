@@ -108,7 +108,7 @@
             <div class="col-lg-3 col-6">
                 <div class="small-box sirh-dashboard-metric bg-secondary">
                     <div class="inner">
-                        <h3><?= number_format($totalPaieNet ?? 0, 0, ',', ' ') ?> FC</h3>
+                        <h3 class="sirh-money"><?= number_format($totalPaieNet ?? 0, 0, ',', ' ') ?> FC</h3>
                         <p>Paie nette (<?= $mois ?>/<?= $annee ?>)</p>
                     </div>
                     <div class="icon"><i class="fas fa-money-bill-wave"></i></div>

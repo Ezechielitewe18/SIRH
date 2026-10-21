@@ -220,22 +220,7 @@
             .welcome { font-size: 14px; }
             .field input { height: 48px; }
         }
-        /* Identité GLOBIT SAS : sobre, lisible et cohérente avec l'espace RH. */
-        body { color: #172b4d; background: #f4f7fb; }
-        body::before { background: #f4f7fb; }
-        .glow { display: none; }
-        .card { background: #fff; border: 1px solid #dce5ef; border-radius: 14px; box-shadow: 0 18px 42px rgba(16,42,67,.10); padding: 42px 40px 36px; }
-        .brand-name { color: #102a43 !important; -webkit-text-fill-color: #102a43 !important; background: none !important; font-size: 28px; letter-spacing: 4px; }
-        .welcome { color: #64748b; }
-        .field label { color: #334e68; }
-        .field input { color: #172b4d; background: #fff; border-color: #c8d5e1; border-radius: 8px; }
-        .field input::placeholder { color: #94a3b8; }
-        .field input:focus { border-color: #1769aa; background: #fff; box-shadow: 0 0 0 4px rgba(23,105,170,.13); }
-        .btn-login { border-color: #1769aa; border-radius: 8px; background: #1769aa; letter-spacing: .4px; }
-        .btn-login:hover { background: #10598f; box-shadow: 0 8px 18px rgba(16,89,143,.22); filter: none; }
-        .forgot a, .signup a { color: #1769aa; }.signup { color: #64748b; }
-        .error-msg { background: #fff0f1; border-color: #f6c8cf; color: #9d2738; }
-        @media (max-width: 480px) { .card { border-radius: 12px; padding: 32px 22px 26px; } }
+        /* Identité GLOBIT SAS : dégradé violet/bleu, halos animés et carte en verre dépoli. */
     </style>
 </head>
 <body>
