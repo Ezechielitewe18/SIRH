@@ -8,7 +8,10 @@ class Model {
         $this->db = Database::getInstance()->getConnection();
     }
 
-    public function findAll($orderBy = 'id DESC') {
+    public function findAll($orderBy = null) {
+        if ($orderBy === null || $orderBy === '') {
+            $orderBy = $this->primaryKey . ' DESC';
+        }
         if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*(?:\s+(?:ASC|DESC))?$/i', $orderBy)) {
             $orderBy = $this->primaryKey . ' DESC';
         }
@@ -24,7 +27,7 @@ class Model {
         return $stmt->fetch();
     }
 
-    public function find($conditions = [], $orderBy = 'id DESC') {
+    public function find($conditions = [], $orderBy = null) {
         $sql = "SELECT * FROM {$this->table}";
         $params = [];
 
@@ -37,6 +40,9 @@ class Model {
             $sql .= " WHERE " . implode(' AND ', $where);
         }
 
+        if ($orderBy === null || $orderBy === '') {
+            $orderBy = $this->primaryKey . ' DESC';
+        }
         if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*(?:\s+(?:ASC|DESC))?$/i', $orderBy)) {
             $orderBy = $this->primaryKey . ' DESC';
         }

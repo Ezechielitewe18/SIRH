@@ -1,731 +1,513 @@
 <?php $pageTitle = 'Guide d\'utilisation'; ?>
 <?php ob_start(); ?>
 
-<style>
-html { scroll-behavior: smooth; }
-
-.guide-hero {
-    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 45%, #0ea5e9 100%);
-    border: none;
-    border-radius: 18px;
-    color: #fff;
-    padding: 34px 36px;
-    box-shadow: 0 18px 40px -18px rgba(37, 99, 235, .75);
-    position: relative;
-    overflow: hidden;
-    animation: guideFade .7s cubic-bezier(.16,1,.3,1) both;
-}
-.guide-hero::after {
-    content: "";
-    position: absolute;
-    right: -60px; top: -60px;
-    width: 260px; height: 260px;
-    background: radial-gradient(circle, rgba(255,255,255,.25) 0%, rgba(255,255,255,0) 70%);
-    border-radius: 50%;
-}
-.guide-hero h1 { font-size: 1.9rem; font-weight: 800; margin: 0 0 6px; letter-spacing: -.5px; }
-.guide-hero p { margin: 0; opacity: .92; font-size: 1.02rem; }
-.guide-hero .chips { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
-.guide-hero .chip {
-    background: rgba(255,255,255,.18);
-    border: 1px solid rgba(255,255,255,.28);
-    border-radius: 999px;
-    padding: 5px 13px;
-    font-size: .8rem;
-    font-weight: 600;
-    backdrop-filter: blur(4px);
-}
-
-/* Barre de progression de lecture */
-.guide-progress {
-    position: fixed; top: 0; left: 0; height: 3px; width: 0;
-    background: linear-gradient(90deg, #2563eb, #22d3ee);
-    z-index: 9999;
-    transition: width .15s linear;
-}
-
-/* Sommaire */
-.toc {
-    position: sticky; top: 70px;
-    border: none; border-radius: 16px;
-    box-shadow: 0 10px 30px -18px rgba(15, 23, 42, .45);
-    overflow: hidden;
-}
-.toc .toc-title {
-    font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
-    color: #64748b; font-weight: 700; padding: 16px 18px 8px;
-}
-.toc a {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 18px; font-size: .9rem; color: #475569;
-    border-left: 3px solid transparent;
-    transition: background .2s ease, color .2s ease, border-color .2s ease;
-}
-.toc a i { width: 16px; text-align: center; font-size: .82rem; opacity: .75; }
-.toc a:hover { background: #f1f5f9; color: #1d4ed8; border-left-color: #93c5fd; }
-.toc a.active {
-    background: linear-gradient(90deg, #eff6ff, #fff);
-    color: #1d4ed8; font-weight: 700;
-    border-left-color: #2563eb;
-}
-.toc a.active i { opacity: 1; }
-
-/* Cartes de section */
-.g-sec {
-    border: none; border-radius: 16px;
-    box-shadow: 0 10px 30px -20px rgba(15, 23, 42, .55);
-    margin-bottom: 26px;
-    overflow: hidden;
-    scroll-margin-top: 84px;
-}
-.g-sec .card-header {
-    background: #fff;
-    border-bottom: 1px solid #eef2f7;
-    padding: 18px 24px;
-    display: flex; align-items: center; gap: 14px;
-}
-.g-sec .ico {
-    width: 42px; height: 42px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.05rem; color: #fff; flex-shrink: 0;
-}
-.g-sec .num {
-    margin-left: auto;
-    font-size: .72rem; font-weight: 800; letter-spacing: .1em;
-    color: #94a3b8; text-transform: uppercase;
-}
-.g-sec .card-title { font-size: 1.08rem; font-weight: 700; color: #0f172a; margin: 0; }
-.g-sec .card-body { padding: 26px 28px; font-size: .95rem; line-height: 1.75; color: #334155; }
-
-.g-lead { font-size: 1rem; color: #475569; margin-bottom: 20px; }
-.g-sub {
-    font-size: .8rem; font-weight: 800; letter-spacing: .1em;
-    text-transform: uppercase; color: #94a3b8; margin: 22px 0 12px;
-}
-.g-sec .card-body ul { margin-bottom: 0; }
-.g-sec .card-body li { margin-bottom: 9px; }
-.g-sec .card-body a:not(.btn) {
-    color: #1d4ed8; font-weight: 600;
-    border-bottom: 1px dashed rgba(37, 99, 235, .45);
-    text-decoration: none;
-    transition: color .2s ease, background .2s ease, border-color .2s ease;
-}
-.g-sec .card-body a:not(.btn):hover { color: #0ea5e9; border-bottom-style: solid; background: #eff6ff; }
-
-/* Étapes numérotées (timeline) */
-.steps { list-style: none; padding: 0; margin: 0; counter-reset: gstep; }
-.steps > li {
-    position: relative;
-    display: flex; gap: 18px;
-    padding-bottom: 22px;
-}
-.steps > li:last-child { padding-bottom: 0; }
-.steps > li::before {
-    content: "";
-    position: absolute; left: 19px; top: 40px; bottom: -4px;
-    width: 2px; background: linear-gradient(#dbeafe, #f1f5f9);
-}
-.steps > li:last-child::before { display: none; }
-.step-n {
-    counter-increment: gstep;
-    width: 40px; height: 40px; flex-shrink: 0;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #2563eb, #38bdf8);
-    color: #fff; font-weight: 800; font-size: .95rem;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 6px 16px -6px rgba(37, 99, 235, .8);
-    transition: transform .25s ease;
-}
-.steps > li:hover .step-n { transform: scale(1.12) rotate(-4deg); }
-.step-b h6 { font-size: .98rem; font-weight: 700; color: #0f172a; margin: 6px 0 4px; }
-.step-b p { margin: 0; color: #64748b; font-size: .9rem; }
-
-/* Colonne détail (2 colonnes internes) */
-.g-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 26px; }
-.g-col { background: #f8fafc; border: 1px solid #eef2f7; border-radius: 14px; padding: 20px 22px; }
-.g-col h6 { font-weight: 800; color: #0f172a; margin-bottom: 14px; font-size: .95rem; }
-
-/* Badges de rôle */
-.role {
-    display: inline-block; padding: 3px 10px; border-radius: 999px;
-    font-size: .68rem; font-weight: 800; letter-spacing: .04em;
-    text-transform: uppercase; vertical-align: middle;
-}
-.role-admin { background: #fef3c7; color: #92400e; }
-.role-rh { background: #dbeafe; color: #1e40af; }
-.role-all { background: #dcfce7; color: #166534; }
-
-/* Tableaux */
-.g-sec .table { border-radius: 12px; overflow: hidden; }
-.g-sec .table th { background: #f8fafc; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: #64748b; border-top: none; }
-
-/* Encadré info */
-.g-note {
-    background: #eff6ff; border: 1px solid #dbeafe;
-    border-left: 4px solid #2563eb;
-    border-radius: 10px; padding: 13px 16px;
-    font-size: .9rem; color: #1e3a8a; margin-top: 20px;
-}
-.g-warn {
-    background: #fffbeb; border: 1px solid #fde68a;
-    border-left: 4px solid #f59e0b;
-    border-radius: 10px; padding: 13px 16px;
-    font-size: .9rem; color: #78350f; margin-top: 20px;
-}
-
-/* Carte état de la base */
-.state-card { border: none; border-radius: 16px; box-shadow: 0 10px 30px -20px rgba(15,23,42,.5); }
-.state-num { font-size: 1.9rem; font-weight: 800; color: #1d4ed8; line-height: 1; }
-
-/* Animations d'apparition */
-.reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1); }
-.reveal.in { opacity: 1; transform: none; }
-/* Survol des cartes : placé APRÈS .reveal (spécificité supérieure) pour ne pas
-   hériter de la transition d'apparition ni du délai d'échelonnement. */
-.card.g-sec.reveal.in { transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1), box-shadow .3s ease; }
-.card.g-sec.reveal.in:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 18px 38px -20px rgba(15, 23, 42, .5);
-    transition: transform .25s ease, box-shadow .25s ease;
-}
-@keyframes guideFade { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
-
-/* Accessibilité : aucun mouvement si l'utilisateur l'a désactivé */
-@media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-    .reveal, .reveal.in { opacity: 1 !important; transform: none !important; transition: none !important; }
-    .guide-hero { animation: none; }
-    .guide-progress { transition: none; }
-}
-
-@media (max-width: 991px) {
-    .toc { position: static; margin-bottom: 24px; }
-    .g-sec .card-body { padding: 20px; }
-    .guide-hero { padding: 26px 22px; }
-}
-</style>
-
-<div class="guide-progress" id="guideProgress"></div>
-
-<section class="content-header" style="border:none;padding:0;">
-    <div class="guide-hero">
-        <h1><i class="fas fa-book-open mr-2"></i>Guide d'utilisation</h1>
-        <p>Prenez en main le SIRH en quelques minutes : 14 rubriques courtes, dans l'ordre, avec les écrans à ouvrir.</p>
-        <div class="chips">
-            <span class="chip"><i class="fas fa-clock mr-1"></i> 5 min de lecture</span>
-            <span class="chip"><i class="fas fa-layer-group mr-1"></i> 14 rubriques</span>
-            <span class="chip"><i class="fas fa-user-shield mr-1"></i> Rôles indiqués partout</span>
-            <span class="chip"><i class="fas fa-redo mr-1"></i> Mise à jour : v<?= APP_VERSION ?></span>
+<section class="content-header">
+    <div class="sirh-page-header">
+        <div class="sirh-page-heading">
+            <h1 class="sirh-page-title"><i class="fas fa-book-open" aria-hidden="true"></i> Guide d'utilisation</h1>
+            <p class="sirh-page-subtitle">Procédures de référence pour utiliser GLOBIT SIRH au quotidien.</p>
+        </div>
+        <div class="sirh-page-actions">
+            <a href="<?= APP_URL ?>/dashboard" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-tachometer-alt" aria-hidden="true"></i> Tableau de bord
+            </a>
         </div>
     </div>
 </section>
 
-<section class="content" style="padding-top: 24px;">
-    <div class="row">
+<section class="content">
+    <div class="guide-layout">
 
-        <!-- Sommaire -->
-        <div class="col-lg-3">
-            <div class="card toc">
-                <div class="toc-title"><i class="fas fa-list mr-1"></i> Sommaire</div>
-                <nav class="flex-column nav flex-sm-column">
-                    <a href="#premiers-pas" class="toc-link"><i class="fas fa-flag text-success"></i> 1. Premiers pas</a>
-                    <a href="#tableau-de-bord" class="toc-link"><i class="fas fa-tachometer-alt text-primary"></i> 2. Tableau de bord</a>
-                    <a href="#employes" class="toc-link"><i class="fas fa-users text-primary"></i> 3. Employés</a>
-                    <a href="#services" class="toc-link"><i class="fas fa-sitemap text-primary"></i> 4. Services</a>
-                    <a href="#presences" class="toc-link"><i class="fas fa-fingerprint text-success"></i> 5. Présences (QR)</a>
-                    <a href="#conges" class="toc-link"><i class="fas fa-umbrella-beach text-info"></i> 6. Congés</a>
-                    <a href="#paie" class="toc-link"><i class="fas fa-money-check-alt text-warning"></i> 7. Paie</a>
-                    <a href="#formations" class="toc-link"><i class="fas fa-graduation-cap text-secondary"></i> 8. Formations</a>
-                    <a href="#rapports" class="toc-link"><i class="fas fa-chart-bar text-success"></i> 9. Rapports</a>
-                    <a href="#messagerie" class="toc-link"><i class="fas fa-comments text-info"></i> 10. Messages</a>
-                    <a href="#comptes" class="toc-link"><i class="fas fa-user-shield text-danger"></i> 11. Comptes & rôles</a>
-                    <a href="#mobile" class="toc-link"><i class="fas fa-mobile-alt text-primary"></i> 12. Mobile (PWA)</a>
-                    <a href="#rythme" class="toc-link"><i class="fas fa-calendar-check text-success"></i> 13. Rythme à suivre</a>
-                    <a href="#aide" class="toc-link"><i class="fas fa-life-ring text-danger"></i> 14. Aide & dépannage</a>
-                </nav>
+        <aside class="guide-toc" aria-label="Sommaire du guide">
+            <p class="guide-toc-title">Sommaire</p>
+            <nav>
+                <a href="#premiers-pas" class="is-active"><i class="fas fa-flag" aria-hidden="true"></i> 1. Premiers pas</a>
+                <a href="#tableau-de-bord"><i class="fas fa-tachometer-alt" aria-hidden="true"></i> 2. Tableau de bord</a>
+                <a href="#employes"><i class="fas fa-user-tie" aria-hidden="true"></i> 3. Employés</a>
+                <a href="#services"><i class="fas fa-building" aria-hidden="true"></i> 4. Services</a>
+                <a href="#presences"><i class="fas fa-fingerprint" aria-hidden="true"></i> 5. Présences</a>
+                <a href="#conges"><i class="fas fa-calendar-alt" aria-hidden="true"></i> 6. Congés</a>
+                <a href="#paie"><i class="fas fa-money-bill-wave" aria-hidden="true"></i> 7. Paie</a>
+                <a href="#formations"><i class="fas fa-graduation-cap" aria-hidden="true"></i> 8. Formations</a>
+                <a href="#rapports"><i class="fas fa-chart-bar" aria-hidden="true"></i> 9. Rapports</a>
+                <a href="#messagerie"><i class="fas fa-comments" aria-hidden="true"></i> 10. Messages</a>
+                <a href="#comptes"><i class="fas fa-user-shield" aria-hidden="true"></i> 11. Comptes et rôles</a>
+                <a href="#mobile"><i class="fas fa-mobile-alt" aria-hidden="true"></i> 12. Version mobile</a>
+                <a href="#rythme"><i class="fas fa-calendar-check" aria-hidden="true"></i> 13. Rythme de travail</a>
+                <a href="#aide"><i class="fas fa-life-ring" aria-hidden="true"></i> 14. Aide et dépannage</a>
+            </nav>
+        </aside>
+
+        <div>
+            <div class="guide-intro">
+                <h2 class="h4" style="margin:0 0 6px;color:var(--sirh-navy);font-weight:700;">Mode d'emploi</h2>
+                <p>Ce guide décrit les écrans, les boutons et l'ordre des opérations. Les mentions de rôle indiquent qui peut effectuer chaque action.</p>
+                <div class="guide-intro-meta">
+                    <span class="guide-meta-item"><i class="fas fa-layer-group" aria-hidden="true"></i> 14 rubriques</span>
+                    <span class="guide-meta-item"><i class="fas fa-clock" aria-hidden="true"></i> Lecture : environ 10 minutes</span>
+                    <span class="guide-meta-item"><i class="fas fa-code-branch" aria-hidden="true"></i> Version <?= htmlspecialchars(APP_VERSION) ?></span>
+                    <span class="guide-meta-item"><i class="fas fa-database" aria-hidden="true"></i> <?= (int) $stats['services'] ?> service(s) · <?= (int) $stats['employes'] ?> employé(s) actif(s)</span>
+                </div>
             </div>
 
-            <div class="card state-card card-outline card-primary reveal">
-                <div class="card-header" style="background:#fff;">
-                    <h3 class="card-title" style="font-size:.95rem;"><i class="fas fa-tasks text-primary mr-2"></i>Votre base</h3>
-                </div>
-                <div class="card-body" style="padding:20px 22px;">
-                    <div class="d-flex justify-content-between mb-3">
-                        <div>
-                            <div class="state-num"><?= (int) $stats['services'] ?></div>
-                            <small class="text-muted">service(s)</small>
-                        </div>
-                        <div>
-                            <div class="state-num"><?= (int) $stats['employes'] ?></div>
-                            <small class="text-muted">employé(s) actif(s)</small>
-                        </div>
+            <?php if ($stats['services'] === 0 || $stats['employes'] === 0): ?>
+            <div class="guide-warn" style="margin-top:0;margin-bottom:18px;">
+                <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+                <span>La base ne contient pas encore de service ou d'employé. Commencez par la rubrique 1 avant d'utiliser les autres modules.</span>
+            </div>
+            <?php endif; ?>
+
+            <section class="guide-section" id="premiers-pas">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-flag"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">1. Premiers pas</h2>
+                        <span class="guide-section-sub">À réaliser une seule fois, à la mise en service.</span>
                     </div>
-                    <?php if ($stats['services'] === 0 || $stats['employes'] === 0): ?>
-                        <div class="g-warn" style="margin-top:0;"><i class="fas fa-exclamation-triangle mr-1"></i> Commencez par l'étape 1.</div>
-                    <?php else: ?>
-                        <div class="g-note" style="margin-top:0;"><i class="fas fa-check-circle mr-1"></i> Base opérationnelle.</div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contenu -->
-        <div class="col-lg-9">
-
-            <!-- 1 -->
-            <div class="card g-sec reveal" id="premiers-pas">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#16a34a,#4ade80);"><i class="fas fa-flag"></i></span>
-                    <span class="card-title">Premiers pas <small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">À faire une seule fois, à l'installation</small></span>
-                    <span class="num">Étape 1 / 6</span>
-                </div>
-                <div class="card-body">
-                    <ol class="steps">
+                    <span class="guide-section-num">Rubrique 1</span>
+                </header>
+                <div class="guide-section-body">
+                    <ol class="guide-steps">
                         <li>
-                            <span class="step-n">1</span>
-                            <div class="step-b">
-                                <h6>Créez vos services <span class="role role-admin">Admin</span></h6>
-                                <p>Direction, Comptabilité, Production… ces départements structurent tout le logiciel.</p>
-                                <a href="<?= APP_URL ?>/services"><i class="fas fa-external-link-alt mr-1"></i>Ouvrir les services</a>
+                            <span class="guide-step-n">1</span>
+                            <div class="guide-step-body">
+                                <h6>Créer les services <span class="guide-role guide-role--admin">Admin</span></h6>
+                                <p>Menu <strong>Services</strong>, bouton <strong>Ajouter un service</strong>. Les services structurent les employés, les rapports et le tableau de bord.</p>
                             </div>
                         </li>
                         <li>
-                            <span class="step-n">2</span>
-                            <div class="step-b">
-                                <h6>Ajoutez vos employés <span class="role role-admin">Admin</span> <span class="role role-rh">RH</span></h6>
-                                <p>Nom, service, poste, salaire de base : le matricule est généré automatiquement.</p>
-                                <a href="<?= APP_URL ?>/employees/create"><i class="fas fa-external-link-alt mr-1"></i>Créer un employé</a>
+                            <span class="guide-step-n">2</span>
+                            <div class="guide-step-body">
+                                <h6>Enregistrer les employés <span class="guide-role guide-role--admin">Admin</span> <span class="guide-role guide-role--rh">RH</span></h6>
+                                <p>Menu <strong>Employés</strong>, bouton <strong>Ajouter un employé</strong>. Le matricule est généré automatiquement.</p>
                             </div>
                         </li>
                         <li>
-                            <span class="step-n">3</span>
-                            <div class="step-b">
-                                <h6>Créez leurs comptes de connexion <span class="role role-admin">Admin</span></h6>
-                                <p>Chaque compte est rattaché à l'employé. Mot de passe : 8 caractères minimum.</p>
-                                <a href="<?= APP_URL ?>/utilisateurs/create"><i class="fas fa-external-link-alt mr-1"></i>Créer un utilisateur</a>
+                            <span class="guide-step-n">3</span>
+                            <div class="guide-step-body">
+                                <h6>Créer les comptes de connexion <span class="guide-role guide-role--admin">Admin</span></h6>
+                                <p>Menu <strong>Utilisateurs</strong>, bouton <strong>Ajouter un utilisateur</strong>. Rattachez chaque compte à l'employé correspondant. Mot de passe : 8 caractères minimum.</p>
                             </div>
                         </li>
                         <li>
-                            <span class="step-n">4</span>
-                            <div class="step-b">
-                                <h6>Vérifiez les paramètres de paie <span class="role role-admin">Admin</span></h6>
-                                <p>Impôts, cotisations, primes, heures mensuelles : tout est calculé à partir de ces valeurs.</p>
-                                <a href="<?= APP_URL ?>/paie/parametres"><i class="fas fa-external-link-alt mr-1"></i>Paramètres de paie</a>
+                            <span class="guide-step-n">4</span>
+                            <div class="guide-step-body">
+                                <h6>Vérifier les paramètres de paie <span class="guide-role guide-role--admin">Admin</span></h6>
+                                <p>Menu <strong>Paie</strong>, bouton <strong>Paramètres</strong>. Ces valeurs servent au calcul des bulletins.</p>
                             </div>
                         </li>
                         <li>
-                            <span class="step-n">5</span>
-                            <div class="step-b">
-                                <h6>Montrez le pointage QR à vos équipes <span class="role role-all">Tout le monde</span></h6>
-                                <p>Chacun affiche son QR à l'arrivée, la réception scanne. Deux scans par jour : arrivée puis départ.</p>
-                                <a href="<?= APP_URL ?>/presences/qr"><i class="fas fa-external-link-alt mr-1"></i>Mon QR d'arrivée</a>
+                            <span class="guide-step-n">5</span>
+                            <div class="guide-step-body">
+                                <h6>Présenter le pointage QR aux équipes <span class="guide-role guide-role--all">Tous</span></h6>
+                                <p>Menu <strong>Présences</strong>, bouton <strong>Afficher mon QR</strong>. Le premier scan enregistre l'arrivée, le second le départ.</p>
                             </div>
                         </li>
                         <li>
-                            <span class="step-n">6</span>
-                            <div class="step-b">
-                                <h6>Installez l'application mobile <span class="role role-all">Tout le monde</span></h6>
-                                <p>Ajoutez la page aux écrans d'accueil des téléphones pour un accès en un geste.</p>
-                                <a href="<?= APP_URL ?>/mobile.php"><i class="fas fa-external-link-alt mr-1"></i>Ouvrir la version mobile</a>
+                            <span class="guide-step-n">6</span>
+                            <div class="guide-step-body">
+                                <h6>Installer la version mobile <span class="guide-role guide-role--all">Tous</span></h6>
+                                <p>Ouvrez <a href="<?= APP_URL ?>/mobile.php">l'interface mobile</a> sur le téléphone, puis choisissez <strong>Ajouter à l'écran d'accueil</strong> dans le navigateur.</p>
                             </div>
                         </li>
                     </ol>
                 </div>
-            </div>
+            </section>
 
-            <!-- 2 -->
-            <div class="card g-sec reveal" id="tableau-de-bord">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#2563eb,#38bdf8);"><i class="fas fa-tachometer-alt"></i></span>
-                    <span class="card-title">Tableau de bord <small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">Votre page d'accueil</small></span>
-                    <span class="num">Rubrique 2</span>
-                </div>
-                <div class="card-body">
-                    <p class="g-lead">Il répond à une seule question : <strong>où en est-on aujourd'hui ?</strong></p>
-                    <div class="g-cols">
-                        <div class="g-col">
-                            <h6><i class="fas fa-th-large text-primary mr-2"></i>Cartes d'indicateurs</h6>
-                            Effectif total, présences du jour, congés en attente.
-                        </div>
-                        <div class="g-col">
-                            <h6><i class="fas fa-chart-pie text-success mr-2"></i>Graphiques</h6>
-                            Répartition par service, par sexe, évolution des congés.
-                        </div>
-                        <div class="g-col">
-                            <h6><i class="fas fa-bolt text-warning mr-2"></i>Raccourcis</h6>
-                            Les actions les plus fréquentes, en un clic.
-                        </div>
+            <section class="guide-section" id="tableau-de-bord">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-tachometer-alt"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">2. Tableau de bord</h2>
+                        <span class="guide-section-sub">Vue d'ensemble de l'activité RH.</span>
                     </div>
-                    <div class="mt-3"><a href="<?= APP_URL ?>/dashboard" class="btn btn-primary btn-sm"><i class="fas fa-tachometer-alt mr-1"></i>Ouvrir le tableau de bord</a></div>
-                </div>
-            </div>
-
-            <!-- 3 -->
-            <div class="card g-sec reveal" id="employes">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#2563eb,#6366f1);"><i class="fas fa-users"></i></span>
-                    <span class="card-title">Employés <span class="role role-admin ml-2">Admin</span><span class="role role-rh">RH</span><small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">Le dossier numérique de chaque personne</small></span>
-                    <span class="num">Rubrique 3</span>
-                </div>
-                <div class="card-body">
-                    <ol class="steps">
-                        <li><span class="step-n">1</span><div class="step-b"><h6>Créer</h6><p>Identité, service, poste, salaire de base et primes.</p><a href="<?= APP_URL ?>/employees/create">Nouvel employé</a></div></li>
-                        <li><span class="step-n">2</span><div class="step-b"><h6>Consulter</h6><p>Cliquez sur un employé pour ouvrir sa fiche complète (historique, primes).</p></div></li>
-                        <li><span class="step-n">3</span><div class="step-b"><h6>Modifier</h6><p>Changement de service, de poste, de statut : <span class="badge badge-success">actif</span> ou <span class="badge badge-warning">suspendu</span>.</p></div></li>
-                        <li><span class="step-n">4</span><div class="step-b"><h6>Exporter</h6><p>La liste s'exporte en Excel ou PDF depuis la page des employés.</p><a href="<?= APP_URL ?>/export/employees/excel">Télécharger l'Excel</a></div></li>
-                    </ol>
-                    <div class="g-note"><i class="fas fa-info-circle mr-1"></i> Un employé sans compte utilisateur ne peut pas se connecter : créez les deux (étapes 2 et 3).</div>
-                </div>
-            </div>
-
-            <!-- 4 -->
-            <div class="card g-sec reveal" id="services">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);"><i class="fas fa-sitemap"></i></span>
-                    <span class="card-title">Services <span class="role role-admin ml-2">Admin</span><small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">Les départements de l'entreprise</small></span>
-                    <span class="num">Rubrique 4</span>
-                </div>
-                <div class="card-body">
-                    <p class="g-lead">Chaque service regroupe les employés et alimente directement les statistiques, les congés et le tableau de bord.</p>
-                    <ul>
-                        <li><a href="<?= APP_URL ?>/services">Gérer les services</a> : créer, renommer, supprimer.</li>
-                        <li>Le nombre d'employés de chaque service s'affiche automatiquement.</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- 5 -->
-            <div class="card g-sec reveal" id="presences">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#16a34a,#22c55e);"><i class="fas fa-fingerprint"></i></span>
-                    <span class="card-title">Présences & pointage QR<small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">Deux scans par jour : arrivée puis départ</small></span>
-                    <span class="num">Rubrique 5</span>
-                </div>
-                <div class="card-body">
-                    <div class="g-cols">
-                        <div class="g-col">
-                            <h6><i class="fas fa-user text-primary mr-2"></i>Côté employé <span class="role role-all">Tout le monde</span></h6>
-                            <ol class="steps">
-                                <li><span class="step-n">1</span><div class="step-b"><p>Ouvrez <a href="<?= APP_URL ?>/presences">Présences</a> puis « Afficher mon QR ».</p></div></li>
-                                <li><span class="step-n">2</span><div class="step-b"><p>Présentez-le à la réception : le <strong>premier scan enregistre l'arrivée</strong>.</p></div></li>
-                                <li><span class="step-n">3</span><div class="step-b"><p>Avant de partir, réaffichez le QR : le <strong>deuxième scan enregistre le départ</strong>.</p></div></li>
-                            </ol>
-                        </div>
-                        <div class="g-col">
-                            <h6><i class="fas fa-desktop text-success mr-2"></i>Côté réception / RH <span class="role role-admin">Admin</span> <span class="role role-rh">RH</span></h6>
-                            <ol class="steps">
-                                <li><span class="step-n">1</span><div class="step-b"><p>Ouvrez le <a href="<?= APP_URL ?>/presences/scan">poste de réception</a> et scannez le QR de l'employé.</p></div></li>
-                                <li><span class="step-n">2</span><div class="step-b"><p>Validez, rejetez ou régularisez une absence depuis <a href="<?= APP_URL ?>/presences">Présences</a>.</p></div></li>
-                                <li><span class="step-n">3</span><div class="step-b"><p>Suivez les statuts : <span class="badge badge-success">présent</span> <span class="badge badge-warning">retard</span> <span class="badge badge-danger">absent</span>.</p></div></li>
-                            </ol>
-                        </div>
-                    </div>
-                    <div class="g-note"><i class="fas fa-info-circle mr-1"></i> Le QR change automatiquement à chaque affichage : il ne peut pas être réutilisé. Sans scanner, le RH peut pointer manuellement.</div>
-                </div>
-            </div>
-
-            <!-- 6 -->
-            <div class="card g-sec reveal" id="conges">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#0ea5e9,#67e8f9);"><i class="fas fa-umbrella-beach"></i></span>
-                    <span class="card-title">Congés <small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">Demander, approuver, suivre</small></span>
-                    <span class="num">Rubrique 6</span>
-                </div>
-                <div class="card-body">
-                    <div class="g-cols">
-                        <div class="g-col">
-                            <h6><i class="fas fa-user text-primary mr-2"></i>L'employé demande</h6>
-                            <ol class="steps">
-                                <li><span class="step-n">1</span><div class="step-b"><p><a href="<?= APP_URL ?>/conges">Congés</a> → <a href="<?= APP_URL ?>/conges/create">nouvelle demande</a>.</p></div></li>
-                                <li><span class="step-n">2</span><div class="step-b"><p>Type et dates : le nombre de jours est calculé automatiquement.</p></div></li>
-                                <li><span class="step-n">3</span><div class="step-b"><p>Suivi : <span class="badge badge-warning">en attente</span> <span class="badge badge-success">approuvé</span> <span class="badge badge-danger">refusé</span>.</p></div></li>
-                            </ol>
-                        </div>
-                        <div class="g-col">
-                            <h6><i class="fas fa-user-tie text-success mr-2"></i>L'admin / RH tranche <span class="role role-admin">Admin</span> <span class="role role-rh">RH</span></h6>
-                            <ol class="steps">
-                                <li><span class="step-n">1</span><div class="step-b"><p>Les demandes en attente sont signalées dans <a href="<?= APP_URL ?>/conges">Congés</a>.</p></div></li>
-                                <li><span class="step-n">2</span><div class="step-b"><p><strong>Approuver</strong> ou <strong>Refuser</strong> en un clic.</p></div></li>
-                                <li><span class="step-n">3</span><div class="step-b"><p>Une notification part vers l'employé, les chiffres du tableau de bord se mettent à jour.</p></div></li>
-                            </ol>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 7 -->
-            <div class="card g-sec reveal" id="paie">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);"><i class="fas fa-money-check-alt"></i></span>
-                    <span class="card-title">Paie & bulletins <span class="role role-admin ml-2">Admin</span><span class="role role-rh">RH</span><small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">Paramètres une fois, puis chaque fin de mois</small></span>
-                    <span class="num">Rubrique 7</span>
-                </div>
-                <div class="card-body">
-                    <p class="g-sub">Une fois : les paramètres <span class="role role-admin">Admin</span></p>
-                    <p>Dans <a href="<?= APP_URL ?>/paie/parametres">Paramètres de paie</a>, ces valeurs servent au calcul automatique :</p>
-                    <div class="g-cols">
-                        <div class="g-col"><h6><i class="fas fa-percentage text-warning mr-2"></i>Sur le brut</h6>Taxe professionnelle, prestation sociale, pension retraite.</div>
-                        <div class="g-col"><h6><i class="fas fa-home text-warning mr-2"></i>Sur le salaire de base</h6>Indemnité logement, prime transport.</div>
-                        <div class="g-col"><h6><i class="fas fa-clock text-warning mr-2"></i>Temps de travail</h6>Taux heure supplémentaire, heures travaillées par mois.</div>
-                    </div>
-
-                    <p class="g-sub">Chaque mois</p>
-                    <ol class="steps">
-                        <li><span class="step-n">1</span><div class="step-b"><h6>Choisir le mois</h6><p><a href="<?= APP_URL ?>/paie">Page Paie</a> → sélectionnez la période concernée.</p></div></li>
-                        <li><span class="step-n">2</span><div class="step-b"><h6>Générer les bulletins</h6><p>Brut, retenues et net sont calculés automatiquement pour chaque employé.</p></div></li>
-                        <li><span class="step-n">3</span><div class="step-b"><h6>Valider puis payer</h6><p>Le bulletin passe en statut payé et rejoint les <a href="<?= APP_URL ?>/paie/archives">archives</a>.</p></div></li>
-                    </ol>
-
-                    <div class="g-note"><i class="fas fa-user-lock mr-1"></i> Chaque employé retrouve <strong>ses seuls bulletins</strong> dans <a href="<?= APP_URL ?>/paie/mes-bulletins">Mes bulletins</a> — personne d'autre n'y a accès.</div>
-                </div>
-            </div>
-
-            <!-- 8 -->
-            <div class="card g-sec reveal" id="formations">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#64748b,#94a3b8);"><i class="fas fa-graduation-cap"></i></span>
-                    <span class="card-title">Formations <span class="role role-admin ml-2">Admin</span><span class="role role-rh">RH</span><small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">Planifier et suivre les montées en compétence</small></span>
-                    <span class="num">Rubrique 8</span>
-                </div>
-                <div class="card-body">
-                    <ol class="steps">
-                        <li><span class="step-n">1</span><div class="step-b"><h6>Créer une formation</h6><p>Titre, durée, dates, type interne ou externe. <a href="<?= APP_URL ?>/formations/create">Nouvelle formation</a></p></div></li>
-                        <li><span class="step-n">2</span><div class="step-b"><h6>Inscrire les participants</h6><p>Statuts : <span class="badge badge-info">en cours</span> <span class="badge badge-success">terminé</span> <span class="badge badge-danger">annulé</span>, avec observation.</p></div></li>
-                        <li><span class="step-n">3</span><div class="step-b"><h6>Suivre</h6><p>Notes et avancement visibles sur la liste des formations.</p></div></li>
-                    </ol>
-                </div>
-            </div>
-
-            <!-- 9 -->
-            <div class="card g-sec reveal" id="rapports">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#16a34a,#4ade80);"><i class="fas fa-chart-bar"></i></span>
-                    <span class="card-title">Rapports & statistiques <span class="role role-admin ml-2">Admin</span><span class="role role-rh">RH</span><small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">Les chiffres pour décider</small></span>
-                    <span class="num">Rubrique 9</span>
-                </div>
-                <div class="card-body">
-                    <div class="g-cols">
-                        <div class="g-col"><h6><i class="fas fa-chart-line text-success mr-2"></i>Vue d'ensemble</h6><a href="<?= APP_URL ?>/rapports">Indicateurs consolidés</a> de l'entreprise.</div>
-                        <div class="g-col"><h6><i class="fas fa-user-slash text-danger mr-2"></i>Absentéisme</h6><a href="<?= APP_URL ?>/rapports/absentisme">Qui manque, combien de fois, sur quelles périodes.</a></div>
-                        <div class="g-col"><h6><i class="fas fa-umbrella-beach text-info mr-2"></i>Congés</h6><a href="<?= APP_URL ?>/rapports/conges">Soldes et historique par employé.</a></div>
-                    </div>
-                    <div class="g-note"><i class="fas fa-file-excel mr-1"></i> Exports Excel/PDF disponibles sur les pages employés, présences, congés et paie.</div>
-                </div>
-            </div>
-
-            <!-- 10 -->
-            <div class="card g-sec reveal" id="messagerie">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);"><i class="fas fa-comments"></i></span>
-                    <span class="card-title">Messages & notifications <span class="role role-all ml-2">Tout le monde</span><small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">Communiquer dans l'outil</small></span>
-                    <span class="num">Rubrique 10</span>
-                </div>
-                <div class="card-body">
-                    <div class="g-cols">
-                        <div class="g-col">
-                            <h6><i class="fas fa-comment-dots text-info mr-2"></i>Messages</h6>
+                    <span class="guide-section-num">Rubrique 2</span>
+                </header>
+                <div class="guide-section-body">
+                    <p>Le tableau de bord présente les indicateurs du mois sélectionné. Pour changer de période, utilisez les listes <strong>Période</strong> puis le bouton <strong>Appliquer</strong>.</p>
+                    <div class="guide-columns">
+                        <div class="guide-column">
+                            <h6>Indicateurs</h6>
                             <ul>
-                                <li><a href="<?= APP_URL ?>/messages/nouveau">Écrire</a> à un collègue (confidentiel).</li>
-                                <li><a href="<?= APP_URL ?>/messages/annonces">Annonces</a> : publication visible par tous.</li>
-                                <li>Les conversations non lues portent un badge rouge.</li>
+                                <li>Employés actifs, présents et retards du jour.</li>
+                                <li>Congés en attente, approuvés et en cours.</li>
+                                <li>Masse nette de la paie du mois.</li>
                             </ul>
                         </div>
-                        <div class="g-col">
-                            <h6><i class="fas fa-bell text-warning mr-2"></i>Notifications</h6>
-                            <ul class="mb-0">
-                                <li>Demandes de congé, bulletins, validations : tout arrive dans la cloche.</li>
+                        <div class="guide-column">
+                            <h6>Graphiques</h6>
+                            <ul>
+                                <li>Employés par service et répartition par sexe.</li>
+                                <li>Présences du mois et évolution de la paie sur douze mois.</li>
+                                <li>Congés en cours, par type et dernières demandes.</li>
+                            </ul>
+                        </div>
+                        <div class="guide-column">
+                            <h6>Accès rapides</h6>
+                            <ul>
+                                <li>Chaque carte renvoie vers le module concerné.</li>
+                                <li>Le lien <strong>Voir les employés</strong> n'apparaît que pour les profils autorisés.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="guide-section" id="employes">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-user-tie"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">3. Employés <span class="guide-role guide-role--admin">Admin</span> <span class="guide-role guide-role--rh">RH</span></h2>
+                        <span class="guide-section-sub">Dossier administratif de chaque personne.</span>
+                    </div>
+                    <span class="guide-section-num">Rubrique 3</span>
+                </header>
+                <div class="guide-section-body">
+                    <ol class="guide-steps">
+                        <li><span class="guide-step-n">1</span><div class="guide-step-body"><h6>Rechercher</h6><p>Saisissez un nom, un matricule ou un service dans le champ <strong>Rechercher un employé…</strong>, puis appuyez sur <strong>Rechercher</strong>. Le bouton <strong>×</strong> efface la recherche.</p></div></li>
+                        <li><span class="guide-step-n">2</span><div class="guide-step-body"><h6>Consulter</h6><p>Cliquez sur le nom ou sur l'icône en forme d'œil pour ouvrir la fiche complète.</p></div></li>
+                        <li><span class="guide-step-n">3</span><div class="guide-step-body"><h6>Modifier</h6><p>Utilisez l'icône crayon. Le statut <span class="sirh-status sirh-status--success">Actif</span> ou <span class="sirh-status sirh-status--warning">Suspendu</span> conditionne l'accès aux modules.</p></div></li>
+                        <li><span class="guide-step-n">4</span><div class="guide-step-body"><h6>Exporter</h6><p>Les boutons <strong>Excel</strong> et <strong>PDF</strong> génèrent la liste complète des employés.</p></div></li>
+                    </ol>
+                    <div class="guide-note">
+                        <i class="fas fa-circle-info" aria-hidden="true"></i>
+                        <span>Un employé sans compte utilisateur ne peut pas se connecter. Créez le compte depuis le menu <strong>Utilisateurs</strong>.</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="guide-section" id="services">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-building"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">4. Services <span class="guide-role guide-role--admin">Admin</span></h2>
+                        <span class="guide-section-sub">Départements de l'entreprise.</span>
+                    </div>
+                    <span class="guide-section-num">Rubrique 4</span>
+                </header>
+                <div class="guide-section-body">
+                    <p>Le menu <strong>Services</strong> permet de créer, renommer et supprimer un département. Le nombre d'employés rattachés est affiché pour chaque service.</p>
+                    <ul>
+                        <li>Un service ne peut être supprimé que s'il n'est plus utilisé par un employé.</li>
+                        <li>Les services alimentent les filtres, les rapports et le tableau de bord.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="guide-section" id="presences">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-fingerprint"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">5. Présences et pointage QR</h2>
+                        <span class="guide-section-sub">Deux scans par jour : arrivée puis départ.</span>
+                    </div>
+                    <span class="guide-section-num">Rubrique 5</span>
+                </header>
+                <div class="guide-section-body">
+                    <div class="guide-columns">
+                        <div class="guide-column">
+                            <h6>Côté employé <span class="guide-role guide-role--all">Tous</span></h6>
+                            <ol>
+                                <li>Ouvrez le menu <strong>Présences</strong>.</li>
+                                <li>Cliquez sur <strong>Afficher mon QR</strong>.</li>
+                                <li>Présentez le QR à la réception : le premier scan enregistre l'arrivée.</li>
+                                <li>Avant de partir, réaffichez le QR : le second scan enregistre le départ.</li>
+                            </ol>
+                        </div>
+                        <div class="guide-column">
+                            <h6>Côté réception <span class="guide-role guide-role--admin">Admin</span> <span class="guide-role guide-role--rh">RH</span></h6>
+                            <ol>
+                                <li>Ouvrez <strong>Présences</strong>, puis <strong>Ouvrir le scanner</strong>.</li>
+                                <li>Autorisez la caméra si le navigateur le demande.</li>
+                                <li>Présentez le QR dans le cadre. Le résultat est confirmé par le serveur.</li>
+                                <li>Si la caméra est indisponible, utilisez le champ de saisie manuelle ou un lecteur USB.</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <p class="mt-2 mb-0">Le registre du jour affiche les pointages, les retards et les statuts. Les boutons <strong>Valider</strong>, <strong>Rejeter</strong> et <strong>Marquer justifié</strong> traitent les déclarations et les absences.</p>
+                    <div class="guide-note">
+                        <i class="fas fa-circle-info" aria-hidden="true"></i>
+                        <span>Un scan après <?= htmlspecialchars(LIMITE_DECLARATION) ?> reste accepté et est enregistré comme retard. Le QR change toutes les <?= (int) QR_PERIODE ?> secondes et ne peut pas être réutilisé.</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="guide-section" id="conges">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-calendar-alt"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">6. Congés</h2>
+                        <span class="guide-section-sub">Demander, approuver et suivre les absences.</span>
+                    </div>
+                    <span class="guide-section-num">Rubrique 6</span>
+                </header>
+                <div class="guide-section-body">
+                    <div class="guide-columns">
+                        <div class="guide-column">
+                            <h6>Demander un congé <span class="guide-role guide-role--all">Tous</span></h6>
+                            <ol>
+                                <li>Ouvrez le menu <strong>Congés</strong>.</li>
+                                <li>Cliquez sur <strong>Nouvelle demande</strong>.</li>
+                                <li>Choisissez le type et les dates : le nombre de jours est calculé automatiquement.</li>
+                                <li>Suivez le statut dans la liste.</li>
+                            </ol>
+                        </div>
+                        <div class="guide-column">
+                            <h6>Traiter une demande <span class="guide-role guide-role--admin">Admin</span> <span class="guide-role guide-role--rh">RH</span></h6>
+                            <ol>
+                                <li>Filtrez avec <strong>Tous</strong>, <strong>En attente</strong>, <strong>Approuvés</strong> ou <strong>Refusés</strong>.</li>
+                                <li>Cliquez sur l'icône de validation pour approuver.</li>
+                                <li>Cliquez sur l'icône de refus, saisissez le motif, puis validez <strong>Refuser la demande</strong>.</li>
+                                <li>L'employé reçoit une notification et le tableau de bord est mis à jour.</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <p class="mt-2 mb-0">Statuts affichés : <span class="sirh-status sirh-status--warning">En attente</span> <span class="sirh-status sirh-status--success">Approuvé</span> <span class="sirh-status sirh-status--danger">Refusé</span>.</p>
+                </div>
+            </section>
+
+            <section class="guide-section" id="paie">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-money-bill-wave"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">7. Paie et bulletins <span class="guide-role guide-role--admin">Admin</span> <span class="guide-role guide-role--rh">RH</span></h2>
+                        <span class="guide-section-sub">Paramétrer une fois, générer chaque mois.</span>
+                    </div>
+                    <span class="guide-section-num">Rubrique 7</span>
+                </header>
+                <div class="guide-section-body">
+                    <p><strong>Paramétrage initial.</strong> Dans <strong>Paie</strong>, bouton <strong>Paramètres</strong>, renseignez les taux et les primes appliqués aux calculs :</p>
+                    <div class="guide-columns">
+                        <div class="guide-column"><h6>Sur le brut</h6><p>Taxe professionnelle, prestation sociale, pension retraite.</p></div>
+                        <div class="guide-column"><h6>Sur le salaire de base</h6><p>Indemnité de logement, prime de transport.</p></div>
+                        <div class="guide-column"><h6>Temps de travail</h6><p>Taux des heures supplémentaires, heures travaillées par mois.</p></div>
+                    </div>
+                    <p class="mt-3"><strong>Chaque mois :</strong></p>
+                    <ol class="guide-steps">
+                        <li><span class="guide-step-n">1</span><div class="guide-step-body"><h6>Choisir la période</h6><p>Menu <strong>Paie</strong>, sélectionnez le mois et l'année, puis cliquez sur <strong>Filtrer</strong>.</p></div></li>
+                        <li><span class="guide-step-n">2</span><div class="guide-step-body"><h6>Générer les bulletins</h6><p>Cliquez sur <strong>Générer les bulletins</strong> et confirmez. Le brut, les retenues et le net sont calculés pour chaque employé.</p></div></li>
+                        <li><span class="guide-step-n">3</span><div class="guide-step-body"><h6>Valider puis payer</h6><p>Utilisez l'icône de validation, puis l'icône de paiement. Les bulletins payés rejoignent <strong>Archives</strong>.</p></div></li>
+                    </ol>
+                    <div class="guide-note">
+                        <i class="fas fa-user-lock" aria-hidden="true"></i>
+                        <span>Un employé ne voit que ses propres bulletins dans <strong>Mes bulletins</strong>. Aucun autre profil n'y a accès.</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="guide-section" id="formations">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-graduation-cap"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">8. Formations <span class="guide-role guide-role--admin">Admin</span> <span class="guide-role guide-role--rh">RH</span></h2>
+                        <span class="guide-section-sub">Planifier et suivre les montées en compétence.</span>
+                    </div>
+                    <span class="guide-section-num">Rubrique 8</span>
+                </header>
+                <div class="guide-section-body">
+                    <ol class="guide-steps">
+                        <li><span class="guide-step-n">1</span><div class="guide-step-body"><h6>Créer une formation</h6><p>Menu <strong>Formations</strong>, bouton <strong>Nouvelle formation</strong> : titre, durée, dates et type interne ou externe.</p></div></li>
+                        <li><span class="guide-step-n">2</span><div class="guide-step-body"><h6>Inscrire les participants</h6><p>Ouvrez la formation et ajoutez les employés concernés.</p></div></li>
+                        <li><span class="guide-step-n">3</span><div class="guide-step-body"><h6>Suivre l'avancement</h6><p>Les statuts <span class="sirh-status sirh-status--info">En cours</span>, <span class="sirh-status sirh-status--success">Terminé</span> et <span class="sirh-status sirh-status--danger">Annulé</span> sont visibles dans la liste.</p></div></li>
+                    </ol>
+                </div>
+            </section>
+
+            <section class="guide-section" id="rapports">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-chart-bar"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">9. Rapports et statistiques <span class="guide-role guide-role--admin">Admin</span> <span class="guide-role guide-role--rh">RH</span></h2>
+                        <span class="guide-section-sub">Indicateurs consolidés pour la décision.</span>
+                    </div>
+                    <span class="guide-section-num">Rubrique 9</span>
+                </header>
+                <div class="guide-section-body">
+                    <div class="guide-columns">
+                        <div class="guide-column"><h6>Vue d'ensemble</h6><p><a href="<?= APP_URL ?>/rapports">Indicateurs consolidés</a> de l'entreprise.</p></div>
+                        <div class="guide-column"><h6>Absentéisme</h6><p><a href="<?= APP_URL ?>/rapports/absentisme">Absences par employé, fréquence et période.</a></p></div>
+                        <div class="guide-column"><h6>Congés</h6><p><a href="<?= APP_URL ?>/rapports/conges">Historique et soldes par employé.</a></p></div>
+                    </div>
+                    <div class="guide-note">
+                        <i class="fas fa-file-excel" aria-hidden="true"></i>
+                        <span>Les exports Excel et PDF sont disponibles sur les pages Employés, Présences, Congés et Paie.</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="guide-section" id="messagerie">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-comments"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">10. Messages et notifications <span class="guide-role guide-role--all">Tous</span></h2>
+                        <span class="guide-section-sub">Communication interne.</span>
+                    </div>
+                    <span class="guide-section-num">Rubrique 10</span>
+                </header>
+                <div class="guide-section-body">
+                    <div class="guide-columns">
+                        <div class="guide-column">
+                            <h6>Messages</h6>
+                            <ul>
+                                <li>Menu <strong>Messages</strong>, bouton <strong>Nouveau message</strong> pour écrire à un collègue.</li>
+                                <li><strong>Annonces</strong> publie une information visible par tous.</li>
+                                <li>Un badge rouge signale les conversations non lues.</li>
+                            </ul>
+                        </div>
+                        <div class="guide-column">
+                            <h6>Notifications</h6>
+                            <ul>
+                                <li>Demandes de congé, bulletins et validations arrivent dans la cloche.</li>
                                 <li>Un clic ouvre directement l'écran concerné.</li>
                             </ul>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- 11 -->
-            <div class="card g-sec reveal" id="comptes">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#dc2626,#f87171);"><i class="fas fa-user-shield"></i></span>
-                    <span class="card-title">Comptes, rôles & sécurité <span class="role role-admin ml-2">Admin</span><small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">Qui a le droit de faire quoi</small></span>
-                    <span class="num">Rubrique 11</span>
-                </div>
-                <div class="card-body">
-                    <p class="g-lead">Dans <a href="<?= APP_URL ?>/utilisateurs">Gérer les utilisateurs</a> : créer un compte, réinitialiser un mot de passe, désactiver un compte le jour du départ.</p>
+            <section class="guide-section" id="comptes">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-user-shield"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">11. Comptes, rôles et sécurité <span class="guide-role guide-role--admin">Admin</span></h2>
+                        <span class="guide-section-sub">Droits d'accès et traçabilité.</span>
+                    </div>
+                    <span class="guide-section-num">Rubrique 11</span>
+                </header>
+                <div class="guide-section-body">
+                    <p>Le menu <strong>Utilisateurs</strong> permet de créer un compte, de réinitialiser un mot de passe et de désactiver un accès.</p>
                     <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead><tr><th style="width:160px;">Rôle</th><th>Ce qu'il peut faire</th></tr></thead>
+                        <table class="guide-table">
+                            <thead>
+                                <tr><th scope="col" style="width:150px;">Rôle</th><th scope="col">Permissions</th></tr>
+                            </thead>
                             <tbody>
-                                <tr><td><span class="role role-admin">Admin</span></td><td>Tout : services, employés, paie, rapports, utilisateurs, paramètres, journal d'activité.</td></tr>
-                                <tr><td><span class="role role-rh">RH</span></td><td>Employés, validation des présences, approbation des congés, paie, formations, rapports, exports.</td></tr>
-                                <tr><td><span class="role role-all">Employé</span></td><td>Son tableau de bord, son pointage QR, ses demandes de congé, ses bulletins, les messages.</td></tr>
+                                <tr><td><span class="guide-role guide-role--admin">Admin</span></td><td>Accès complet : services, employés, présences, congés, paie, formations, rapports, utilisateurs et journal d'activité.</td></tr>
+                                <tr><td><span class="guide-role guide-role--rh">RH</span></td><td>Employés, présences, congés, paie, formations, rapports et exports. Pas d'accès à la gestion des utilisateurs ni au journal.</td></tr>
+                                <tr><td><span class="guide-role guide-role--all">Employé</span></td><td>Tableau de bord, pointage QR, demandes de congé, bulletins personnels, messages et notifications.</td></tr>
                             </tbody>
                         </table>
                     </div>
-                    <div class="g-note" style="margin-top:22px;"><i class="fas fa-history mr-1"></i> <a href="<?= APP_URL ?>/journal">Journal d'activité</a> : trace de chaque action (qui, quoi, quand) — indispensable en cas de litige.</div>
+                    <div class="guide-note">
+                        <i class="fas fa-history" aria-hidden="true"></i>
+                        <span>Le <a href="<?= APP_URL ?>/journal">journal d'activité</a> enregistre chaque action (auteur, action, date) et sert de référence en cas de litige.</span>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- 12 -->
-            <div class="card g-sec reveal" id="mobile">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#2563eb,#6366f1);"><i class="fas fa-mobile-alt"></i></span>
-                    <span class="card-title">Application mobile (PWA) <span class="role role-all ml-2">Tout le monde</span><small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">Le SIRH dans la poche</small></span>
-                    <span class="num">Rubrique 12</span>
-                </div>
-                <div class="card-body">
-                    <ol class="steps">
-                        <li><span class="step-n">1</span><div class="step-b"><p>Ouvrez <a href="<?= APP_URL ?>/mobile.php">l'interface mobile</a> depuis le téléphone.</p></div></li>
-                        <li><span class="step-n">2</span><div class="step-b"><p>Dans le menu du navigateur, choisissez <strong>« Ajouter à l'écran d'accueil »</strong>.</p></div></li>
-                        <li><span class="step-n">3</span><div class="step-b"><p>L'application s'ouvre en plein écran : accueil, <strong>QR personnel</strong>, congés, messages, profil.</p></div></li>
+            <section class="guide-section" id="mobile">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-mobile-alt"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">12. Version mobile <span class="guide-role guide-role--all">Tous</span></h2>
+                        <span class="guide-section-sub">Application installable sur téléphone.</span>
+                    </div>
+                    <span class="guide-section-num">Rubrique 12</span>
+                </header>
+                <div class="guide-section-body">
+                    <ol class="guide-steps">
+                        <li><span class="guide-step-n">1</span><div class="guide-step-body"><h6>Ouvrir l'interface mobile</h6><p>Depuis le téléphone, ouvrez <a href="<?= APP_URL ?>/mobile.php">la version mobile</a> et connectez-vous.</p></div></li>
+                        <li><span class="guide-step-n">2</span><div class="guide-step-body"><h6>Installer l'application</h6><p>Dans le menu du navigateur, choisissez <strong>Ajouter à l'écran d'accueil</strong>.</p></div></li>
+                        <li><span class="guide-step-n">3</span><div class="guide-step-body"><h6>Utiliser au quotidien</h6><p>Accueil, QR personnel, congés, messages et profil sont accessibles en plein écran.</p></div></li>
                     </ol>
                 </div>
-            </div>
+            </section>
 
-            <!-- 13 -->
-            <div class="card g-sec reveal" id="rythme">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#16a34a,#22c55e);"><i class="fas fa-calendar-check"></i></span>
-                    <span class="card-title">Le bon rythme de travail<small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">Ce qu'il faut faire, et quand</small></span>
-                    <span class="num">Rubrique 13</span>
-                </div>
-                <div class="card-body">
+            <section class="guide-section" id="rythme">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-calendar-check"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">13. Rythme de travail</h2>
+                        <span class="guide-section-sub">Opérations récurrentes.</span>
+                    </div>
+                    <span class="guide-section-num">Rubrique 13</span>
+                </header>
+                <div class="guide-section-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead><tr><th style="width:170px;">Fréquence</th><th>Que faire</th></tr></thead>
+                        <table class="guide-table">
+                            <thead>
+                                <tr><th scope="col" style="width:160px;">Fréquence</th><th scope="col">Opérations</th></tr>
+                            </thead>
                             <tbody>
-                                <tr><td><span class="badge badge-success p-2">Chaque jour</span></td><td>Contrôler les pointages, valider les arrivées, répondre aux demandes de congé.</td></tr>
-                                <tr><td><span class="badge badge-info p-2">Chaque semaine</span></td><td>Consulter l'absentéisme, vérifier les formations en cours, archiver les messages traités.</td></tr>
-                                <tr><td><span class="badge badge-warning p-2">Chaque mois</span></td><td>Compléter les présences, <strong>générer et payer les bulletins</strong>, exporter les rapports.</td></tr>
-                                <tr><td><span class="badge badge-danger p-2">Au départ</span></td><td>Passer l'employé en <em>suspendu</em>, puis désactiver son compte utilisateur.</td></tr>
+                                <tr><td>Chaque jour</td><td>Contrôler les pointages, valider les déclarations, traiter les demandes de congé.</td></tr>
+                                <tr><td>Chaque semaine</td><td>Consulter l'absentéisme, suivre les formations en cours, traiter les messages.</td></tr>
+                                <tr><td>Chaque mois</td><td>Compléter les présences, générer et payer les bulletins, exporter les rapports.</td></tr>
+                                <tr><td>Au départ d'un employé</td><td>Passer l'employé en statut <strong>Suspendu</strong>, puis désactiver son compte utilisateur.</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- 14 -->
-            <div class="card g-sec reveal" id="aide">
-                <div class="card-header">
-                    <span class="ico" style="background:linear-gradient(135deg,#dc2626,#f87171);"><i class="fas fa-life-ring"></i></span>
-                    <span class="card-title">Aide & dépannage<small class="d-block text-muted font-weight-normal" style="font-size:.82rem;">Les cas les plus fréquents</small></span>
-                    <span class="num">Rubrique 14</span>
-                </div>
-                <div class="card-body">
-                    <div class="g-cols">
-                        <div class="g-col">
-                            <h6><i class="fas fa-key text-warning mr-2"></i>Mot de passe oublié</h6>
-                            Utilisez <a href="<?= APP_URL ?>/forgot-password">Mot de passe oublié ?</a> sur la page de connexion, ou demandez à l'administrateur de le réinitialiser depuis <a href="<?= APP_URL ?>/utilisateurs">Utilisateurs</a>.
+            <section class="guide-section" id="aide">
+                <header>
+                    <span class="guide-section-icon" aria-hidden="true"><i class="fas fa-life-ring"></i></span>
+                    <div>
+                        <h2 class="guide-section-title">14. Aide et dépannage</h2>
+                        <span class="guide-section-sub">Cas les plus fréquents.</span>
+                    </div>
+                    <span class="guide-section-num">Rubrique 14</span>
+                </header>
+                <div class="guide-section-body">
+                    <div class="guide-columns">
+                        <div class="guide-column">
+                            <h6>Mot de passe oublié</h6>
+                            <p>Utilisez <a href="<?= APP_URL ?>/forgot-password">Mot de passe oublié</a> sur la page de connexion, ou demandez à l'administrateur de le réinitialiser depuis <strong>Utilisateurs</strong>.</p>
                         </div>
-                        <div class="g-col">
-                            <h6><i class="fas fa-lock text-danger mr-2"></i>« Trop de tentatives »</h6>
-                            Le logiciel bloque 5 échecs consécutifs pendant 15 minutes : c'est une protection, patientez puis réessayez.
+                        <div class="guide-column">
+                            <h6>Message « Trop de tentatives »</h6>
+                            <p>Après cinq échecs consécutifs, la connexion est bloquée pendant quinze minutes. Patientez puis réessayez.</p>
                         </div>
-                        <div class="g-col">
-                            <h6><i class="fas fa-qrcode text-success mr-2"></i>Le QR ne s'affiche pas</h6>
-                            Vérifiez d'être connecté et que l'heure de l'appareil est correcte : le QR rafraîchit tout seul.
+                        <div class="guide-column">
+                            <h6>Caméra indisponible</h6>
+                            <p>Autorisez la caméra dans le navigateur, vérifiez qu'aucune autre application ne l'utilise, ou saisissez le code manuellement. La caméra exige HTTPS ou localhost.</p>
                         </div>
-                        <div class="g-col">
-                            <h6><i class="fas fa-desktop text-primary mr-2"></i>Page vide ou 403</h6>
-                            Votre rôle n'a pas accès à cette page. Revenez au <a href="<?= APP_URL ?>/dashboard">tableau de bord</a> : seuls les menus visibles vous sont ouverts.
+                        <div class="guide-column">
+                            <h6>Données absentes</h6>
+                            <p>Vérifiez la période sélectionnée et les filtres actifs. Un filtre de statut peut masquer des lignes existantes.</p>
                         </div>
                     </div>
-                    <div class="text-center mt-4">
-                        <a href="<?= APP_URL ?>/dashboard" class="btn btn-primary"><i class="fas fa-tachometer-alt mr-1"></i>Retour au tableau de bord</a>
-                        <a href="<?= APP_URL ?>/about" class="btn btn-outline-secondary ml-2"><i class="fas fa-info-circle mr-1"></i>À propos</a>
-                    </div>
                 </div>
-            </div>
-
+            </section>
         </div>
     </div>
 </section>
 
-<script>
-(function () {
-    var sections = Array.prototype.slice.call(document.querySelectorAll('.g-sec'));
-    var links = Array.prototype.slice.call(document.querySelectorAll('.toc-link'));
-    var bar = document.getElementById('guideProgress');
-
-    function revealNow(el) {
-        if (!el || el.classList.contains('in')) { return; }
-        el.classList.add('in');
-        el.style.transitionDelay = '';
-        if (ioRef) { ioRef.unobserve(el); }
-    }
-
-    var ioRef = null;
-
-    if ('IntersectionObserver' in window) {
-        var io = new IntersectionObserver(function (entries) {
-            entries.forEach(function (e) {
-                if (!e.isIntersecting) { return; }
-                var el = e.target;
-                el.classList.add('in');
-                io.unobserve(el);
-                // Le délai d'échelonnement ne doit plus s'appliquer ensuite
-                // (sinon le survol de la carte serait décalé d'autant).
-                var cleared = false;
-                var clearDelay = function (ev) {
-                    if (cleared) { return; }
-                    if (ev && ev.target !== el) { return; } // ignorer les transitions des enfants
-                    cleared = true;
-                    el.style.transitionDelay = '';
-                    el.removeEventListener('transitionend', clearDelay);
-                };
-                el.addEventListener('transitionend', clearDelay);
-                setTimeout(clearDelay, 1200);
-            });
-        }, { threshold: 0.08, rootMargin: '0px 0px -5% 0px' });
-        ioRef = io;
-        document.querySelectorAll('.reveal').forEach(function (el, i) {
-            el.style.transitionDelay = (i % 4) * 70 + 'ms';
-            io.observe(el);
-        });
-    } else {
-        document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
-    }
-
-    // Filet de sécurité : si l'observateur n'a pas marché (navigateur,
-    // extension, onglet en arrière-plan), on affiche ce qui est déjà à l'écran.
-    setTimeout(function () {
-        document.querySelectorAll('.reveal:not(.in)').forEach(function (el) {
-            var r = el.getBoundingClientRect();
-            if (r.top < window.innerHeight && r.bottom > 0) { revealNow(el); }
-        });
-    }, 2500);
-
-    // Saut depuis le sommaire : la section visée doit être affichée immédiatement,
-    // sans attendre l'observateur pendant le défilement animé.
-    links.forEach(function (l) {
-        l.addEventListener('click', function () {
-            var id = (l.getAttribute('href') || '').slice(1);
-            if (!id) { return; }
-            var target = document.getElementById(id);
-            if (!target) { return; }
-            revealNow(target);
-            var idx = sections.indexOf(target);
-            for (var i = 0; i <= idx && i > -1; i++) { revealNow(sections[i]); }
-        });
-    });
-
-    function onScroll() {
-        var y = window.scrollY || window.pageYOffset;
-        var h = document.documentElement.scrollHeight - window.innerHeight;
-        if (bar) { bar.style.width = (h > 0 ? Math.min(100, (y / h) * 100) : 0) + '%'; }
-
-        var current = sections[0];
-        for (var i = 0; i < sections.length; i++) {
-            if (sections[i].getBoundingClientRect().top <= 140) { current = sections[i]; }
-        }
-        links.forEach(function (l) {
-            l.classList.toggle('active', current && l.getAttribute('href') === '#' + current.id);
-        });
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-})();
-</script>
-
 <?php
 $content = ob_get_clean();
+ob_start();
+?>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.guide-toc a'));
+    var sections = links.map(function (link) {
+        return document.getElementById((link.getAttribute('href') || '').slice(1));
+    });
+    if (!links.length || sections.some(function (s) { return !s; })) { return; }
+
+    function setActive(id) {
+        links.forEach(function (link) {
+            link.classList.toggle('is-active', link.getAttribute('href') === '#' + id);
+        });
+    }
+
+    if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) { setActive(entry.target.id); }
+            });
+        }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+        sections.forEach(function (section) { observer.observe(section); });
+    }
+
+    links.forEach(function (link) {
+        link.addEventListener('click', function () {
+            setActive((link.getAttribute('href') || '').slice(1));
+        });
+    });
+});
+</script>
+<?php
+$extraScripts = ob_get_clean();
 require __DIR__ . '/../layouts/app.php';
 ?>
