@@ -138,10 +138,10 @@ CREATE TABLE `employes` (
   KEY `id_utilisateur` (`id_utilisateur`),
   CONSTRAINT `employes_ibfk_1` FOREIGN KEY (`id_service`) REFERENCES `services` (`id_service`) ON DELETE SET NULL,
   CONSTRAINT `employes_ibfk_2` FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateurs` (`id_utilisateur`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `employes` WRITE;
-INSERT INTO `employes` VALUES (2,'EMP-2026-0001','LOKO','BOKAMBA','SARAH','F','1998-03-14','Kinshasa','12, avenue des Palmiers','0812345678','sarah.loko@globit.com','Chargée de recrutement','2025-02-03',1450.00,'actif',2,0,3,NULL,'4f8280ab322d913b83213bb3524a8cf6f5962e5f7ce2dbe75d3ffd8528fdcbbc','2026-09-13 09:59:27','2026-09-13 09:59:27'),(4,'EMP-2026-0002','MUKENDI','KABONGO','JEAN','M','1995-07-21','Kinshasa','45, avenue de la Justice','0813456789','jean.mukendi@globit.com','Développeur web','2024-06-10',1600.00,'actif',3,0,NULL,NULL,NULL,'2026-09-13 09:59:27','2026-09-13 09:59:27'),(5,'EMP-2026-0003','ILUNGA','KASONGO','CLARISSE','F','1993-11-05','Lubumbashi','8, rue des Orchidées','0824567890','clarisse.ilunga@globit.com','Assistante de direction','2023-09-01',1300.00,'actif',1,0,NULL,NULL,NULL,'2026-09-13 09:59:27','2026-09-13 09:59:27'),(6,'EMP-2026-0004','BOLENGE','MABIALA','PATRICK','M','1990-02-17','Kinshasa','23, boulevard du 30 Juin','0845678901','patrick.bolenge@globit.com','Comptable','2022-01-17',1500.00,'actif',4,0,NULL,NULL,NULL,'2026-09-13 09:59:27','2026-09-13 09:59:27');
+INSERT INTO `employes` VALUES (2,'EMP-2026-0001','TSHIBUABUA','TSHIBUABUA','PERLE','F','2006-05-20','Kinshasa','05 LULUA BANDALUGWA','0850867191','perle.tshibuabua@globit.com','Agent administratif','2026-09-13',1200.00,'actif',6,0,3,NULL,'4f8280ab322d913b83213bb3524a8cf6f5962e5f7ce2dbe75d3ffd8528fdcbbc','2026-09-13 09:59:27','2026-09-13 09:59:27');
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `formations`;
 CREATE TABLE `formations` (
@@ -225,10 +225,9 @@ CREATE TABLE `notifications` (
   PRIMARY KEY (`id_notification`),
   KEY `id_utilisateur` (`id_utilisateur`),
   CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateurs` (`id_utilisateur`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `notifications` WRITE;
-INSERT INTO `notifications` VALUES (2,1,'Déclaration de présence à valider','SARAH LOKO a déclaré son arrivée. Une validation est requise.','presence',1,'http://localhost/SIRH/presences','2026-09-13 10:05:45');
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `parametres_paie`;
 CREATE TABLE `parametres_paie` (
@@ -281,7 +280,7 @@ CREATE TABLE `presences` (
   PRIMARY KEY (`id_presence`),
   UNIQUE KEY `unique_presence` (`id_employe`,`date_presence`),
   CONSTRAINT `presences_ibfk_1` FOREIGN KEY (`id_employe`) REFERENCES `employes` (`id_employe`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `presences` WRITE;
 UNLOCK TABLES;
@@ -315,7 +314,7 @@ CREATE TABLE `utilisateurs` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `utilisateurs` WRITE;
-INSERT INTO `utilisateurs` VALUES (1,'Administrateur','admin@sirh.local','$2y$10$TMAJvCfKwbgMj6O3hQ4SXOU4FzOYz/E2oy4KGcvsMYHUMfYnOCFP6','admin',NULL,'actif','2026-09-17 13:06:43','2026-09-11 10:59:05','2026-09-17 11:06:43'),(3,'SARAH LOKO','sarah.loko@globit.com','$2y$10$Hn1G4W0Ad7T5ex5rdcUMDeXZ5G1Yghk1QsPRR6vfXsHKmh8evrNwy','employe',NULL,'actif','2026-09-13 12:03:34','2026-09-13 09:59:27','2026-09-13 10:03:34');
+INSERT INTO `utilisateurs` VALUES (1,'Administrateur','admin@sirh.local','$2y$10$TMAJvCfKwbgMj6O3hQ4SXOU4FzOYz/E2oy4KGcvsMYHUMfYnOCFP6','admin',NULL,'actif','2026-09-17 13:06:43','2026-09-11 10:59:05','2026-09-17 11:06:43'),(3,'PERLE TSHIBUABUA','perle.tshibuabua@globit.com','$2y$10$Hn1G4W0Ad7T5ex5rdcUMDeXZ5G1Yghk1QsPRR6vfXsHKmh8evrNwy','employe',NULL,'actif','2026-09-13 12:03:34','2026-09-13 09:59:27','2026-09-13 10:03:34');
 UNLOCK TABLES;
 
 SET UNIQUE_CHECKS = 1;
