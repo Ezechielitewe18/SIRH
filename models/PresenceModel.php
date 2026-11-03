@@ -371,4 +371,112 @@ class PresenceModel extends Model {
         $stmt->execute(['date' => $date]);
         return $stmt->fetchAll();
     }
+
+    /* ------------------------------------------------------------------
+       Espace salarie : toutes les lectures ci-dessous sont strictement
+       limitees a UN employe. Aucune statistique collective n'est exposee.
+       ------------------------------------------------------------------ */
+
+    /** Etat de presence du jour pour un employe (null si aucun pointage). */
+    public function etatJour($id_employe) {
+        $aujourdhui = $this->findTodayByEmployee($id_employe);
+        return $aujourdhui[0] ?? null;
+    }
+
+    /** Historique d'un employe sur un mois donne. */
+    public function findByMonthEmploye($id_employe, $mois = null, $annee = null) {
+        if (!$mois) $mois = date('m');
+        if (!$annee) $annee = date('Y');
+
+        $sql = "SELECT * FROM {$this->table}
+                WHERE id_employe = :id_employe
+                  AND MONTH(date_presence) = :mois
+                  AND YEAR(date_presence) = :annee
+                ORDER BY date_presence DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            'id_employe' => $id_employe,
+            'mois' => (int) $mois,
+            'annee' => (int) $annee,
+        ]);
+        return $stmt->fetchAll();
+    }
+
+    /** Statistiques mensuelles limitees a un seul employe. */
+    public function statsMoisPourEmploye($id_employe, $mois = null, $annee = null) {
+        if (!$mois) $mois = date('m');
+        if (!$annee) $annee = date('Y');
+
+        $sql = "SELECT
+                    COUNT(*) AS jours_pointes,
+                    COALESCE(SUM(CASE WHEN statut = 'present' THEN 1 ELSE 0 END), 0) AS presents,
+                    COALESCE(SUM(CASE WHEN statut = 'retard' THEN 1 ELSE 0 END), 0) AS retards,
+                    COALESCE(SUM(CASE WHEN statut = 'absent' THEN 1 ELSE 0 END), 0) AS absents,
+                    COALESCE(SUM(CASE WHEN statut = 'justifie' THEN 1 ELSE 0 END), 0) AS justifies,
+                    COALESCE(SUM(retard), 0) AS minutes_retard,
+                    COALESCE(SUM(
+                        CASE WHEN heure_arrivee IS NOT NULL AND heure_depart IS NOT NULL
+                             THEN TIME_TO_SEC(TIMEDIFF(heure_depart, heure_arrivee))
+                             ELSE 0 END
+                    ), 0) AS secondes_travail
+                FROM {$this->table}
+                WHERE id_employe = :id_employe
+                  AND MONTH(date_presence) = :mois
+                  AND YEAR(date_presence) = :annee
+                  AND validation IN ('auto', 'validee')";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            'id_employe' => $id_employe,
+            'mois' => (int) $mois,
+            'annee' => (int) $annee,
+        ]);
+        $row = $stmt->fetch();
+
+        return [
+            'jours_pointes' => (int) ($row['jours_pointes'] ?? 0),
+            'presents' => (int) ($row['presents'] ?? 0),
+            'retards' => (int) ($row['retards'] ?? 0),
+            'absents' => (int) ($row['absents'] ?? 0),
+            'justifies' => (int) ($row['justifies'] ?? 0),
+            'minutes_retard' => (int) ($row['minutes_retard'] ?? 0),
+            'heures_travail' => round(((int) ($row['secondes_travail'] ?? 0)) / 3600, 1),
+        ];
+    }
+
+    /** Derniers pointages d'un employe, tous mois confondus. */
+    public function dernieresPresences($id_employe, $limit = 5) {
+        $limit = max(1, min(50, (int) $limit));
+        $sql = "SELECT * FROM {$this->table}
+                WHERE id_employe = :id_employe
+                ORDER BY date_presence DESC, id_presence DESC
+                LIMIT {$limit}";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id_employe' => $id_employe]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Garde anti-double scan : retourne la ligne de presence si elle vient
+     * d'etre modifiee (arrivee ou depart) il y a moins de $secondes secondes.
+     */
+    public function pointageRecent($id_employe, $secondes = 15) {
+        $secondes = max(1, (int) $secondes);
+        $sql = "SELECT id_presence, heure_arrivee, heure_depart, updated_at,
+                       TIMESTAMPDIFF(SECOND, updated_at, NOW()) AS secondes_ecoulees
+                FROM {$this->table}
+                WHERE id_employe = :id_employe AND date_presence = :date_presence
+                ORDER BY updated_at DESC
+                LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            'id_employe' => $id_employe,
+            'date_presence' => date('Y-m-d'),
+        ]);
+        $row = $stmt->fetch();
+        if (!$row) {
+            return null;
+        }
+        $ecoulees = (int) ($row['secondes_ecoulees'] ?? 9999);
+        return $ecoulees <= $secondes ? $row : null;
+    }
 }

@@ -2,6 +2,7 @@
 $pageTitle = 'Gestion des employés';
 $total = count($employees ?? []);
 $hasSearch = !empty($search);
+$isAdmin = ($_SESSION['user_role'] ?? '') === 'admin';
 ob_start();
 ?>
 
@@ -24,9 +25,11 @@ ob_start();
             <a href="<?= APP_URL ?>/export/employees/pdf" class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-file-pdf" aria-hidden="true"></i> PDF
             </a>
+            <?php if ($isAdmin): ?>
             <a href="<?= APP_URL ?>/employees/create" class="btn btn-primary">
                 <i class="fas fa-plus" aria-hidden="true"></i> Ajouter un employé
             </a>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -58,6 +61,13 @@ ob_start();
             </span>
         </div>
     </div>
+
+    <?php if (!$isAdmin): ?>
+    <p class="sirh-inline-note" style="margin:0 0 14px;">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        Consultation seule : la création et la suppression des employés sont réservées à l'administrateur.
+    </p>
+    <?php endif; ?>
 
     <div class="card">
         <?php if (!empty($employees)): ?>
@@ -112,12 +122,14 @@ ob_start();
                                 <a href="<?= APP_URL ?>/employees/edit/<?= $emp['id_employe'] ?>" class="btn btn-sm btn-warning btn-icon" aria-label="Modifier <?= htmlspecialchars($emp['prenom'] . ' ' . $emp['nom']) ?>" title="Modifier">
                                     <i class="fas fa-edit" aria-hidden="true"></i>
                                 </a>
+                                <?php if ($isAdmin): ?>
                                 <form method="POST" action="<?= APP_URL ?>/employees/delete/<?= $emp['id_employe'] ?>" style="display:inline;" onsubmit="return confirm('Supprimer définitivement cet employé ?')">
                                     <?= csrf_field() ?>
                                     <button class="btn btn-sm btn-danger btn-icon" aria-label="Supprimer <?= htmlspecialchars($emp['prenom'] . ' ' . $emp['nom']) ?>" title="Supprimer">
                                         <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </form>
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>
@@ -134,8 +146,12 @@ ob_start();
             <a href="<?= APP_URL ?>/employees" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times" aria-hidden="true"></i> Effacer la recherche</a>
             <?php else: ?>
             <p class="sirh-empty-title">Aucun employé enregistré</p>
+            <?php if ($isAdmin): ?>
             <p class="sirh-empty-text">Commencez par créer le premier dossier employé pour alimenter les présences, les congés et la paie.</p>
             <a href="<?= APP_URL ?>/employees/create" class="btn btn-primary btn-sm"><i class="fas fa-plus" aria-hidden="true"></i> Ajouter un employé</a>
+            <?php else: ?>
+            <p class="sirh-empty-text">Aucun dossier n'a encore été créé. L'administrateur doit enregistrer le premier employé.</p>
+            <?php endif; ?>
             <?php endif; ?>
         </div>
         <?php endif; ?>

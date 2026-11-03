@@ -198,7 +198,7 @@
             text-align: left;
         }
 
-        .actions { margin-top: 18px; display: flex; gap: 10px; }
+        .actions { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; }
         .btn {
             flex: 1;
             min-height: 44px;
@@ -276,6 +276,7 @@
 
         <div class="consigne">Scannez ce QR avec le poste de la réception : votre <strong>arrivée</strong> sera enregistrée à l'instant du scan. Un second scan pointera votre <strong>départ</strong>.</div>
 
+        <div id="etatJour" aria-live="polite">
         <?php if (!$maPresence): ?>
         <div class="etat info">
             <b>Aucune présence enregistrée aujourd'hui</b>
@@ -303,11 +304,14 @@
             Arrivée <?= htmlspecialchars(substr($maPresence['heure_arrivee'], 0, 5)) ?> · Départ <?= htmlspecialchars(substr($maPresence['heure_depart'], 0, 5)) ?>.
         </div>
         <?php endif; ?>
+        </div>
 
         <div class="note">Sécurité : ce code est signé par le serveur et expire après <?= QR_PERIODE ?> secondes. Une photo ou un envoi à distance ne peut pas servir à pointer une présence.</div>
 
         <div class="actions">
             <a class="btn btn-outline" href="<?= APP_URL ?>/presences"><i class="fas fa-arrow-left" aria-hidden="true"></i> Présences</a>
+            <a class="btn btn-outline" href="<?= APP_URL ?>/mon-profil"><i class="fas fa-id-card" aria-hidden="true"></i> Profil</a>
+            <button type="button" class="btn btn-outline" id="btnPleinEcran" aria-label="Afficher en plein écran"><i class="fas fa-expand" aria-hidden="true"></i> Plein écran</button>
             <button type="button" class="btn btn-primary" id="btnActualiser"><i class="fas fa-rotate" aria-hidden="true"></i> Actualiser</button>
         </div>
     </div>
@@ -315,6 +319,10 @@
     <?php if (!empty($_SESSION['error'])): ?>
     <div class="erreur"><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
     <?php endif; ?>
+
+    <div class="erreur" id="sessionErreur" hidden>
+        Votre session a expiré. <a href="<?= APP_URL ?>/login">Se reconnecter</a>
+    </div>
 
     <script>
     var QR_URL = <?= json_encode(APP_URL . '/presences/qr-code') ?>;
@@ -368,6 +376,90 @@
     document.getElementById('btnActualiser').addEventListener('click', charger);
     charger();
     setInterval(tick, 500);
+
+    /* ------------------------------------------------------------------
+       Statut du jour : mise a jour en direct apres le scan de la reception.
+       ------------------------------------------------------------------ */
+    var STATUT_URL = <?= json_encode(APP_URL . '/presences/qr-statut') ?>;
+    var statutTimer = null;
+
+    function esc(v) {
+        return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+
+    function afficherEtat(j) {
+        var box = document.getElementById('etatJour');
+        if (!box) return;
+        var html;
+        if (j.etat === 'arrivee') {
+            var retard = j.retard > 0 ? 'Retard : ' + j.retard + ' min.' : 'À l\'heure.';
+            html = '<div class="etat ok"><b>Arrivée pointée à ' + esc(j.heure_arrivee) + '</b>'
+                 + retard + ' Un second scan à la réception pointera votre départ.</div>';
+        } else if (j.etat === 'termine') {
+            html = '<div class="etat ok"><b>Journée pointée</b>Arrivée ' + esc(j.heure_arrivee)
+                 + ' · Départ ' + esc(j.heure_depart) + '.</div>';
+        } else if (j.etat === 'absent') {
+            html = '<div class="etat warn"><b>Marqué absent aujourd\'hui</b>Présentez ce QR à la réception : la Direction pourra enregistrer votre arrivée tardive.</div>';
+        } else {
+            html = '<div class="etat info"><b>Aucune présence enregistrée aujourd\'hui</b>Votre arrivée n\'est pas encore pointée.</div>';
+        }
+        if (box.innerHTML !== html) box.innerHTML = html;
+    }
+
+    function verifierStatut() {
+        fetch(STATUT_URL, { credentials: 'same-origin', cache: 'no-store' })
+            .then(function (r) {
+                if (r.redirected || r.status === 401 || r.status === 403) throw new Error('session');
+                return r.json();
+            })
+            .then(function (j) {
+                if (!j || !j.success) return;
+                if (j.serveur_now) OFFSET = j.serveur_now - Date.now();
+                afficherEtat(j);
+            })
+            .catch(function (err) {
+                if (!err || err.message !== 'session') return;
+                var box = document.getElementById('sessionErreur');
+                if (box) box.hidden = false;
+                if (statutTimer) { clearInterval(statutTimer); statutTimer = null; }
+            });
+    }
+
+    /* Plein ecran (confort au comptoir / telephone) */
+    var btnPleinEcran = document.getElementById('btnPleinEcran');
+    if (btnPleinEcran) {
+        btnPleinEcran.addEventListener('click', function () {
+            var el = document.documentElement;
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (el.requestFullscreen) {
+                el.requestFullscreen().catch(function () {});
+            }
+        });
+    }
+
+    /* Garder l'ecran allume pendant l'affichage du QR */
+    var wakeLock = null;
+    function garderEcranAllume() {
+        if (!('wakeLock' in navigator)) return;
+        navigator.wakeLock.request('screen').then(function (l) {
+            wakeLock = l;
+            l.addEventListener('release', function () { wakeLock = null; });
+        }).catch(function () {});
+    }
+
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') {
+            garderEcranAllume();
+            verifierStatut();
+        }
+    });
+
+    verifierStatut();
+    statutTimer = setInterval(verifierStatut, 5000);
+    garderEcranAllume();
     </script>
 
 </body>

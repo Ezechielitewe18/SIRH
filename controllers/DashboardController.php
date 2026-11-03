@@ -24,6 +24,15 @@ class DashboardController {
     }
 
     public function index() {
+        $role = $_SESSION['user_role'] ?? '';
+
+        // Un employe ne voit que ses propres donnees : vue dediee, aucune
+        // requete collective (effectif, paie totale, conges des collegues...).
+        if ($role === 'employe') {
+            $this->indexEmploye();
+            return;
+        }
+
         $mois = $_GET['mois'] ?? date('m');
         $annee = $_GET['annee'] ?? date('Y');
         $bulletins = $this->paieModel->findAllWithEmployee($mois, $annee);
@@ -87,5 +96,58 @@ class DashboardController {
         ];
 
         require __DIR__ . '/../views/dashboard/index.php';
+    }
+
+    /**
+     * Tableau de bord de l'espace salarie. Toutes les donnees sont filtrees
+     * sur l'employe connecte : aucun acces aux chiffres de l'entreprise.
+     */
+    private function indexEmploye() {
+        $employeeId = $_SESSION['employee_id'] ?? null;
+        $mois = (int) ($_GET['mois'] ?? date('m'));
+        $annee = (int) ($_GET['annee'] ?? date('Y'));
+
+        $employe = null;
+        $presenceJour = null;
+        $stats = [
+            'jours_pointes' => 0, 'presents' => 0, 'retards' => 0,
+            'absents' => 0, 'justifies' => 0, 'minutes_retard' => 0,
+            'heures_travail' => 0,
+        ];
+        $historique = [];
+        $dernieres = [];
+        $mesConges = [];
+        $congesEnAttente = 0;
+        $congesApprouves = 0;
+        $congesEnCours = null;
+        $bulletins = [];
+        $dernierBulletin = null;
+
+        if ($employeeId) {
+            $employe = $this->employeeModel->findByIdWithService($employeeId);
+            $presenceJour = $this->presenceModel->etatJour($employeeId);
+            $stats = $this->presenceModel->statsMoisPourEmploye($employeeId, $mois, $annee);
+            $historique = $this->presenceModel->findByMonthEmploye($employeeId, $mois, $annee);
+            $dernieres = $this->presenceModel->dernieresPresences($employeeId, 6);
+
+            $mesConges = $this->congeModel->findByEmployee($employeeId);
+            foreach ($mesConges as $c) {
+                if ($c['statut'] === 'en_attente') {
+                    $congesEnAttente++;
+                } elseif ($c['statut'] === 'approuve') {
+                    $congesApprouves++;
+                    $today = date('Y-m-d');
+                    if ($congesEnCours === null && $today >= $c['date_debut'] && $today <= $c['date_fin']) {
+                        $congesEnCours = $c;
+                    }
+                }
+            }
+
+            $bulletins = $this->paieModel->findByEmployee($employeeId);
+            $dernierBulletin = $bulletins[0] ?? null;
+        }
+
+        $pageTitle = 'Mon espace';
+        require __DIR__ . '/../views/dashboard/employe.php';
     }
 }

@@ -19,10 +19,32 @@ class PresenceController {
     public function index() {
         $this->presenceModel->marquerAbsentsAvantLimite();
 
+        $role = $_SESSION['user_role'] ?? '';
         $date = $_GET['date'] ?? date('Y-m-d');
+
+        // Espace salarie : uniquement son propre historique. Le registre
+        // collectif des presences reste reserve aux managers.
+        if ($role === 'employe') {
+            $employeeId = $_SESSION['employee_id'] ?? null;
+            $mois = (int) ($_GET['mois'] ?? date('m'));
+            $annee = (int) ($_GET['annee'] ?? date('Y'));
+
+            $mesPresences = $employeeId
+                ? $this->presenceModel->findByMonthEmploye($employeeId, $mois, $annee)
+                : [];
+            $stats = $employeeId
+                ? $this->presenceModel->statsMoisPourEmploye($employeeId, $mois, $annee)
+                : ['jours_pointes' => 0, 'presents' => 0, 'retards' => 0, 'absents' => 0,
+                   'justifies' => 0, 'minutes_retard' => 0, 'heures_travail' => 0];
+            $maPresence = $employeeId ? $this->presenceModel->etatJour($employeeId) : null;
+            $employe = $employeeId ? $this->employeeModel->findByIdWithService($employeeId) : null;
+
+            require __DIR__ . '/../views/presences/mes_presences.php';
+            return;
+        }
+
         $presences = $this->presenceModel->findAllWithEmployee($date);
 
-        $role = $_SESSION['user_role'] ?? '';
         $isManager = in_array($role, ['admin', 'rh', 'directeur']);
         $canScan = in_array($role, ['admin', 'rh']);
         $enAttente = $isManager ? $this->presenceModel->trouverEnAttente() : [];
@@ -31,8 +53,7 @@ class PresenceController {
 
         $maPresence = null;
         if (!empty($_SESSION['employee_id'])) {
-            $aujourdhui = $this->presenceModel->findTodayByEmployee($_SESSION['employee_id']);
-            $maPresence = $aujourdhui[0] ?? null;
+            $maPresence = $this->presenceModel->etatJour($_SESSION['employee_id']);
         }
 
         require __DIR__ . '/../views/presences/index.php';
@@ -142,14 +163,57 @@ class PresenceController {
         echo json_encode($jeton);
     }
 
-    /** Ecran reception : scan des QR a la webcam ou au lecteur. */
-public function scan() {
-    $this->presenceModel->marquerAbsentsAvantLimite();
-    $date = $_GET['date'] ?? date('Y-m-d');
-    $scans = $this->presenceModel->findScansDuJour($date);
+    /**
+     * Etat du jour de l'employe connecte, en JSON. Permet a l'ecran QR de
+     * confirmer en direct que le scan de la reception a bien ete pris en compte.
+     */
+    public function qrStatut() {
+        header('Content-Type: application/json; charset=utf-8');
 
-    require __DIR__ . '/../views/presences/scan.php';
-}
+        $employeeId = $_SESSION['employee_id'] ?? null;
+        if (!$employeeId) {
+            echo json_encode(['success' => false, 'message' => 'Session terminee.']);
+            return;
+        }
+
+        $presence = $this->presenceModel->etatJour($employeeId);
+        $etat = 'attente';
+        if ($presence) {
+            if ($presence['statut'] === 'absent') {
+                $etat = 'absent';
+            } elseif (empty($presence['heure_arrivee'])) {
+                $etat = 'absent';
+            } elseif (empty($presence['heure_depart'])) {
+                $etat = 'arrivee';
+            } else {
+                $etat = 'termine';
+            }
+        }
+
+        echo json_encode([
+            'success' => true,
+            'serveur_now' => (int) round(microtime(true) * 1000),
+            'etat' => $etat,
+            'statut' => $presence['statut'] ?? null,
+            'validation' => $presence['validation'] ?? null,
+            'heure_arrivee' => !empty($presence['heure_arrivee']) ? substr($presence['heure_arrivee'], 0, 5) : null,
+            'heure_depart' => !empty($presence['heure_depart']) ? substr($presence['heure_depart'], 0, 5) : null,
+            'retard' => (int) ($presence['retard'] ?? 0),
+            'action' => ($presence && !empty($presence['heure_depart'])) ? 'depart' : 'arrivee',
+        ]);
+    }
+
+    /** Ecran reception : scan des QR a la webcam ou au lecteur. */
+    public function scan() {
+        $this->presenceModel->marquerAbsentsAvantLimite();
+        $date = $_GET['date'] ?? date('Y-m-d');
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            $date = date('Y-m-d');
+        }
+        $scans = $this->presenceModel->findScansDuJour($date);
+
+        require __DIR__ . '/../views/presences/scan.php';
+    }
 
 /** Traitement d'un QR scanne (POST JSON ou formulaire). */
 public function scanValider() {
@@ -173,6 +237,26 @@ public function scanValider() {
     }
 
     $employe = $validation['employe'];
+
+    // Anti-double scan : la camera peut lire deux fois la meme image, ou le
+    // lecteur USB envoyer deux fois le meme code. On refuse tout nouveau
+    // pointage moins de 15 secondes apres le precedent pour ce meme employe.
+    $recent = $this->presenceModel->pointageRecent($employe['id_employe'], 15);
+    if ($recent) {
+        echo json_encode([
+            'success' => false,
+            'action' => null,
+            'message' => 'Pointage deja pris en compte il y a quelques secondes. Patientez avant un nouveau scan.',
+            'employe' => [
+                'id_employe' => $employe['id_employe'],
+                'nom' => $employe['nom'],
+                'prenom' => $employe['prenom'],
+                'matricule' => $employe['matricule'],
+            ],
+        ]);
+        return;
+    }
+
     $resultat = $this->presenceModel->scanPointage($employe['id_employe'], $_SESSION['user_id']);
 
     if ($resultat['success']) {

@@ -27,6 +27,8 @@ class EmployeeController {
     }
 
     public function create() {
+        $this->requireAdmin();
+
         $services = $this->serviceModel->findAllOrdered();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -92,6 +94,33 @@ class EmployeeController {
         require __DIR__ . '/../views/employees/show.php';
     }
 
+    /**
+     * "Mon profil" : fiche en lecture seule de l'employe connecte.
+     * Aucun identifiant n'est accepte en parametre : impossible de consulter
+     * la fiche d'un collegue en modifiant l'URL.
+     */
+    public function monProfil() {
+        $employeeId = $_SESSION['employee_id'] ?? null;
+        if (!$employeeId) {
+            $_SESSION['error'] = 'Aucune fiche employé n\'est associée à votre compte.';
+            header('Location: ' . APP_URL . '/dashboard');
+            exit;
+        }
+
+        $employee = $this->employeeModel->findByIdWithService($employeeId);
+        if (!$employee) {
+            $_SESSION['error'] = 'Fiche employé introuvable.';
+            header('Location: ' . APP_URL . '/dashboard');
+            exit;
+        }
+
+        $compte = $this->userModel->findById($_SESSION['user_id']);
+        $primes = $this->employeeModel->getPrimes($employeeId, true);
+
+        $pageTitle = 'Mon profil';
+        require __DIR__ . '/../views/employees/mon_profil.php';
+    }
+
     public function edit($id) {
         $employee = $this->employeeModel->findByIdWithService($id);
         if (!$employee) {
@@ -137,12 +166,32 @@ class EmployeeController {
     }
 
     public function delete($id) {
+        $this->requireAdmin();
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Supprimer le dossier employe doit aussi supprimer son compte de
+            // connexion, sinon un ancien salarie garderait un acces au SIRH.
+            $employe = $this->employeeModel->findById($id);
+            if ($employe && !empty($employe['id_utilisateur'])) {
+                $this->userModel->delete($employe['id_utilisateur']);
+            }
             $this->employeeModel->delete($id);
             $_SESSION['success'] = 'Employé supprimé avec succès';
         }
         header('Location: ' . APP_URL . '/employees');
         exit;
+    }
+
+    /**
+     * Garde serveur : meme si la route est appelee directement, un compte RH
+     * ne peut jamais creer ni supprimer un dossier employe.
+     */
+    private function requireAdmin() {
+        if (($_SESSION['user_role'] ?? '') !== 'admin') {
+            $_SESSION['error'] = 'Action réservée à l\'administrateur.';
+            header('Location: ' . APP_URL . '/employees');
+            exit;
+        }
     }
 
     /**

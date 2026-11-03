@@ -1,7 +1,8 @@
 <?php
-$pageTitle = 'Tableau de bord';
 $role = $_SESSION['user_role'] ?? '';
 $isManager = in_array($role, ['admin', 'rh'], true);
+$isAdmin = $role === 'admin';
+$pageTitle = $isAdmin ? 'Tableau de bord administrateur' : 'Tableau de bord RH';
 $moisLabel = str_pad((string) ($mois ?? date('m')), 2, '0', STR_PAD_LEFT) . '/' . ($annee ?? date('Y'));
 ob_start();
 ?>
@@ -9,8 +10,14 @@ ob_start();
 <section class="content-header">
     <div class="sirh-page-header">
         <div class="sirh-page-heading">
-            <h1 class="sirh-page-title"><i class="fas fa-tachometer-alt" aria-hidden="true"></i> Tableau de bord</h1>
-            <p class="sirh-page-subtitle">Vue d'ensemble de l'activité RH pour la période <?= htmlspecialchars($moisLabel) ?>.</p>
+            <h1 class="sirh-page-title"><i class="fas fa-tachometer-alt" aria-hidden="true"></i> <?= htmlspecialchars($pageTitle) ?></h1>
+            <p class="sirh-page-subtitle">
+                <?php if ($isAdmin): ?>
+                Vue d'ensemble de l'entreprise et accès à l'administration pour la période <?= htmlspecialchars($moisLabel) ?>.
+                <?php else: ?>
+                Pilotage des présences, des congés et de la paie pour la période <?= htmlspecialchars($moisLabel) ?>.
+                <?php endif; ?>
+            </p>
         </div>
         <div class="sirh-page-actions">
             <form method="GET" action="<?= APP_URL ?>/dashboard" class="sirh-toolbar-group" aria-label="Filtrer la période du tableau de bord">
@@ -35,6 +42,37 @@ ob_start();
 
 <section class="content">
     <div class="container-fluid">
+
+        <div class="sirh-panel" style="margin-bottom:18px;">
+            <div class="sirh-panel__head">
+                <h2 class="sirh-section-title">
+                    <i class="fas fa-<?= $isAdmin ? 'shield-halved' : 'user-tie' ?>" aria-hidden="true"></i>
+                    <?= $isAdmin ? 'Administration' : 'Espace RH' ?>
+                </h2>
+                <span class="sirh-muted" style="font-size:.82rem;">
+                    <?= $isAdmin ? 'Accès complet' : 'Consultation et gestion RH' ?>
+                </span>
+            </div>
+            <div class="sirh-link-grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));">
+                <?php if ($isAdmin): ?>
+                <a href="<?= APP_URL ?>/utilisateurs"><i class="fas fa-users-cog" aria-hidden="true"></i> Utilisateurs</a>
+                <a href="<?= APP_URL ?>/services"><i class="fas fa-building" aria-hidden="true"></i> Services</a>
+                <a href="<?= APP_URL ?>/employees/create"><i class="fas fa-user-plus" aria-hidden="true"></i> Nouvel employé</a>
+                <a href="<?= APP_URL ?>/journal"><i class="fas fa-history" aria-hidden="true"></i> Journal d'activité</a>
+                <?php else: ?>
+                <a href="<?= APP_URL ?>/presences/scan"><i class="fas fa-qrcode" aria-hidden="true"></i> Poste de réception</a>
+                <a href="<?= APP_URL ?>/conges?statut=en_attente"><i class="fas fa-calendar-check" aria-hidden="true"></i> Congés à traiter</a>
+                <a href="<?= APP_URL ?>/paie"><i class="fas fa-money-bill-wave" aria-hidden="true"></i> Paie du mois</a>
+                <a href="<?= APP_URL ?>/formations"><i class="fas fa-graduation-cap" aria-hidden="true"></i> Formations</a>
+                <?php endif; ?>
+            </div>
+            <?php if (!$isAdmin): ?>
+            <p class="sirh-inline-note" style="margin:12px 0 0;">
+                <i class="fas fa-lock" aria-hidden="true"></i>
+                La création et la suppression des employés sont réservées à l'administrateur.
+            </p>
+            <?php endif; ?>
+        </div>
 
         <h2 class="sirh-section-title"><i class="fas fa-chart-simple" aria-hidden="true"></i> Indicateurs clés</h2>
         <div class="sirh-stat-grid">

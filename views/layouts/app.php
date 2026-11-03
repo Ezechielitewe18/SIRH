@@ -21,7 +21,7 @@ try {
 }
 
 /* Pages principales : pas de fleche de retour. Toute autre page est secondaire. */
-$primaryPages = ['', 'dashboard', 'employees', 'services', 'presences', 'conges', 'paie', 'formations', 'rapports', 'utilisateurs', 'journal', 'messages', 'notifications', 'guide'];
+$primaryPages = ['', 'dashboard', 'employees', 'services', 'presences', 'conges', 'paie', 'formations', 'rapports', 'utilisateurs', 'journal', 'messages', 'notifications', 'guide', 'mon-profil'];
 $isSecondary = !in_array($requestPath, $primaryPages, true);
 
 $backFallbacks = [
@@ -45,6 +45,7 @@ $backFallback = $backFallbacks[$currentModule] ?? '/dashboard';
 
 $isManager = in_array($userRole, ['admin', 'rh'], true);
 $isAdmin = $userRole === 'admin';
+$isEmploye = $userRole === 'employe';
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -58,7 +59,7 @@ $isAdmin = $userRole === 'admin';
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link rel="stylesheet" href="<?= APP_URL ?>/public/css/style.css">
 </head>
-<body class="hold-transition sidebar-mini layout-fixed sirh-page-<?= htmlspecialchars($currentModule) ?>">
+<body class="hold-transition sidebar-mini layout-fixed sirh-page-<?= htmlspecialchars($currentModule) ?><?= $isEmploye ? ' sirh-has-bottomnav' : '' ?>">
 <a class="sirh-skip-link" href="#contenu-principal">Aller au contenu principal</a>
 <div class="wrapper">
 
@@ -155,11 +156,20 @@ $isAdmin = $userRole === 'admin';
 
                     <li class="nav-header">Temps et activités</li>
                     <li class="nav-item">
-                        <a href="<?= APP_URL ?>/presences" class="nav-link <?= $currentModule === 'presences' ? 'active' : '' ?>" <?= $currentModule === 'presences' ? 'aria-current="page"' : '' ?>>
+                        <a href="<?= APP_URL ?>/presences" class="nav-link <?= $currentModule === 'presences' && !in_array($currentAction, ['qr', 'scan'], true) ? 'active' : '' ?>" <?= $currentModule === 'presences' && !in_array($currentAction, ['qr', 'scan'], true) ? 'aria-current="page"' : '' ?>>
                             <i class="nav-icon fas fa-fingerprint" aria-hidden="true"></i>
                             <p>Présences</p>
                         </a>
                     </li>
+
+                    <?php if ($isManager): ?>
+                    <li class="nav-item">
+                        <a href="<?= APP_URL ?>/presences/scan" class="nav-link <?= $currentModule === 'presences' && $currentAction === 'scan' ? 'active' : '' ?>" <?= $currentModule === 'presences' && $currentAction === 'scan' ? 'aria-current="page"' : '' ?>>
+                            <i class="nav-icon fas fa-qrcode text-info" aria-hidden="true"></i>
+                            <p>Poste de réception</p>
+                        </a>
+                    </li>
+                    <?php endif; ?>
 
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>/conges" class="nav-link <?= $currentModule === 'conges' ? 'active' : '' ?>" <?= $currentModule === 'conges' ? 'aria-current="page"' : '' ?>>
@@ -168,8 +178,20 @@ $isAdmin = $userRole === 'admin';
                         </a>
                     </li>
 
-                    <?php if ($userRole === 'employe'): ?>
+                    <?php if ($isEmploye): ?>
                     <li class="nav-header">Mon espace</li>
+                    <li class="nav-item">
+                        <a href="<?= APP_URL ?>/presences/qr" class="nav-link <?= $currentModule === 'presences' && $currentAction === 'qr' ? 'active' : '' ?>" <?= $currentModule === 'presences' && $currentAction === 'qr' ? 'aria-current="page"' : '' ?>>
+                            <i class="nav-icon fas fa-qrcode text-info" aria-hidden="true"></i>
+                            <p>Mon QR de présence</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="<?= APP_URL ?>/mon-profil" class="nav-link <?= $currentModule === 'mon-profil' ? 'active' : '' ?>" <?= $currentModule === 'mon-profil' ? 'aria-current="page"' : '' ?>>
+                            <i class="nav-icon fas fa-id-card text-primary" aria-hidden="true"></i>
+                            <p>Mon profil</p>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>/paie/mes-bulletins" class="nav-link <?= in_array($currentAction, ['mes-bulletins', 'ma-fiche'], true) ? 'active' : '' ?>" <?= in_array($currentAction, ['mes-bulletins', 'ma-fiche'], true) ? 'aria-current="page"' : '' ?>>
                             <i class="nav-icon fas fa-file-invoice-dollar text-success" aria-hidden="true"></i>
@@ -301,6 +323,31 @@ $isAdmin = $userRole === 'admin';
         </div>
     </footer>
 </div>
+
+<?php if ($isEmploye): ?>
+<nav class="sirh-bottom-nav" aria-label="Navigation rapide de l'espace salarié">
+    <a href="<?= APP_URL ?>/dashboard" class="sirh-bottom-nav__item <?= $currentModule === 'dashboard' ? 'is-active' : '' ?>" <?= $currentModule === 'dashboard' ? 'aria-current="page"' : '' ?>>
+        <i class="fas fa-house" aria-hidden="true"></i>
+        <span>Accueil</span>
+    </a>
+    <a href="<?= APP_URL ?>/presences" class="sirh-bottom-nav__item <?= $currentModule === 'presences' && $currentAction !== 'qr' ? 'is-active' : '' ?>" <?= $currentModule === 'presences' && $currentAction !== 'qr' ? 'aria-current="page"' : '' ?>>
+        <i class="fas fa-fingerprint" aria-hidden="true"></i>
+        <span>Présences</span>
+    </a>
+    <a href="<?= APP_URL ?>/presences/qr" class="sirh-bottom-nav__qr <?= $currentModule === 'presences' && $currentAction === 'qr' ? 'is-active' : '' ?>" <?= $currentModule === 'presences' && $currentAction === 'qr' ? 'aria-current="page"' : '' ?> aria-label="Afficher mon QR de présence">
+        <span class="sirh-bottom-nav__qr-inner"><i class="fas fa-qrcode" aria-hidden="true"></i></span>
+        <span class="sirh-bottom-nav__qr-label">Mon QR</span>
+    </a>
+    <a href="<?= APP_URL ?>/conges" class="sirh-bottom-nav__item <?= $currentModule === 'conges' ? 'is-active' : '' ?>" <?= $currentModule === 'conges' ? 'aria-current="page"' : '' ?>>
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+        <span>Congés</span>
+    </a>
+    <a href="<?= APP_URL ?>/mon-profil" class="sirh-bottom-nav__item <?= $currentModule === 'mon-profil' ? 'is-active' : '' ?>" <?= $currentModule === 'mon-profil' ? 'aria-current="page"' : '' ?>>
+        <i class="fas fa-id-card" aria-hidden="true"></i>
+        <span>Profil</span>
+    </a>
+</nav>
+<?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>

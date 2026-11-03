@@ -23,9 +23,9 @@
             inset: 0;
             z-index: -2;
             background:
-                radial-gradient(650px circle at 15% 5%, rgba(139, 92, 246, .26), transparent 60%),
-                radial-gradient(550px circle at 90% 90%, rgba(59, 130, 246, .20), transparent 60%),
-                linear-gradient(160deg, #05060f 0%, #0d0a1e 60%, #141031 100%);
+                radial-gradient(650px circle at 15% 5%, rgba(23, 105, 170, .30), transparent 60%),
+                radial-gradient(550px circle at 90% 90%, rgba(14, 143, 168, .22), transparent 60%),
+                linear-gradient(160deg, #071b2f 0%, #0a2540 60%, #0d3350 100%);
         }
 
         .wrap { max-width: 1120px; margin: 0 auto; }
@@ -43,7 +43,7 @@
             font-weight: 800;
             letter-spacing: 4px;
             text-transform: uppercase;
-            background: linear-gradient(120deg, #e2e8f0, #c7d2fe 50%, #a78bfa);
+            background: linear-gradient(120deg, #f4f9fd, #cfe6f3 50%, #7fd6e6);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -58,9 +58,9 @@
             font-weight: 600;
             background: rgba(255, 255, 255, .06);
             border: 1px solid rgba(255, 255, 255, .14);
-            color: #c4b5fd;
+            color: #9fd3e8;
         }
-        .pill a { color: #c4b5fd; text-decoration: none; }
+        .pill a { color: #9fd3e8; text-decoration: none; }
         .pill a:hover { text-decoration: underline; }
 
         .grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; align-items: start; }
@@ -72,7 +72,7 @@
             border: 1px solid rgba(255, 255, 255, .12);
             border-radius: 22px;
             padding: 20px;
-            box-shadow: 0 0 50px rgba(124, 58, 237, .15), inset 0 1px 0 rgba(255, 255, 255, .06);
+            box-shadow: 0 0 50px rgba(23, 105, 170, .20), inset 0 1px 0 rgba(255, 255, 255, .06);
         }
         .card h2 { font-size: 15px; font-weight: 700; margin-bottom: 14px; color: #e2e8f0; }
 
@@ -104,7 +104,7 @@
         .reticle {
             position: absolute;
             inset: 16%;
-            border: 2px dashed rgba(196, 181, 253, .55);
+            border: 2px dashed rgba(127, 214, 230, .65);
             border-radius: 18px;
             pointer-events: none;
             opacity: 0;
@@ -133,7 +133,7 @@
         .btn:active { transform: scale(.98); }
         .btn-primary {
             flex: 1;
-            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            background: linear-gradient(135deg, #1769aa, #0e8fa8);
             border-color: rgba(255, 255, 255, .18);
             color: #fff;
         }
@@ -154,7 +154,7 @@
             border-radius: 12px;
             outline: none;
         }
-        .saisie input:focus { border-color: rgba(139, 92, 246, .7); box-shadow: 0 0 0 4px rgba(139, 92, 246, .14); }
+        .saisie input:focus { border-color: rgba(23, 105, 170, .85); box-shadow: 0 0 0 4px rgba(23, 105, 170, .18); }
         .aide { margin-top: 8px; font-size: 11px; color: #7c86ab; line-height: 1.5; }
 
         /* Résultat */
@@ -239,7 +239,12 @@
             <h1>Scan de présence — Réception</h1>
             <div class="meta">Présentez le QR de l'employé dans le cadre. 1<sup>er</sup> scan = <strong>ARRIVÉE</strong> — 2<sup>e</sup> scan = <strong>DÉPART</strong>.</div>
         </div>
-        <div class="pill">Session <?= htmlspecialchars($_SESSION['user_name'] ?? '') ?> · <a href="<?= APP_URL ?>/presences">Présences</a></div>
+        <div class="pill">
+            Session <?= htmlspecialchars($_SESSION['user_name'] ?? '') ?> ·
+            <a href="<?= APP_URL ?>/presences">Présences</a> ·
+            <a href="<?= APP_URL ?>/dashboard">Tableau de bord</a> ·
+            <a href="#" id="btnPleinEcranScan">Plein écran</a>
+        </div>
     </div>
 
     <div class="grid">
@@ -271,7 +276,7 @@
                 <div class="aide">Le lecteur USB se comporte comme un clavier : scannez le QR, puis « Pointer ». Le code n'est jamais affiché sur le téléphone de l'employé.</div>
             </div>
 
-            <div class="resultat" id="resultat">
+            <div class="resultat" id="resultat" role="status" aria-live="polite" aria-atomic="true">
                 <div class="attente" id="attente">En attente d'un QR…</div>
             </div>
         </div>
@@ -305,7 +310,15 @@
 
 <script>
 var SCAN_URL = <?= json_encode(APP_URL . '/presences/scan') ?>;
+var LOGIN_URL = <?= json_encode(APP_URL . '/login') ?>;
 var CSRF = <?= json_encode(csrf_token()) ?>;
+
+/* Les noms et messages viennent de la base : on les echappe avant innerHTML. */
+function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+}
 
 /* Son de confirmation */
 function bip(ok) {
@@ -341,29 +354,37 @@ function pointer(code) {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
         body: body.toString()
     })
-        .then(function (r) { return r.json(); })
+        .then(function (r) {
+            if (r.redirected || r.status === 401 || r.status === 403) throw new Error('session');
+            return r.json();
+        })
         .then(function (j) {
             bip(j.success);
             if (j.success) {
                 var e = j.employe || {};
+                var action = j.action === 'depart' ? 'depart' : 'arrivee';
                 afficher(
-                    '<div><div class="nom">' + (e.prenom || '') + ' ' + (e.nom || '') + '</div>' +
-                    '<div class="info">' + (e.matricule || '') + '</div>' +
-                    '<div class="msg">' + j.message + '</div>' +
-                    '<div class="badge ' + (j.action || '') + '">' + (j.action === 'depart' ? 'Départ' : 'Arrivée') + '</div></div>',
+                    '<div><div class="nom">' + esc(e.prenom) + ' ' + esc(e.nom) + '</div>' +
+                    '<div class="info">' + esc(e.matricule) + '</div>' +
+                    '<div class="msg">' + esc(j.message) + '</div>' +
+                    '<div class="badge ' + action + '">' + (action === 'depart' ? 'Départ' : 'Arrivée') + '</div></div>',
                     'ok'
                 );
                 rechargerJournal();
             } else {
-                afficher('<div><div class="msg">' + j.message + '</div></div>', 'err');
+                afficher('<div><div class="msg">' + esc(j.message) + '</div></div>', 'err');
             }
             setTimeout(function () {
                 afficher('<div class="attente">En attente d\'un QR…</div>', '');
                 if (actif) scanner(true);
             }, 2500);
         })
-        .catch(function () {
+        .catch(function (err) {
             bip(false);
+            if (err && err.message === 'session') {
+                afficher('<div><div class="msg">Session expirée. <a href="' + LOGIN_URL + '" style="color:#fca5a5;text-decoration:underline">Se reconnecter</a>.</div></div>', 'err');
+                return;
+            }
             afficher('<div><div class="msg">Erreur réseau. Réessayez.</div></div>', 'err');
         });
 }
@@ -453,6 +474,42 @@ document.getElementById('codeInput').addEventListener('keydown', function (ev) {
         document.getElementById('btnValider').click();
     }
 });
+
+/* Confort de la borne : plein ecran, ecran allume, journal actualise. */
+var btnPlein = document.getElementById('btnPleinEcranScan');
+if (btnPlein) {
+    btnPlein.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        var el = document.documentElement;
+        if (document.fullscreenElement && document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (el.requestFullscreen) {
+            el.requestFullscreen().catch(function () {});
+        }
+    });
+}
+
+var wakeLock = null;
+function garderEcranAllume() {
+    if (!('wakeLock' in navigator)) return;
+    navigator.wakeLock.request('screen').then(function (l) {
+        wakeLock = l;
+        l.addEventListener('release', function () { wakeLock = null; });
+    }).catch(function () {});
+}
+
+document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') {
+        garderEcranAllume();
+        rechargerJournal();
+    }
+});
+garderEcranAllume();
+setInterval(function () {
+    if (document.visibilityState === 'visible') rechargerJournal();
+}, 15000);
+
+document.getElementById('codeInput').focus();
 </script>
 </body>
 </html>

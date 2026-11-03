@@ -76,14 +76,16 @@ $router->get('/employees', function() use ($auth) {
     $controller->index();
 });
 
+// Creation d'un employe : reservee a l'administrateur. Le RH consulte
+// les dossiers mais ne peut ni en ajouter ni en supprimer.
 $router->get('/employees/create', function() use ($auth) {
-    $auth->requireRole(['admin', 'rh']);
+    $auth->requireRole(['admin']);
     $controller = new EmployeeController();
     $controller->create();
 });
 
 $router->post('/employees/create', function() use ($auth) {
-    $auth->requireRole(['admin', 'rh']);
+    $auth->requireRole(['admin']);
     $controller = new EmployeeController();
     $controller->create();
 });
@@ -107,7 +109,7 @@ $router->post('/employees/edit/{id}', function($id) use ($auth) {
 });
 
 $router->post('/employees/delete/{id}', function($id) use ($auth) {
-    $auth->requireRole(['admin', 'rh']);
+    $auth->requireRole(['admin']);
     $controller = new EmployeeController();
     $controller->delete($id);
 });
@@ -164,6 +166,19 @@ $router->get('/presences/qr-code', function() use ($auth) {
     $auth->checkAuth();
     $controller = new PresenceController();
     $controller->jetonQr();
+});
+
+$router->get('/presences/qr-statut', function() use ($auth) {
+    $auth->checkAuth();
+    $controller = new PresenceController();
+    $controller->qrStatut();
+});
+
+// Espace salarie : fiche personnelle en lecture seule (aucun id en URL).
+$router->get('/mon-profil', function() use ($auth) {
+    $auth->checkAuth();
+    $controller = new EmployeeController();
+    $controller->monProfil();
 });
 
 $router->get('/presences/scan', function() use ($auth) {
