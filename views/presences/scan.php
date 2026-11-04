@@ -113,6 +113,9 @@
         .camera.on .reticle { opacity: 1; }
 
         .actions { display: flex; gap: 10px; margin-top: 14px; }
+        .scan-statut { margin-top: 10px; font-size: 12px; color: #98a2c4; min-height: 18px; line-height: 1.4; }
+        .scan-statut.ok { color: #86efac; font-weight: 600; }
+        .scan-statut.err { color: #fca5a5; }
         .btn {
             height: 44px;
             padding: 0 18px;
@@ -144,6 +147,7 @@
         .saisie-row { display: flex; gap: 10px; }
         .saisie input {
             flex: 1;
+            min-width: 0;
             height: 44px;
             padding: 0 14px;
             font-size: 13px;
@@ -155,6 +159,11 @@
             outline: none;
         }
         .saisie input:focus { border-color: rgba(23, 105, 170, .85); box-shadow: 0 0 0 4px rgba(23, 105, 170, .18); }
+        .saisie input.code-court { flex: 0 0 110px; text-align: center; letter-spacing: .18em; }
+        @media (max-width: 520px) {
+            .saisie-row { flex-wrap: wrap; }
+            .saisie-row input, .saisie-row .btn { flex: 1 1 100% !important; }
+        }
         .aide { margin-top: 8px; font-size: 11px; color: #7c86ab; line-height: 1.5; }
 
         /* Résultat */
@@ -266,6 +275,7 @@
                 <button type="button" class="btn btn-primary" id="btnCamera">Activer la caméra</button>
                 <button type="button" class="btn" id="btnPause" disabled>Pause</button>
             </div>
+            <div class="scan-statut" id="scanStatut" aria-live="polite"></div>
 
             <div class="saisie">
                 <label>Lecteur code-barres / saisie manuelle du code</label>
@@ -273,7 +283,17 @@
                     <input type="text" id="codeInput" placeholder="Le code s'inscrit ici via le lecteur…" autocomplete="off">
                     <button type="button" class="btn" id="btnValider">Pointer</button>
                 </div>
-                <div class="aide">Le lecteur USB se comporte comme un clavier : scannez le QR, puis « Pointer ». Le code n'est jamais affiché sur le téléphone de l'employé.</div>
+                <div class="aide">Le lecteur USB se comporte comme un clavier : scannez le QR, puis « Pointer ». Le jeton du QR n'est jamais affiché en clair.</div>
+            </div>
+
+            <div class="saisie">
+                <label>Code de secours — matricule + code à 6 chiffres (sans caméra)</label>
+                <div class="saisie-row">
+                    <input type="text" id="matriculeInput" placeholder="Ex. EMP-2026-0001" autocomplete="off">
+                    <input type="text" id="codeCourtInput" class="code-court" placeholder="6 chiffres" inputmode="numeric" maxlength="6" autocomplete="off">
+                    <button type="button" class="btn" id="btnValiderCode">Pointer</button>
+                </div>
+                <div class="aide">Le code change toutes les 30 s : il s'affiche sous le QR, sur le téléphone de l'employé.</div>
             </div>
 
             <div class="resultat" id="resultat" role="status" aria-live="polite" aria-atomic="true">
@@ -341,9 +361,7 @@ function afficher(html, etat) {
 }
 
 /* Traitement d'un code */
-function pointer(code) {
-    var body = new URLSearchParams();
-    body.append('code', code);
+function envoyerPointage(body) {
     body.append('csrf_token', CSRF);
 
     afficher('<div class="attente">Validation…</div>', '');
@@ -389,6 +407,33 @@ function pointer(code) {
         });
 }
 
+function pointer(code) {
+    var body = new URLSearchParams();
+    body.append('code', code);
+    envoyerPointage(body);
+}
+
+/* Pointage sans camera : matricule + code de secours a 6 chiffres. */
+function pointerCode() {
+    var mat = document.getElementById('matriculeInput').value.trim().toUpperCase();
+    var cc = document.getElementById('codeCourtInput').value.replace(/\D/g, '');
+
+    if (mat === '') {
+        afficher('<div><div class="msg">Indiquez le matricule de l\'employé.</div></div>', 'err');
+        return;
+    }
+    if (cc.length !== 6) {
+        afficher('<div><div class="msg">Le code de secours doit comporter 6 chiffres.</div></div>', 'err');
+        return;
+    }
+
+    var body = new URLSearchParams();
+    body.append('matricule', mat);
+    body.append('code_court', cc);
+    document.getElementById('codeCourtInput').value = '';
+    envoyerPointage(body);
+}
+
 /* Journal */
 function rechargerJournal() {
     fetch(window.location.href, { credentials: 'same-origin', cache: 'no-store' })
@@ -407,9 +452,17 @@ function rechargerJournal() {
 var video = document.getElementById('video');
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d', { willReadFrequently: true });
+var statutEl = document.getElementById('scanStatut');
 var actif = false;
 var stream = null;
 var dernierScan = 0;
+var imagesAnalysees = 0;
+
+function etatScan(texte, classe) {
+    if (!statutEl) return;
+    statutEl.textContent = texte;
+    statutEl.className = 'scan-statut' + (classe ? ' ' + classe : '');
+}
 
 function scanner(respecterPause) {
     if (!actif) return;
@@ -417,13 +470,27 @@ function scanner(respecterPause) {
     if (respecterPause && Date.now() - dernierScan < 900) return;
     if (!video.videoWidth) return;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    /* Redimensionner a 800 px max : jsQR decode beaucoup plus vite sur mobile. */
+    var largeurCible = Math.min(800, video.videoWidth);
+    var ratio = largeurCible / video.videoWidth;
+    canvas.width = Math.round(video.videoWidth * ratio);
+    canvas.height = Math.round(video.videoHeight * ratio);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     var img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    var res = window.jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+    var res = null;
+    try {
+        res = window.jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+    } catch (e) {
+        etatScan('Erreur de décodage : ' + (e && e.message ? e.message : 'inconnue'), 'err');
+        return;
+    }
+    imagesAnalysees++;
+    if (imagesAnalysees % 25 === 0 && !res) {
+        etatScan('Analyse… ' + imagesAnalysees + ' images (' + canvas.width + '×' + canvas.height + ')');
+    }
     if (res && res.data) {
+        etatScan('QR détecté — validation…', 'ok');
         dernierScan = Date.now();
         actif = false;
         document.getElementById('btnPause').disabled = true;
@@ -439,22 +506,51 @@ document.getElementById('btnCamera').addEventListener('click', function () {
         document.getElementById('camera').classList.remove('on');
         this.textContent = 'Activer la caméra';
         document.getElementById('btnPause').disabled = true;
+        etatScan('');
         return;
     }
+    /* Les navigateurs n'autorisent la camera qu'en HTTPS (ou sur localhost).
+       Sans ce garde-fou, l'acces direct a navigator.mediaDevices echoue en
+       silence sur une adresse http:// du reseau local. */
+    if (!window.isSecureContext || !navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        etatScan('Caméra bloquée : page non sécurisée. Ouvrez-la en https://', 'err');
+        afficher('<div><div class="msg">Caméra bloquée : cette page doit être ouverte en HTTPS.</div>' +
+            '<div class="info" style="margin-top:6px;">Remplacez « http:// » par « https:// » dans l\'adresse, acceptez le certificat, puis réessayez. Sinon utilisez le lecteur / la saisie manuelle.</div></div>', 'err');
+        return;
+    }
+    etatScan('Demande d\'accès à la caméra…');
     navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } } })
         .then(function (s) {
             stream = s;
             video.srcObject = s;
-            video.play();
+            var lecture = video.play();
+            if (lecture && lecture.catch) {
+                lecture.catch(function () {
+                    etatScan('Flux caméra chargé mais lecture refusée. Touchez à nouveau « Activer la caméra ».', 'err');
+                });
+            }
             actif = true;
+            imagesAnalysees = 0;
             document.getElementById('camera').classList.add('on');
             document.getElementById('btnPause').disabled = false;
             this.textContent = 'Désactiver la caméra';
+            etatScan('Caméra active — présentez le QR dans le cadre.');
         }.bind(this))
-        .catch(function () {
-            afficher('<div><div class="msg">Caméra inaccessible. Autorisez l\'accès caméra, ou utilisez le lecteur / la saisie manuelle.</div></div>', 'err');
+        .catch(function (err) {
+            var motif = err && err.name ? err.name : 'inconnue';
+            etatScan('Caméra inaccessible (' + motif + ').', 'err');
+            afficher('<div><div class="msg">Caméra inaccessible (' + esc(motif) + ').</div>' +
+                '<div class="info" style="margin-top:6px;">Autorisez l\'accès caméra dans le navigateur, ou utilisez le lecteur / la saisie manuelle.</div></div>', 'err');
         });
 });
+
+/* Message preventif : en HTTP, la camera restera bloquee par le navigateur. */
+if (!window.isSecureContext) {
+    var phScan = document.getElementById('placeholder');
+    if (phScan) {
+        phScan.innerHTML = 'Caméra indisponible en HTTP.<br>Ouvrez cette page en <strong>https://</strong> pour scanner, ou utilisez la saisie manuelle ci-dessous.';
+    }
+}
 
 document.getElementById('btnPause').addEventListener('click', function () {
     actif = !actif;
@@ -473,6 +569,19 @@ document.getElementById('codeInput').addEventListener('keydown', function (ev) {
         ev.preventDefault();
         document.getElementById('btnValider').click();
     }
+});
+
+document.getElementById('btnValiderCode').addEventListener('click', pointerCode);
+
+['matriculeInput', 'codeCourtInput'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter') {
+            ev.preventDefault();
+            pointerCode();
+        }
+    });
 });
 
 /* Confort de la borne : plein ecran, ecran allume, journal actualise. */

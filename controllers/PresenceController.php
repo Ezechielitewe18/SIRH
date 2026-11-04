@@ -160,6 +160,9 @@ class PresenceController {
         $jeton = $this->qrcodeModel->genererJeton($employeeId);
         $jeton['success'] = true;
         $jeton['periode_duree'] = QR_PERIODE;
+        $jeton['code_court'] = $this->qrcodeModel->codeCourt($employeeId, $jeton['periode']);
+        $employe = $this->employeeModel->findById($employeeId);
+        $jeton['matricule'] = $employe['matricule'] ?? '';
         echo json_encode($jeton);
     }
 
@@ -224,13 +227,31 @@ public function scanValider() {
         return;
     }
 
-    $code = $_POST['code'] ?? '';
-    if (trim($code) === '') {
+    $code = trim((string) ($_POST['code'] ?? ''));
+    $matricule = trim((string) ($_POST['matricule'] ?? ''));
+    $codeCourt = trim((string) ($_POST['code_court'] ?? ''));
+    $source = 'qr';
+
+    if ($code !== '') {
+        $validation = $this->qrcodeModel->validerJeton($code);
+    } elseif ($matricule !== '' || $codeCourt !== '') {
+        /* Pointage sans camera : matricule + code de secours a 6 chiffres. */
+        $source = 'code';
+        if ($this->tropDEssaisCode()) {
+            echo json_encode(['success' => false, 'message' => 'Trop d\'essais de code. Patientez une minute avant de réessayer.']);
+            return;
+        }
+        $validation = $this->qrcodeModel->validerCodeCourt($matricule, $codeCourt);
+        if ($validation['success']) {
+            $_SESSION['code_essais'] = [];
+        } else {
+            $this->enregistrerEssaiCode();
+        }
+    } else {
         echo json_encode(['success' => false, 'message' => 'Aucun code reçu.']);
         return;
     }
 
-    $validation = $this->qrcodeModel->validerJeton($code);
     if (!$validation['success']) {
         echo json_encode($validation);
         return;
@@ -261,8 +282,9 @@ public function scanValider() {
 
     if ($resultat['success']) {
         $log = new LogModel();
+        $prefixe = $source === 'code' ? 'Pointage code' : 'Scan QR';
         $log->log(
-            $resultat['action'] === 'depart' ? 'Scan QR depart' : 'Scan QR arrivee',
+            $prefixe . ($resultat['action'] === 'depart' ? ' depart' : ' arrivee'),
             $employe['prenom'] . ' ' . $employe['nom'] . ' (' . $employe['matricule'] . ')',
             'presences'
         );
@@ -274,7 +296,28 @@ public function scanValider() {
         'prenom' => $employe['prenom'],
         'matricule' => $employe['matricule'],
     ];
+    $resultat['source'] = $source;
     echo json_encode($resultat);
+}
+
+/**
+ * Limite les essais de code de secours : 10 echecs par minute et par session.
+ * Empeche de deviner un code a 6 chiffres en boucle.
+ */
+private function tropDEssaisCode() {
+    $limite = time() - 60;
+    $essais = $_SESSION['code_essais'] ?? [];
+    $essais = array_values(array_filter($essais, function ($t) use ($limite) {
+        return (int) $t > $limite;
+    }));
+    $_SESSION['code_essais'] = $essais;
+    return count($essais) >= 10;
+}
+
+private function enregistrerEssaiCode() {
+    $essais = $_SESSION['code_essais'] ?? [];
+    $essais[] = time();
+    $_SESSION['code_essais'] = $essais;
 }
 
 private function requireManager() {

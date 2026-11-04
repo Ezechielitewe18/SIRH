@@ -169,6 +169,31 @@
         .chrono { font-size: .78rem; color: var(--qr-muted); }
         .chrono b { color: var(--qr-blue); font-size: .95rem; }
 
+        .code-secours {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border: 1px dashed var(--qr-line);
+            border-radius: 12px;
+            background: #f7fbff;
+            text-align: center;
+        }
+        .code-secours .libelle {
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--qr-muted);
+            font-weight: 700;
+        }
+        .code-secours .valeur {
+            font-size: 1.9rem;
+            font-weight: 800;
+            letter-spacing: .26em;
+            color: var(--qr-blue);
+            margin: 4px 0 2px;
+            font-variant-numeric: tabular-nums;
+        }
+        .code-secours .aide { font-size: .72rem; color: #7b8a9c; line-height: 1.45; }
+
         .consigne {
             margin-top: 16px;
             font-size: .86rem;
@@ -274,7 +299,13 @@
         <div class="jauge" aria-hidden="true"><span id="barre"></span></div>
         <div class="chrono">Changement de code dans <b id="restant"><?= QR_PERIODE ?></b> s</div>
 
-        <div class="consigne">Scannez ce QR avec le poste de la réception : votre <strong>arrivée</strong> sera enregistrée à l'instant du scan. Un second scan pointera votre <strong>départ</strong>.</div>
+        <div class="code-secours" aria-live="polite">
+            <div class="libelle">Code de secours (sans caméra)</div>
+            <div class="valeur" id="codeCourt">------</div>
+            <div class="aide">Donnez votre matricule <strong><?= htmlspecialchars($employe['matricule']) ?></strong> et ce code à la réception.</div>
+        </div>
+
+        <div class="consigne">Scannez ce QR avec le poste de la réception : votre <strong>arrivée</strong> sera enregistrée à l'instant du scan. Un second scan pointera votre <strong>départ</strong>. Sans caméra, la réception peut saisir votre matricule et le code de secours ci-dessous.</div>
 
         <div id="etatJour" aria-live="polite">
         <?php if (!$maPresence): ?>
@@ -306,7 +337,7 @@
         <?php endif; ?>
         </div>
 
-        <div class="note">Sécurité : ce code est signé par le serveur et expire après <?= QR_PERIODE ?> secondes. Une photo ou un envoi à distance ne peut pas servir à pointer une présence.</div>
+        <div class="note">Sécurité : le QR et le code de secours sont signés par le serveur et changent toutes les <?= QR_PERIODE ?> secondes. Un code photographié ou transmis à distance ne peut pas servir longtemps à pointer une présence.</div>
 
         <div class="actions">
             <a class="btn btn-outline" href="<?= APP_URL ?>/presences"><i class="fas fa-arrow-left" aria-hidden="true"></i> Présences</a>
@@ -358,6 +389,8 @@
                 if (!j || !j.success) return;
                 expireLe = j.expire_le * 1000;
                 dessiner(j.code);
+                var cc = document.getElementById('codeCourt');
+                if (cc && j.code_court) cc.textContent = j.code_court;
                 tick();
             })
             .catch(function () { });

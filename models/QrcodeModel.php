@@ -84,13 +84,94 @@ class QrcodeModel extends Model {
     }
 
     /**
+     * Code de secours a 6 chiffres, derive du meme secret et de la meme
+     * periode que le QR. Il permet de pointer sans camera : la reception
+     * saisit le matricule de l'employe puis ce code.
+     */
+    public function codeCourt($id_employe, $periode = null) {
+        $id = (int) $id_employe;
+        $secret = $this->ensureSecret($id);
+        if ($periode === null) {
+            $periode = $this->periodeCourante();
+        }
+        return $this->deriverCodeCourt($id, $secret, (int) $periode);
+    }
+
+    /** Resume public d'un employe : jamais de secret ni de donnees sensibles. */
+    private function resumeEmploye($employe) {
+        if (!$employe) {
+            return null;
+        }
+        return [
+            'id_employe' => $employe['id_employe'],
+            'matricule' => $employe['matricule'],
+            'nom' => $employe['nom'],
+            'prenom' => $employe['prenom'],
+        ];
+    }
+
+    private function deriverCodeCourt($id, $secret, $periode) {
+        $hash = hash_hmac('sha256', 'SIRHCODE1|' . (int) $id . '|' . (int) $periode, $secret);
+        $valeur = hexdec(substr($hash, 0, 8)) % 1000000;
+        return str_pad((string) $valeur, 6, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Valide un code de secours saisi a la reception (matricule + 6 chiffres).
+     * Accepte la periode courante et la fenetre de tolerance QR_FENETRE.
+     * Retourne ['success' => bool, 'message' => string, 'employe' => row|null].
+     */
+    public function validerCodeCourt($matricule, $code) {
+        $matricule = trim((string) $matricule);
+        $code = preg_replace('/\D/', '', (string) $code);
+
+        $echec = function ($message, $employe = null) {
+            return ['success' => false, 'message' => $message, 'employe' => $this->resumeEmploye($employe)];
+        };
+
+        if ($matricule === '' || strlen($code) !== 6) {
+            return $echec('Indiquez le matricule et le code a 6 chiffres affiche par l\'employe.');
+        }
+
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE matricule = :m");
+        $stmt->execute(['m' => $matricule]);
+        $employe = $stmt->fetch();
+
+        if (!$employe) {
+            return $echec('Matricule inconnu : verifiez la saisie.');
+        }
+        if (($employe['statut'] ?? '') !== 'actif') {
+            return $echec($employe['prenom'] . ' ' . $employe['nom'] . ' n\'est pas un employe actif.', $employe);
+        }
+
+        $secret = $this->getSecret($employe['id_employe']);
+        if ($secret === null) {
+            return $echec('Code de secours non configure pour cet employe.', $employe);
+        }
+
+        $periodeActuelle = $this->periodeCourante();
+        for ($p = $periodeActuelle - QR_FENETRE; $p <= $periodeActuelle + QR_FENETRE; $p++) {
+            if (hash_equals($this->deriverCodeCourt($employe['id_employe'], $secret, $p), $code)) {
+                return [
+                    'success' => true,
+                    'message' => 'Authentification reussie.',
+                    'employe' => $this->resumeEmploye($employe),
+                    'periode' => $p,
+                ];
+            }
+        }
+
+        return $echec('Code incorrect ou expire : demandez a l\'employe d\'actualiser son ecran.', $employe);
+    }
+
+    /**
      * Valide un jeton scanne par la reception.
      * Retourne ['success' => bool, 'message' => string, 'employe' => row|null].
      */
     public function validerJeton($code) {
         $code = trim((string) $code);
         $echec = function ($message, $employe = null) {
-            return ['success' => false, 'message' => $message, 'employe' => $employe];
+            return ['success' => false, 'message' => $message, 'employe' => $this->resumeEmploye($employe)];
         };
 
         $parts = explode('|', $code);
@@ -133,7 +214,7 @@ class QrcodeModel extends Model {
         return [
             'success' => true,
             'message' => 'Authentification reussie.',
-            'employe' => $employe,
+            'employe' => $this->resumeEmploye($employe),
             'periode' => $periode,
         ];
     }
