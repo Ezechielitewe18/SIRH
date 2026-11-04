@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIRH — Guide de l'exposition</title>
+<style>
+  :root {
+    --bleu: #1769aa;
+    --encre: #1c2b3a;
+    --gris: #5b6b7c;
+    --ligne: #d7e2ec;
+    --fond: #f6f9fc;
+  }
+  * { box-sizing: border-box; }
+  html { font-size: 16px; }
+  body {
+    margin: 0;
+    background: var(--fond);
+    color: var(--encre);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+  }
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 46px 54px 60px;
+    box-shadow: 0 10px 40px rgba(20, 50, 80, .10);
+  }
+  header.doc {
+    border-bottom: 4px solid var(--bleu);
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+  }
+  header.doc .marque {
+    font-size: .72rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--bleu);
+    font-weight: 700;
+  }
+  header.doc h1 {
+    margin: 8px 0 6px;
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  header.doc p { margin: 0; color: var(--gris); }
+  h2 {
+    margin: 40px 0 12px;
+    font-size: 1.22rem;
+    color: var(--bleu);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--ligne);
+  }
+  h3 { margin: 22px 0 8px; font-size: 1rem; }
+  p { margin: 10px 0; }
+  ul, ol { margin: 10px 0 10px 22px; padding: 0; }
+  li { margin: 5px 0; }
+  strong { color: #0f3f66; }
+  .resume {
+    background: #eef6fd;
+    border-left: 5px solid var(--bleu);
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin: 18px 0;
+  }
+  pre {
+    background: #0f2233;
+    color: #d8e8f5;
+    padding: 16px 18px;
+    border-radius: 8px;
+    font-size: .78rem;
+    line-height: 1.5;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: .92rem;
+  }
+  th, td {
+    border: 1px solid var(--ligne);
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: #eaf2f9; font-weight: 600; }
+  tbody tr:nth-child(even) { background: #fbfdff; }
+  .checklist { list-style: none; margin-left: 0; }
+  .checklist li { position: relative; padding-left: 28px; }
+  .checklist li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 5px;
+    width: 15px; height: 15px;
+    border: 2px solid #9db4c8;
+    border-radius: 3px;
+  }
+  .note {
+    border: 1px dashed #b9cee0;
+    background: #f8fbfe;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: .93rem;
+  }
+  .cle {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: #fff;
+    border: 1px solid var(--ligne);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 8px 0;
+  }
+  .cle b.num {
+    flex: 0 0 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--bleu);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .85rem;
+  }
+  footer.doc {
+    margin-top: 46px;
+    padding-top: 16px;
+    border-top: 1px solid var(--ligne);
+    font-size: .8rem;
+    color: var(--gris);
+  }
+  @media print {
+    body { background: #fff; }
+    .page { box-shadow: none; max-width: none; padding: 0 10mm; margin: 0; }
+    h2 { page-break-after: avoid; }
+    table, pre, .cle, .resume { page-break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+  }
+  @media (max-width: 640px) {
+    .page { padding: 26px 18px 40px; }
+    header.doc h1 { font-size: 1.5rem; }
+    table { font-size: .82rem; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc">
+    <div class="marque">GLOBIT SAS · Document interne</div>
+    <h1>SIRH — Guide de l'exposition</h1>
+    <p>Comment l'application est rendue accessible sur Internet, et comment l'équipe doit s'en servir le jour J.</p>
+  </header>
+
+  <div class="resume">
+    <strong>L'idée en une phrase.</strong> L'application tourne sur <strong>notre PC</strong>.
+    Un petit programme, <strong>cloudflared</strong>, ouvre une liaison permanente vers
+    <strong>Cloudflare</strong>, qui lui donne une <strong>adresse publique en HTTPS</strong>.
+    Les visiteurs passent par Cloudflare, qui amène leurs requêtes jusqu'à notre PC.
+    <br><br>
+    <em>Notre PC est le serveur. Cloudflare est le standard téléphonique qui reçoit les appels et nous les transfère.</em>
+  </div>
+
+  <h2>1. Le trajet d'une visite</h2>
+<pre>
+   VISITEUR (4G, Wi-Fi du salon, n'importe où)
+        |  https://....trycloudflare.com/SIRH
+        v
+   CLOUDFLARE            &lt;- possède l'adresse publique et le cadenas HTTPS
+        ^
+        |  liaison ouverte en permanence,
+        |  lancée par NOTRE PC (vers l'extérieur)
+        |
+   == INTERNET ==
+        |
+   BOX / WI-FI           &lt;- laisse sortir la liaison, rien à configurer
+        |
+   NOTRE PC
+   cloudflared -> Apache -> PHP -> MySQL
+</pre>
+  <p>
+    C'est notre PC qui « appelle » Cloudflare, pas l'inverse. C'est pour cela qu'il n'y a
+    <strong>aucun port à ouvrir</strong> sur la box et que cela fonctionne derrière n'importe
+    quelle connexion : box, 4G, Wi-Fi du salon.
+  </p>
+
+  <h2>2. Les trois pièces du dispositif</h2>
+  <table>
+    <thead>
+      <tr><th>Pièce</th><th>Rôle</th><th>Si elle s'arrête</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Apache + MySQL</strong> (XAMPP)</td><td>Exécute le site et stocke les données</td><td>Le site ne répond plus, même en local</td></tr>
+      <tr><td><strong>cloudflared</strong></td><td>Relaie le trafic entre Cloudflare et le PC</td><td>Le lien public meurt ; le réseau local continue</td></tr>
+      <tr><td><strong>Cloudflare</strong></td><td>Point d'entrée public et HTTPS</td><td>Plus d'accès depuis Internet</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Rien n'est stocké chez Cloudflare.</strong> Cloudflare transporte seulement. Les employés, les présences, les QR : tout reste sur notre PC, dans MySQL.</p>
+
+  <h2>3. Ce que les visiteurs ont besoin — et pas besoin</h2>
+  <table>
+    <thead><tr><th>Question</th><th>Réponse</th></tr></thead>
+    <tbody>
+      <tr><td>Doivent-ils être sur notre Wi-Fi ?</td><td><strong>Non.</strong> N'importe quelle connexion Internet suffit.</td></tr>
+      <tr><td>Ont-ils besoin d'un compte ?</td><td><strong>Oui.</strong> Sans identifiants, ils ne voient que la page de connexion.</td></tr>
+      <tr><td>Voient-ils les vraies données ?</td><td><strong>Oui.</strong> C'est une vraie base — d'où les règles de sécurité.</td></tr>
+      <tr><td>Notre Wi-Fi sert-il à quelque chose ?</td><td>Seulement au <strong>plan de secours</strong> (section 5).</td></tr>
+    </tbody>
+  </table>
+  <p>
+    Le Wi-Fi local ne transporte pas le trafic des visiteurs. Il ne transporte qu'<strong>un seul flux</strong> :
+    celui entre notre PC et Cloudflare. Tous les visiteurs le partagent — c'est notre bande passante
+    montante qui fixe la limite.
+  </p>
+
+  <h2>4. Le jour J — check-list</h2>
+
+  <h3>La veille (J-1)</h3>
+  <ul class="checklist">
+    <li>PC branché sur secteur, mises en veille désactivées (écran et veille système).</li>
+    <li>XAMPP démarre bien : <strong>Apache</strong> et <strong>MySQL</strong> en vert.</li>
+    <li><code>http://localhost/SIRH/login</code> s'ouvre.</li>
+    <li>Test du QR + code de secours sur un téléphone.</li>
+    <li>La base ne contient <strong>aucune donnée de test</strong> (présences de démo supprimées).</li>
+    <li>Mots de passe à jour, notés dans un endroit sûr (jamais dans ce document).</li>
+  </ul>
+
+  <h3>Le matin (H-30)</h3>
+  <ul class="checklist">
+    <li>Démarrer <strong>Apache</strong> et <strong>MySQL</strong>.</li>
+    <li>Double-cliquer sur <strong>SIRH - Tunnel expo.cmd</strong> (sur le Bureau).</li>
+    <li>Dans la fenêtre noire, repérer la ligne <code>https://........trycloudflare.com</code>.</li>
+    <li><strong>Laisser cette fenêtre ouverte</strong> — la réduire, jamais la fermer.</li>
+    <li>Tester le lien complet depuis un téléphone <strong>en 4G</strong> (donc hors de notre Wi-Fi).</li>
+    <li>Écrire l'adresse finale sur un papier ou un tableau visible par l'équipe.</li>
+  </ul>
+
+  <h3>Pendant</h3>
+  <ul class="checklist">
+    <li>Personne ne redémarre le PC, ne ferme XAMPP, ne ferme la fenêtre du tunnel.</li>
+    <li>Un référent garde un œil sur la page de connexion toutes les heures.</li>
+    <li>Les comptes de démonstration sont utilisés pour les visiteurs.</li>
+  </ul>
+
+  <h3>À la fin</h3>
+  <ul class="checklist">
+    <li>Fermer la fenêtre du tunnel (le lien public cesse immédiatement).</li>
+    <li>Supprimer les données créées pendant la démo (présences, comptes visiteurs).</li>
+    <li>Éteindre normalement, puis retirer le dispositif de sécurité (section 7).</li>
+  </ul>
+
+  <h2>5. Si quelque chose ne va pas</h2>
+  <table>
+    <thead><tr><th>Symptôme</th><th>Cause probable</th><th>Que faire</th></tr></thead>
+    <tbody>
+      <tr><td>Le lien public affiche une erreur</td><td>Fenêtre du tunnel fermée</td><td>Relancer <code>SIRH - Tunnel expo.cmd</code></td></tr>
+      <tr><td>Le lien public ne répond plus du tout</td><td>PC en veille / Wi-Fi coupé / Internet tombé</td><td>Réveiller le PC, vérifier la connexion, relancer le tunnel</td></tr>
+      <tr><td>Page blanche ou erreur 500</td><td>MySQL arrêté</td><td>Panneau XAMPP → démarrer MySQL</td></tr>
+      <tr><td>« Impossible de se connecter » en local</td><td>Apache arrêté</td><td>Panneau XAMPP → démarrer Apache</td></tr>
+      <tr><td>La caméra ne s'ouvre pas</td><td>Page ouverte en <code>http://</code> au lieu de <code>https://</code></td><td>Utiliser le lien <code>https://</code> du tunnel</td></tr>
+      <tr><td>L'adresse a changé</td><td>Le tunnel a été relancé</td><td>Relire la nouvelle adresse dans la fenêtre, la réécrire</td></tr>
+    </tbody>
+  </table>
+  <div class="note">
+    <strong>Règle d'or :</strong> on ne « répare » jamais en touchant à la base de données pendant
+    l'exposition. On redémarre le minimum (tunnel, puis Apache/MySQL si besoin) et on note ce qui s'est passé.
+  </div>
+
+  <h2>6. Plan de secours : le réseau local</h2>
+  <p>
+    Si le tunnel tombe et qu'Internet est indisponible, l'application reste joignable sur le réseau local :
+    <code>http://&lt;IP-du-PC&gt;/SIRH</code>. Les appareils doivent alors être connectés
+    <strong>au même Wi-Fi</strong> que le PC. Deux limites : l'adresse IP peut changer, et la caméra
+    du téléphone exige HTTPS (utiliser alors le matricule + code de secours).
+  </p>
+
+  <h2>7. Règles de sécurité</h2>
+  <ol>
+    <li><strong>On ne donne jamais le compte administrateur</strong> à un visiteur.</li>
+    <li>On utilise un <strong>compte de démonstration</strong> dédié pour les essayages.</li>
+    <li><strong>On n'ouvre pas phpMyAdmin</strong> devant le public — il est bloqué depuis Internet, mais reste accessible en local.</li>
+    <li><strong>On ne montre pas</strong> l'écran des mots de passe ni les fichiers de configuration.</li>
+    <li><strong>On ne laisse pas</strong> un poste connecté sans surveillance sur une session admin.</li>
+    <li>Un visiteur qui insiste pour « voir la base » : réponse polie, c'est non.</li>
+    <li>À la fin de chaque démonstration : <strong>déconnexion</strong> du poste.</li>
+  </ol>
+  <div class="note">
+    Les mots de passe ne figurent <strong>jamais</strong> dans un document versionné. Ils sont communiqués
+    séparément, de vive voix ou par un canal privé.
+  </div>
+
+  <h2>8. Après l'exposition — retour à la normale</h2>
+  <p>Le dispositif d'exposition est <strong>temporaire</strong>. Pour le retirer :</p>
+  <ol>
+    <li>Fermer la fenêtre du tunnel (ou arrêter <code>cloudflared</code>).</li>
+    <li>Supprimer <code>C:\xampp\htdocs\.htaccess</code> (blocage des chemins hors <code>/SIRH</code> via tunnel).</li>
+    <li>Restaurer <code>C:\xampp\apache\conf\httpd.conf.bak-expo</code> à la place de <code>httpd.conf</code>.</li>
+    <li>Redémarrer Apache.</li>
+  </ol>
+  <p>L'application redevient alors strictement locale, exactement comme avant.</p>
+
+  <h2>9. Questions que les visiteurs vont poser</h2>
+  <p><strong>« C'est hébergé où ? »</strong><br>
+  Sur notre serveur, ici. Cloudflare sert seulement de porte d'entrée sécurisée.</p>
+  <p><strong>« Pourquoi le QR change tout le temps ? »</strong><br>
+  Pour qu'une photo ou un code envoyé par message ne puisse pas servir à pointer à la place de quelqu'un.
+  Le code n'est valable que quelques secondes.</p>
+  <p><strong>« Et si je n'ai pas de caméra ? »</strong><br>
+  La réception saisit le matricule et le code à 6 chiffres affiché sous le QR.</p>
+  <p><strong>« Est-ce que je peux me connecter depuis chez moi ? »</strong><br>
+  Oui, tant que le PC de l'exposition est allumé et que le lien est actif. Après l'exposition, l'accès public est fermé.</p>
+  <p><strong>« Mes données sont-elles en sécurité ? »</strong><br>
+  Le trafic est chiffré (HTTPS). Le QR ne contient jamais le secret de l'employé, et l'application ne renvoie
+  que le strict nécessaire en cas d'erreur.</p>
+
+  <h2>10. Les 5 phrases à retenir</h2>
+  <div class="cle"><b class="num">1</b><div><strong>Le PC est le serveur</strong> ; Cloudflare n'est qu'une porte d'entrée.</div></div>
+  <div class="cle"><b class="num">2</b><div><strong>Les visiteurs n'ont pas besoin de notre Wi-Fi</strong>, juste d'Internet.</div></div>
+  <div class="cle"><b class="num">3</b><div><strong>Trois choses doivent rester allumées</strong> : Apache, MySQL, la fenêtre du tunnel.</div></div>
+  <div class="cle"><b class="num">4</b><div><strong>Le Wi-Fi local est le plan de secours</strong>, pas le mode normal.</div></div>
+  <div class="cle"><b class="num">5</b><div><strong>Le dispositif est temporaire</strong> : on le retire après l'exposition.</div></div>
+
+  <footer class="doc">
+    Document interne GLOBIT SAS — exposition SIRH. Version source : <code>docs/EXPO-TUNNEL.md</code>.
+  </footer>
+
+</div>
+</body>
+</html>
