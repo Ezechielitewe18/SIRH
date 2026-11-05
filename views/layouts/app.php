@@ -21,7 +21,7 @@ try {
 }
 
 /* Pages principales : pas de fleche de retour. Toute autre page est secondaire. */
-$primaryPages = ['', 'dashboard', 'employees', 'services', 'presences', 'conges', 'paie', 'formations', 'rapports', 'utilisateurs', 'journal', 'messages', 'notifications', 'guide', 'mon-profil'];
+$primaryPages = ['', 'dashboard', 'employees', 'services', 'presences', 'conges', 'paie', 'formations', 'rapports', 'utilisateurs', 'journal', 'messages', 'notifications', 'guide', 'mon-profil', 'cartes'];
 $isSecondary = !in_array($requestPath, $primaryPages, true);
 
 $backFallbacks = [
@@ -36,6 +36,7 @@ $backFallbacks = [
     'journal' => '/journal',
     'messages' => '/messages',
     'notifications' => '/notifications',
+    'cartes' => '/cartes',
     'about' => '/dashboard',
 ];
 if ($currentModule === 'paie' && $currentAction === 'ma-fiche') {
@@ -156,7 +157,7 @@ $isEmploye = $userRole === 'employe';
 
                     <li class="nav-header">Temps et activités</li>
                     <li class="nav-item">
-                        <a href="<?= APP_URL ?>/presences" class="nav-link <?= $currentModule === 'presences' && !in_array($currentAction, ['qr', 'scan'], true) ? 'active' : '' ?>" <?= $currentModule === 'presences' && !in_array($currentAction, ['qr', 'scan'], true) ? 'aria-current="page"' : '' ?>>
+                        <a href="<?= APP_URL ?>/presences" class="nav-link <?= $currentModule === 'presences' && !in_array($currentAction, ['qr', 'scan', 'lecteur'], true) ? 'active' : '' ?>" <?= $currentModule === 'presences' && !in_array($currentAction, ['qr', 'scan', 'lecteur'], true) ? 'aria-current="page"' : '' ?>>
                             <i class="nav-icon fas fa-fingerprint" aria-hidden="true"></i>
                             <p>Présences</p>
                         </a>
@@ -167,6 +168,12 @@ $isEmploye = $userRole === 'employe';
                         <a href="<?= APP_URL ?>/presences/scan" class="nav-link <?= $currentModule === 'presences' && $currentAction === 'scan' ? 'active' : '' ?>" <?= $currentModule === 'presences' && $currentAction === 'scan' ? 'aria-current="page"' : '' ?>>
                             <i class="nav-icon fas fa-qrcode text-info" aria-hidden="true"></i>
                             <p>Poste de réception</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="<?= APP_URL ?>/presences/lecteur" class="nav-link <?= $currentModule === 'presences' && $currentAction === 'lecteur' ? 'active' : '' ?>" <?= $currentModule === 'presences' && $currentAction === 'lecteur' ? 'aria-current="page"' : '' ?>>
+                            <i class="nav-icon fas fa-id-card text-info" aria-hidden="true"></i>
+                            <p>Pointage RFID</p>
                         </a>
                     </li>
                     <?php endif; ?>
@@ -232,6 +239,12 @@ $isEmploye = $userRole === 'employe';
 
                     <?php if ($isAdmin): ?>
                     <li class="nav-header">Administration</li>
+                    <li class="nav-item">
+                        <a href="<?= APP_URL ?>/cartes" class="nav-link <?= $currentModule === 'cartes' ? 'active' : '' ?>" <?= $currentModule === 'cartes' ? 'aria-current="page"' : '' ?>>
+                            <i class="nav-icon fas fa-id-card text-info" aria-hidden="true"></i>
+                            <p>Cartes RFID</p>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>/utilisateurs" class="nav-link <?= $currentModule === 'utilisateurs' ? 'active' : '' ?>" <?= $currentModule === 'utilisateurs' ? 'aria-current="page"' : '' ?>>
                             <i class="nav-icon fas fa-users-cog text-warning" aria-hidden="true"></i>

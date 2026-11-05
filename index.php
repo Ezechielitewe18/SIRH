@@ -23,6 +23,8 @@ require_once ROOT_PATH . '/controllers/LogController.php';
 require_once ROOT_PATH . '/controllers/RapportController.php';
 require_once ROOT_PATH . '/controllers/MessageController.php';
 require_once ROOT_PATH . '/controllers/GuideController.php';
+require_once ROOT_PATH . '/controllers/CarteController.php';
+require_once ROOT_PATH . '/controllers/PointageReceptionController.php';
 
 require_once ROOT_PATH . '/models/NotificationModel.php';
 require_once ROOT_PATH . '/models/MessageModel.php';
@@ -209,6 +211,50 @@ $router->post('/presences/regulariser', function() use ($auth) {
     $auth->requireRole(['admin', 'rh']);
     $controller = new PresenceController();
     $controller->regulariser();
+});
+
+// --- Cartes RFID (phase 2) ------------------------------------------------
+$router->get('/cartes', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new CarteController();
+    $controller->index();
+});
+
+$router->get('/cartes/create', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new CarteController();
+    $controller->create();
+});
+
+$router->post('/cartes/create', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new CarteController();
+    $controller->create();
+});
+
+$router->post('/cartes/desactiver', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new CarteController();
+    $controller->desactiver();
+});
+
+$router->post('/cartes/remplacer', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new CarteController();
+    $controller->remplacer();
+});
+
+// --- Poste de reception RFID (lecteur USB) --------------------------------
+$router->get('/presences/lecteur', function() use ($auth) {
+    $auth->requireRole(['admin', 'rh']);
+    $controller = new PointageReceptionController();
+    $controller->lecteur();
+});
+
+$router->post('/presences/lecteur', function() use ($auth) {
+    $auth->requireRole(['admin', 'rh']);
+    $controller = new PointageReceptionController();
+    $controller->valider();
 });
 
 $router->get('/conges', function() use ($auth) {

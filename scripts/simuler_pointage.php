@@ -264,6 +264,69 @@ try {
     ]);
     verifier('refuse', ($r['code'] ?? '') === 'dispositif_inactif', $r['code'] ?? '');
 
+    // --- 12. Poste de reception RFID (lecteur USB, sans appareil) ---------
+    echo "\n12. Poste de reception RFID tenu par un operateur admin\n";
+    $empE = creerEmploye($db, 'SIM-E-' . $suffixe);
+    $uidE = '04E4' . $suffixe . 'B3';
+    $carteE = $cartes->attribuer($empE, $uidE, 'Mifare Classic', 'Badge poste reception');
+    verifier('carte attribuee', $carteE['ok'] === true, $carteE['message'] ?? '');
+
+    $admin = $db->query("SELECT id_utilisateur FROM utilisateurs WHERE role = 'admin' AND statut = 'actif' LIMIT 1")->fetch();
+    $r = $moteur->traiter([
+        'source' => 'rfid',
+        'identifiant' => $uidE,
+        'horodatage' => $aujourdhui . ' 08:40:00',
+        'uid_externe' => 'EVT-E-001',
+        'operateur' => $admin ? (int) $admin['id_utilisateur'] : 0,
+    ]);
+    verifier('pointage accepte sans appareil', $r['ok'] === true, $r['message'] ?? '');
+    verifier('action = arrivee', ($r['action'] ?? '') === 'arrivee', $r['action'] ?? '');
+
+    $r = $moteur->traiter([
+        'source' => 'rfid',
+        'identifiant' => $uidE,
+        'horodatage' => $aujourdhui . ' 08:41:00',
+        'uid_externe' => 'EVT-E-002',
+        'operateur' => 0,
+    ]);
+    verifier('refuse sans operateur habilite', ($r['code'] ?? '') === 'dispositif_requis', $r['code'] ?? '');
+
+    // --- 13. Cycle de vie d'une carte -------------------------------------
+    echo "\n13. Cycle de vie d'une carte (perte puis remplacement)\n";
+    $perte = $cartes->desactiver($carteE['id_carte'], 'perdue', 'test simulateur');
+    verifier('carte declaree perdue', $perte['ok'] === true, $perte['message'] ?? '');
+    verifier('carte perdue ne pointe plus', $cartes->employeParUid($uidE) === null, '');
+
+    $uidRemplacement = '04F5' . $suffixe . 'B4';
+    $remplacement = $cartes->remplacer($carteE['id_carte'], $uidRemplacement, 'Mifare Classic', 'Badge de remplacement');
+    verifier('carte remplacee', $remplacement['ok'] === true, $remplacement['message'] ?? '');
+    $ancienne = $cartes->findById($carteE['id_carte']);
+    verifier('ancienne carte conservee (statut remplacee)', ($ancienne['statut'] ?? '') === 'remplacee', $ancienne['statut'] ?? '');
+    verifier('ancienne carte pointe vers la nouvelle', (int) ($ancienne['remplacee_par'] ?? 0) === (int) ($remplacement['id_carte'] ?? 0), '');
+    verifier('nouvelle carte active', $cartes->employeParUid($uidRemplacement) !== null, '');
+
+    // --- 14. Reutilisation d'une ancienne carte ---------------------------
+    echo "\n14. Carte remplacee representee au lecteur\n";
+    $r = $moteur->traiter([
+        'source' => 'rfid',
+        'identifiant' => $uidE,
+        'horodatage' => $aujourdhui . ' 09:10:00',
+        'id_dispositif' => $idDevBio,
+        'uid_externe' => 'EVT-E-003',
+    ]);
+    verifier('refusee (carte remplacee)', ($r['code'] ?? '') === 'carte_remplacee', $r['code'] ?? '');
+
+    // --- 15. Biometrie : jamais de contournement par l'operateur ----------
+    echo "\n15. Biometrie sans terminal declare\n";
+    $r = $moteur->traiter([
+        'source' => 'biometrie',
+        'identifiant' => 'SIM-E-' . $suffixe,
+        'horodatage' => $aujourdhui . ' 09:15:00',
+        'uid_externe' => 'EVT-E-004',
+        'operateur' => $admin ? (int) $admin['id_utilisateur'] : 0,
+    ]);
+    verifier('refusee meme avec un operateur admin', ($r['code'] ?? '') === 'dispositif_requis', $r['code'] ?? '');
+
 } catch (Throwable $e) {
     echo "\nERREUR : " . $e->getMessage() . "\n";
     echo $e->getFile() . ':' . $e->getLine() . "\n";

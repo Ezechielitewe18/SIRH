@@ -94,7 +94,15 @@ class PointageModel extends Model {
             $this->db->prepare("UPDATE dispositifs SET dernier_contact = NOW() WHERE id_dispositif = :id")
                      ->execute(['id' => $idDispositif]);
         } elseif (in_array($source, ['rfid', 'biometrie'], true)) {
-            return $this->echec('dispositif_requis', 'Un pointage ' . $source . ' doit venir d\'un appareil declare.', 403);
+            // Seul le RFID accepte le contournement « poste de reception » :
+            // un lecteur USB clavier n'a pas d'identite reseau et est tenu par
+            // un operateur admin/RH authentifie. La biometrie, elle, exige
+            // toujours un terminal declare : on ne remplace pas une verifier
+            // d'identite par la seule presence d'un operateur.
+            $posteDeReception = $source === 'rfid' && $this->operateurAutorise($evt['operateur'] ?? null);
+            if (!$posteDeReception) {
+                return $this->echec('dispositif_requis', 'Un pointage ' . $source . ' doit venir d\'un appareil declare.', 403);
+            }
         }
 
         // --- 2. Ecriture de l'evenement brut (preuve) -----------------------
@@ -387,6 +395,27 @@ class PointageModel extends Model {
         return $stmt->fetch() ?: null;
     }
 
+    /**
+     * Verifie qu'un identifiant de session correspond a un operateur habilite
+     * a utiliser le poste de reception (lecteur USB « clavier » sans appareil
+     * reseau). Seuls les comptes admin et RH actifs sont acceptes.
+     */
+    private function operateurAutorise($id_utilisateur) {
+        if (!$id_utilisateur) {
+            return false;
+        }
+        $stmt = $this->db->prepare(
+            "SELECT role, statut FROM utilisateurs WHERE id_utilisateur = :id LIMIT 1"
+        );
+        $stmt->execute(['id' => (int) $id_utilisateur]);
+        $utilisateur = $stmt->fetch();
+        if (!$utilisateur) {
+            return false;
+        }
+        return $utilisateur['statut'] === 'actif'
+            && in_array($utilisateur['role'], ['admin', 'rh'], true);
+    }
+
     // ------------------------------------------------------------------
     // Presence du jour
     // ------------------------------------------------------------------
@@ -507,6 +536,34 @@ class PointageModel extends Model {
             return null;
         }
         return date('Y-m-d H:i:s', $ts);
+    }
+
+    /**
+     * Evenements recus pour une date donnee, pour l'ecran de reception.
+     * Lecture seule : aucune donnee n'est modifiee.
+     */
+    public function evenementsDuJour($date = null, $limite = 100) {
+        $date = $date ?: date('Y-m-d');
+        $limite = max(1, min(500, (int) $limite));
+
+        $sql = "SELECT ev.id_evenement, ev.source, ev.type_evenement, ev.horodatage,
+                       ev.statut_traitement, ev.message, ev.identifiant_lu, ev.id_carte,
+                       e.nom, e.prenom, e.matricule,
+                       c.uid_carte, c.statut AS statut_carte,
+                       d.libelle AS dispositif
+                  FROM {$this->table} ev
+                  LEFT JOIN employes e ON ev.id_employe = e.id_employe
+                  LEFT JOIN cartes c ON ev.id_carte = c.id_carte
+                  LEFT JOIN dispositifs d ON ev.id_dispositif = d.id_dispositif
+                 WHERE DATE(ev.horodatage) = :date
+                 ORDER BY ev.id_evenement DESC
+                 LIMIT :lim";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue('date', $date);
+        $stmt->bindValue('lim', $limite, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 
     private function majEvenement($id, array $data) {
