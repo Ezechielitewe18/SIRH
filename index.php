@@ -25,6 +25,7 @@ require_once ROOT_PATH . '/controllers/MessageController.php';
 require_once ROOT_PATH . '/controllers/GuideController.php';
 require_once ROOT_PATH . '/controllers/CarteController.php';
 require_once ROOT_PATH . '/controllers/PointageReceptionController.php';
+require_once ROOT_PATH . '/controllers/DispositifController.php';
 
 require_once ROOT_PATH . '/models/NotificationModel.php';
 require_once ROOT_PATH . '/models/MessageModel.php';
@@ -242,6 +243,55 @@ $router->post('/cartes/remplacer', function() use ($auth) {
     $auth->requireRole(['admin']);
     $controller = new CarteController();
     $controller->remplacer();
+});
+
+// --- Dispositifs de pointage (phase 3) ------------------------------------
+$router->get('/dispositifs', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new DispositifController();
+    $controller->index();
+});
+
+$router->get('/dispositifs/create', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new DispositifController();
+    $controller->create();
+});
+
+$router->post('/dispositifs/create', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new DispositifController();
+    $controller->create();
+});
+
+$router->get('/dispositifs/show/{id}', function($id) use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new DispositifController();
+    $controller->show($id);
+});
+
+$router->post('/dispositifs/revoquer', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new DispositifController();
+    $controller->revoquer();
+});
+
+$router->post('/dispositifs/reactiver', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new DispositifController();
+    $controller->reactiver();
+});
+
+$router->post('/dispositifs/regenerer', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new DispositifController();
+    $controller->regenerer();
+});
+
+$router->post('/dispositifs/tester', function() use ($auth) {
+    $auth->requireRole(['admin']);
+    $controller = new DispositifController();
+    $controller->tester();
 });
 
 // --- Poste de reception RFID (lecteur USB) --------------------------------

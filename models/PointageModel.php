@@ -566,6 +566,26 @@ class PointageModel extends Model {
         return $stmt->fetchAll();
     }
 
+    /** Derniers evenements recus d'un appareil donne (fiche de diagnostic). */
+    public function evenementsDuDispositif($id_dispositif, $limite = 30) {
+        $limite = max(1, min(200, (int) $limite));
+
+        $sql = "SELECT ev.id_evenement, ev.source, ev.type_evenement, ev.horodatage,
+                       ev.statut_traitement, ev.message, ev.identifiant_lu, ev.id_carte,
+                       e.nom, e.prenom, e.matricule
+                  FROM {$this->table} ev
+                  LEFT JOIN employes e ON ev.id_employe = e.id_employe
+                 WHERE ev.id_dispositif = :id
+                 ORDER BY ev.id_evenement DESC
+                 LIMIT :lim";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue('id', (int) $id_dispositif, PDO::PARAM_INT);
+        $stmt->bindValue('lim', $limite, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
     private function majEvenement($id, array $data) {
         return $this->update($id, $data);
     }

@@ -95,6 +95,17 @@ class DispositifModel extends Model {
         return ['ok' => true, 'message' => 'Appareil ' . ($statut === 'maintenance' ? 'mis en maintenance' : 'revoque') . '.'];
     }
 
+    /** Remet un appareil en service apres une maintenance. */
+    public function reactiver($id_dispositif) {
+        $dispositif = $this->findById($id_dispositif);
+        if (!$dispositif) {
+            return ['ok' => false, 'message' => 'Appareil introuvable.'];
+        }
+        $notes = trim((string) $dispositif['notes'] . "\n" . date('Y-m-d H:i') . ' — remise en service');
+        $this->update($id_dispositif, ['statut' => 'actif', 'notes' => $notes]);
+        return ['ok' => true, 'message' => 'Appareil remis en service.'];
+    }
+
     /** Regenere le jeton (perte, vol, suspicion). L'ancien devient inutilisable. */
     public function regenererJeton($id_dispositif) {
         if (!$this->findById($id_dispositif)) {

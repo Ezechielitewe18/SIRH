@@ -21,7 +21,7 @@ try {
 }
 
 /* Pages principales : pas de fleche de retour. Toute autre page est secondaire. */
-$primaryPages = ['', 'dashboard', 'employees', 'services', 'presences', 'conges', 'paie', 'formations', 'rapports', 'utilisateurs', 'journal', 'messages', 'notifications', 'guide', 'mon-profil', 'cartes'];
+$primaryPages = ['', 'dashboard', 'employees', 'services', 'presences', 'conges', 'paie', 'formations', 'rapports', 'utilisateurs', 'journal', 'messages', 'notifications', 'guide', 'mon-profil', 'cartes', 'dispositifs'];
 $isSecondary = !in_array($requestPath, $primaryPages, true);
 
 $backFallbacks = [
@@ -37,6 +37,7 @@ $backFallbacks = [
     'messages' => '/messages',
     'notifications' => '/notifications',
     'cartes' => '/cartes',
+    'dispositifs' => '/dispositifs',
     'about' => '/dashboard',
 ];
 if ($currentModule === 'paie' && $currentAction === 'ma-fiche') {
@@ -243,6 +244,12 @@ $isEmploye = $userRole === 'employe';
                         <a href="<?= APP_URL ?>/cartes" class="nav-link <?= $currentModule === 'cartes' ? 'active' : '' ?>" <?= $currentModule === 'cartes' ? 'aria-current="page"' : '' ?>>
                             <i class="nav-icon fas fa-id-card text-info" aria-hidden="true"></i>
                             <p>Cartes RFID</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="<?= APP_URL ?>/dispositifs" class="nav-link <?= $currentModule === 'dispositifs' ? 'active' : '' ?>" <?= $currentModule === 'dispositifs' ? 'aria-current="page"' : '' ?>>
+                            <i class="nav-icon fas fa-broadcast-tower text-info" aria-hidden="true"></i>
+                            <p>Dispositifs</p>
                         </a>
                     </li>
                     <li class="nav-item">
